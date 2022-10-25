@@ -4,7 +4,7 @@ set -o pipefail
 baseRepo=git@github.com:getodk/central.git
 initialVersion=1.5.3
 targetVersion=not-yet-committed
-testDir="test/$initialVersion-to-$targetVersion"
+testDir="tmp/$initialVersion-to-$targetVersion"
 
 testPrefix="$(basename "$0")"
 log() {
@@ -13,7 +13,7 @@ log() {
 
 log "Cleaning up test directory..."
 rm -rf "$testDir" || true
-mkdir "$testDir"
+mkdir -p "$testDir"
 
 log "Creating test directory..."
 cd "$testDir"
@@ -22,22 +22,43 @@ log "Cloning odk-central git repo..."
 git clone "$baseRepo"
 cd central
 git checkout "v$initialVersion"
-git submodule inito
+git submodule init
 
-log "TODO Cleaning docker-compose..."
+log "Checking for existing containers..." # or are they images?
+# I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
+if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
+  log "!!! WARN !!! docker-compose HAS ALREADY CREATED IMAGES ON THIS SYSTEM:" # or are they containers?
+  docker-compose ps
+  log "!!! WARN !!! THESE IMAGES WILL BE DESTROYED!"
+
+  read -p "Continue (y/n)? " choice
+  case "$choice" in
+    y|Y) echo "OK, images will be destroyed..." ;; # or are they containers?
+    *  ) log "Aborted."; exit 1 ;;
+  esac
+
+  log "Cleaning docker-compose..."
+  docker-compose down
+fi
 
 log "Starting $initialVersion..."
-docker-compose up
+SYSADMIN_EMAIL=no-reply@getodk.org \
+        DOMAIN=local \
+     HTTP_PORT=18080 \
+    HTTPS_PORT=18443 \
+  docker-compose up
 
 confirm_postgres_version 9.6
 
 log "TODO Seeding database..."
-
 confirm_seed_data
 confirm_postgres_version 9.6
 
-log "TODO upgrading central..."
+log "Upgrading central..."
 # see: https://docs.getodk.org/central-upgrade/
+git pull
+git checkout "$targetVersion"
+git submodule update -i
 
 confirm_postgres_version 14
 confirm_seed_data
