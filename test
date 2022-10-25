@@ -1,2 +1,11 @@
-#!/bin/bash
-git ls-files | grep '^#!'
+#!/bin/bash -eu
+
+testPrefix="$(basename "$0")"
+log() {
+  echo "[$testPrefix] $*"
+}
+
+log "Running shellcheck on all scripts..."
+git grep -l '^#!.*sh\b' | xargs shellcheck
+
+log "All OK!"

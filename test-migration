@@ -2,8 +2,8 @@
 set -o pipefail
 
 baseRepo=git@github.com:getodk/central.git
-intialVersion=1.5.3
-intialVersion=not-yet-committed
+initialVersion=1.5.3
+targetVersion=not-yet-committed
 testDir="test/$initialVersion-to-$targetVersion"
 
 testPrefix="$(basename "$0")"
