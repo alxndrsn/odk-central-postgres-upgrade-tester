@@ -1,7 +1,10 @@
 #!/bin/bash -eu
 set -o pipefail
 
+baseRepo=git@github.com:getodk/central.git
 intialVersion=1.5.3
+intialVersion=not-yet-committed
+testDir="test/$initialVersion-to-$targetVersion"
 
 testPrefix="$(basename "$0")"
 log() {
@@ -16,7 +19,7 @@ log "Creating test directory..."
 cd "$testDir"
 
 log "Cloning odk-central git repo..."
-git clone git@github.com:getodk/central.git
+git clone "$baseRepo"
 cd central
 git checkout "v$initialVersion"
 git submodule inito
