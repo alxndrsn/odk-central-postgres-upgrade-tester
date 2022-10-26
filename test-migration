@@ -2,7 +2,7 @@
 set -o pipefail
 
 baseRepo=git@github.com:alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
-initialVersion=1.5.3
+initialVersion=v1.5.3-with-extra-debug
 targetVersion=upgrade-postgres
 testDir="tmp/$initialVersion-to-$targetVersion"
 
@@ -76,11 +76,10 @@ cd "$testDir"
 git config --local advice.detachedHead false
 
 log "Cloning odk-central git repo..."
-tagName="v$initialVersion"
 # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
 git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
 cd central
-git checkout "$tagName"
+git checkout "$initialVersion"
 git submodule init
 
 log "\nChecking for existing containers..." # or are they images?
@@ -97,12 +96,12 @@ if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
   esac
 
   log "Cleaning docker-compose...\n"
-  docker-compose down
+  docker-compose down --remove-orphans
   echo
 fi
 
 log "Starting $initialVersion..."
-docker-compose up -d
+docker-compose up --remove-orphans --detach
 
 wait_for_service_container
 
@@ -121,7 +120,7 @@ docker-compose build
 
 log "Restarting containers..."
 docker-compose stop
-docker-compose up -d
+docker-compose up --remove-orphans --detach
 
 wait_for_service_container
 
