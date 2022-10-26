@@ -6,6 +6,12 @@ initialVersion=1.5.3
 targetVersion=upgrade-postgres
 testDir="tmp/$initialVersion-to-$targetVersion"
 
+# a bunch of env vars for containers
+export SYSADMIN_EMAIL=no-reply@getodk.org
+export DOMAIN=local
+export HTTP_PORT=18080
+export HTTPS_PORT=18443
+
 baseDir="$(pwd)"
 
 testPrefix="$(basename "$0")"
@@ -94,11 +100,7 @@ if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
 fi
 
 log "Starting $initialVersion..."
-SYSADMIN_EMAIL=no-reply@getodk.org \
-        DOMAIN=local \
-     HTTP_PORT=18080 \
-    HTTPS_PORT=18443 \
-  docker-compose up -d
+docker-compose up -d
 
 wait_for_service_container
 
