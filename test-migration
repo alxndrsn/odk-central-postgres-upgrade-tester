@@ -6,14 +6,21 @@ initialVersion=1.5.3
 targetVersion=not-yet-committed
 testDir="tmp/$initialVersion-to-$targetVersion"
 
+baseDir="$(pwd)"
+
 testPrefix="$(basename "$0")"
 log() {
   echo "[$testPrefix] $*"
 }
+warn() {
+  echo
+  log "!!! WARN !!! $*"
+  echo
+}
 
 confirm_postgres_version() {
   local expectedVersion="$1"
-  local actualVersion="$(docker exec -i central_service_1 node -e "$(cat ./get-postgres-version.js)" 2>/dev/tty)"
+  local actualVersion="$(docker exec -i central_service_1 node -e "$(cat "$baseDir/get-postgres-version.js")" 2>/dev/tty)"
   if [[ "$actualVersion" = "$expectedVersion" ]]; then
     log "[confirm_postgres_version] !!! Postgres version confirmed: $expectedVersion"
   else
@@ -34,28 +41,29 @@ log "Creating test directory..."
 cd "$testDir"
 
 log "Cloning odk-central git repo..."
-git clone "$baseRepo"
+tagName="v$initialVersion"
+git clone --branch "$tagName" --depth 1 "$baseRepo"
 cd central
-git checkout "v$initialVersion"
+git checkout "$tagName"
 git submodule init
 
-log "Checking for existing containers..." # or are they images?
+log "\nChecking for existing containers..." # or are they images?
 # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
 if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
-  log
-  log "!!! WARN !!! docker-compose HAS ALREADY CREATED IMAGES ON THIS SYSTEM:" # or are they containers?
+  warn "docker-compose HAS ALREADY CREATED IMAGES ON THIS SYSTEM:" # or are they containers?
   docker-compose ps
-  log "!!! WARN !!! THESE IMAGES WILL BE DESTROYED!"
-  log
+  warn "THESE IMAGES WILL BE DESTROYED!"
 
   read -n1 -p "Continue (y/n)? " choice
+  echo
   case "$choice" in
     y|Y) echo "OK, images will be destroyed..." ;; # or are they containers?
     *  ) log "Aborted."; exit 1 ;;
   esac
 
-  log "Cleaning docker-compose..."
+  log "Cleaning docker-compose...\n"
   docker-compose down
+  echo
 fi
 
 log "Starting $initialVersion..."
