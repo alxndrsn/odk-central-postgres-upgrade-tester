@@ -27,4 +27,5 @@ log('DB config:', redactedConfig);
 	else              console.log(parts[0]);
 
 	log('Complete.');
+	process.exit();
 })();

@@ -1,4 +1,4 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 set -o pipefail
 
 baseRepo=git@github.com:getodk/central.git
@@ -13,10 +13,17 @@ log() {
 
 confirm_postgres_version() {
   local expectedVersion="$1"
-  log "[confirm_postgres_version] expectedVersion: $expectedVersion"
-  local actualVersion="$(docker exec -it central_service_1 node -c "$(cat ./get-postgres-version.js)")"
-  log "[confirm_postgres_version]   actualVersion: $actualVersion"
-  return [[ "$actualVersion" = "$expectedVersion" ]]
+  local actualVersion="$(docker exec -i central_service_1 node -e "$(cat ./get-postgres-version.js)" 2>/dev/tty)"
+  if [[ "$actualVersion" = "$expectedVersion" ]]; then
+    log "[confirm_postgres_version] !!! Postgres version confirmed: $expectedVersion"
+  else
+    log "[confirm_postgres_version] !!!"
+    log "[confirm_postgres_version] !!! Incorrect postgres version !!!"
+    log "[confirm_postgres_version] !!!   Expected: $expectedVersion"
+    log "[confirm_postgres_version] !!!    but got: $actualVersion"
+    log "[confirm_postgres_version] !!!"
+    exit 1
+  fi
 }
 
 log "Cleaning up test directory..."
@@ -41,7 +48,7 @@ if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
   log "!!! WARN !!! THESE IMAGES WILL BE DESTROYED!"
   log
 
-  read -p "Continue (y/n)? " choice
+  read -n1 -p "Continue (y/n)? " choice
   case "$choice" in
     y|Y) echo "OK, images will be destroyed..." ;; # or are they containers?
     *  ) log "Aborted."; exit 1 ;;
@@ -56,7 +63,7 @@ SYSADMIN_EMAIL=no-reply@getodk.org \
         DOMAIN=local \
      HTTP_PORT=18080 \
     HTTPS_PORT=18443 \
-  docker-compose -d up
+  docker-compose up -d
 
 confirm_postgres_version 9.6
 
