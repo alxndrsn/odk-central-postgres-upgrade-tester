@@ -1,0 +1,15 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: alpine:latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: apk add bash
+    - run: ./test
