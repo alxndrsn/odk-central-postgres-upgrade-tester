@@ -4,7 +4,10 @@ set -o pipefail
 baseRepo=git@github.com:alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
 initialVersion=v1.5.3-with-extra-debug
 targetVersion=upgrade-postgres
-testDir="tmp/$initialVersion-to-$targetVersion"
+# include a nonce in the test directory, as we will not own the postgres data
+# directory by the end of the test.  An alternative would be to `sudo` when
+# removing the test directory, but better to not require extra permissions.
+testDir="tmp/$initialVersion-to-$targetVersion/$(date +%s)"
 
 # a bunch of env vars for containers
 export SYSADMIN_EMAIL=no-reply@getodk.org
@@ -61,9 +64,20 @@ confirm_seed_data() {
 }
 
 wait_for_service_container() {
-  log "Waiting for service container to start..."
+  log "[wait_for_service_container] Waiting for service container to start..."
+  sleep 10
   # ...and for the local.json config file to have been created
-  sleep 10 # TODO need to wait properly somehow
+  for _ in {0..60}; do
+    dbHost="$(exec_in_service_container get-db-host.js)"
+    if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres-14 ]]; then
+      log "[wait_for_service_container] Database config looks OK!"
+      return
+    fi
+    log "[wait_for_service_container] Database config hasn't updated.  Sleeping..."
+    sleep 1
+  done
+  warn "[wait_for_service_container] Database config never updated."
+  exit 1
 }
 
 log "Cleaning up test directory..."
@@ -81,6 +95,7 @@ git clone "$baseRepo" central # fetch the whole repo so that git describe --tags
 cd central
 git checkout "$initialVersion"
 git submodule init
+git submodule update -i
 
 log "\nChecking for existing containers..." # or are they images?
 if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
@@ -101,6 +116,7 @@ if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
 fi
 
 log "Starting $initialVersion..."
+docker-compose build --parallel
 docker-compose up --remove-orphans --detach
 
 wait_for_service_container
@@ -116,7 +132,7 @@ log "Upgrading central..."
 # see: https://docs.getodk.org/central-upgrade/
 git checkout "$targetVersion"
 git submodule update -i
-docker-compose build
+docker-compose build --parallel
 
 log "Restarting containers..."
 docker-compose stop
