@@ -31,7 +31,8 @@ exec_in_service_container() {
 
 confirm_postgres_version() {
   local expectedVersion="$1"
-  local actualVersion="$(exec_in_service_container get-postgres-version.js)"
+  local actualVersion
+  actualVersion="$(exec_in_service_container get-postgres-version.js)"
   if [[ "$actualVersion" = "$expectedVersion" ]]; then
     log "[confirm_postgres_version] Postgres version confirmed: $expectedVersion"
   else
@@ -45,7 +46,8 @@ confirm_postgres_version() {
 }
 
 confirm_seed_data() {
-  local isOk="$(exec_in_service_container get-migration-seed.js)"
+  local isOk
+  isOk="$(exec_in_service_container get-migration-seed.js)"
   if [[ "$isOk" = "true" ]]; then
     log "[confirm_seed_data] Seed data OK!"
   else
@@ -87,7 +89,7 @@ if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
   docker-compose ps
   warn "THESE IMAGES WILL BE DESTROYED!"
 
-  read -n1 -p "Continue (y/n)? " choice
+  read -r -n1 -p "Continue (y/n)? " choice
   echo
   case "$choice" in
     y|Y) echo "OK, images will be destroyed..." ;; # or are they containers?
