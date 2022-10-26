@@ -52,6 +52,12 @@ confirm_seed_data() {
   fi
 }
 
+wait_for_service_container() {
+  log "Waiting for service container to start..."
+  # ...and for the local.json config file to have been created
+  sleep 10 # TODO need to wait properly somehow
+}
+
 log "Cleaning up test directory..."
 rm -rf "$testDir" || true
 mkdir -p "$testDir"
@@ -92,9 +98,7 @@ SYSADMIN_EMAIL=no-reply@getodk.org \
     HTTPS_PORT=18443 \
   docker-compose up -d
 
-log "Waiting for service container to start..."
-# ...and for the local.json config file to have been created
-sleep 10 # TODO need to wait properly somehow
+wait_for_service_container
 
 confirm_postgres_version 9.6
 
@@ -105,9 +109,16 @@ confirm_postgres_version 9.6
 
 log "Upgrading central..."
 # see: https://docs.getodk.org/central-upgrade/
-git pull
+git fetch origin "$targetVersion"
 git checkout "$targetVersion"
 git submodule update -i
+docker-compose build
+
+log "Restarting containers..."
+docker-compose stop
+docker-compose up
+
+wait_for_service_container
 
 confirm_postgres_version 14
 confirm_seed_data
