@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 set -o pipefail
 
 baseRepo=git@github.com:getodk/central.git
@@ -9,6 +9,14 @@ testDir="tmp/$initialVersion-to-$targetVersion"
 testPrefix="$(basename "$0")"
 log() {
   echo "[$testPrefix] $*"
+}
+
+confirm_postgres_version() {
+  local expectedVersion="$1"
+  log "[confirm_postgres_version] expectedVersion: $expectedVersion"
+  local actualVersion="$(docker exec -it central_service_1 node -c "$(cat ./get-postgres-version.js)")"
+  log "[confirm_postgres_version]   actualVersion: $actualVersion"
+  return [[ "$actualVersion" = "$expectedVersion" ]]
 }
 
 log "Cleaning up test directory..."
@@ -27,9 +35,11 @@ git submodule init
 log "Checking for existing containers..." # or are they images?
 # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
 if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
+  log
   log "!!! WARN !!! docker-compose HAS ALREADY CREATED IMAGES ON THIS SYSTEM:" # or are they containers?
   docker-compose ps
   log "!!! WARN !!! THESE IMAGES WILL BE DESTROYED!"
+  log
 
   read -p "Continue (y/n)? " choice
   case "$choice" in
@@ -46,7 +56,7 @@ SYSADMIN_EMAIL=no-reply@getodk.org \
         DOMAIN=local \
      HTTP_PORT=18080 \
     HTTPS_PORT=18443 \
-  docker-compose up
+  docker-compose -d up
 
 confirm_postgres_version 9.6
 
