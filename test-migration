@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 set -o pipefail
 
 baseRepo=git@github.com:alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
@@ -70,7 +70,7 @@ git config --local advice.detachedHead false
 log "Cloning odk-central git repo..."
 tagName="v$initialVersion"
 # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
-git clone --branch "$tagName" --depth 1 "$baseRepo" central
+git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
 cd central
 git checkout "$tagName"
 git submodule init
@@ -111,7 +111,6 @@ confirm_postgres_version 9.6
 
 log "Upgrading central..."
 # see: https://docs.getodk.org/central-upgrade/
-git fetch origin "$targetVersion"
 git checkout "$targetVersion"
 git submodule update -i
 docker-compose build
