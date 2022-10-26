@@ -1,9 +1,9 @@
 #!/bin/bash -eu
 set -o pipefail
 
-baseRepo=git@github.com:getodk/central.git
+baseRepo=git@github.com:alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
 initialVersion=1.5.3
-targetVersion=not-yet-committed
+targetVersion=upgrade-postgres
 testDir="tmp/$initialVersion-to-$targetVersion"
 
 baseDir="$(pwd)"
@@ -64,16 +64,18 @@ mkdir -p "$testDir"
 
 log "Creating test directory..."
 cd "$testDir"
+# disable annoying git messages
+git config --local advice.detachedHead false
 
 log "Cloning odk-central git repo..."
 tagName="v$initialVersion"
-git clone --branch "$tagName" --depth 1 "$baseRepo"
+# I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
+git clone --branch "$tagName" --depth 1 "$baseRepo" central
 cd central
 git checkout "$tagName"
 git submodule init
 
 log "\nChecking for existing containers..." # or are they images?
-# I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
 if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
   warn "docker-compose HAS ALREADY CREATED IMAGES ON THIS SYSTEM:" # or are they containers?
   docker-compose ps
