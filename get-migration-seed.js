@@ -17,7 +17,8 @@ log('DB config:', redactedConfig);
 	log('Connected OK; fetching version...');
 
 	const { rows } = await client.query(`SELECT value->'ok' AS is_ok FROM config WHERE key='migration-seed'`);
-	if(rows.length !== 1) throw new Error('Wrong result count:', rows);
+	if(!rows.length) throw new Error('Migration seed not found in DB - migration probably failed!');
+	if(rows.length > 1) throw new Error('Wrong result count:', rows);
 
 	console.log(rows[0].is_ok);
 
