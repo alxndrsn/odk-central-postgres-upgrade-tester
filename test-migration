@@ -1,6 +1,8 @@
 #!/bin/bash -eux
 set -o pipefail
 
+baseDir="$(pwd)"
+
 baseRepo=git@github.com:alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
 initialVersion=v1.5.3-with-extra-debug
 targetVersion=upgrade-postgres
@@ -14,8 +16,6 @@ export SYSADMIN_EMAIL=no-reply@getodk.org
 export DOMAIN=local
 export HTTP_PORT=18080
 export HTTPS_PORT=18443
-
-baseDir="$(pwd)"
 
 testPrefix="$(basename "$0")"
 log() {
