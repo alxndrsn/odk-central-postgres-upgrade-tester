@@ -97,21 +97,21 @@ git checkout "$initialVersion"
 git submodule init
 git submodule update -i
 
-log "\nChecking for existing containers..." # or are they images?
+log "\nChecking for existing containers..."
 if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
-  warn "docker-compose HAS ALREADY CREATED IMAGES ON THIS SYSTEM:" # or are they containers?
+  warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
   docker-compose ps
-  warn "THESE IMAGES WILL BE DESTROYED!"
+  warn "THESE CONTAINERS AND THEIR VOLUMES WILL BE DESTROYED!"
 
   read -r -n1 -p "Continue (y/n)? " choice
   echo
   case "$choice" in
-    y|Y) echo "OK, images will be destroyed..." ;; # or are they containers?
+    y|Y) echo "OK, containers and volumes will be destroyed..." ;;
     *  ) log "Aborted."; exit 1 ;;
   esac
 
   log "Cleaning docker-compose...\n"
-  docker-compose down --remove-orphans
+  docker-compose down --remove-orphans --volumes
   echo
 fi
 
