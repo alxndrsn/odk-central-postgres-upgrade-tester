@@ -15,4 +15,6 @@ git grep -l '^#!.*sh\b' | xargs shellcheck
 # TODO - run on windows, macOS; ideally in CI
 # TODO - script importing an example DB into the 9.6 container and then running the upgrade
 
+# TODO review all steps and possible failure modes at https://www.postgresql.org/docs/current/pgupgrade.html
+
 log "All OK!"
