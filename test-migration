@@ -122,6 +122,7 @@ docker-compose up --remove-orphans --detach
 wait_for_service_container
 
 confirm_postgres_version 9.6
+confirm_backend_running_ok
 
 log "Seeding database..."
 exec_in_service_container seed-db.js
@@ -143,5 +144,6 @@ wait_for_service_container
 confirm_postgres_version 14
 confirm_seed_data
 confirm_postgres_version 14
+confirm_backend_running_ok
 
 log "Test passed OK!"

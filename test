@@ -8,4 +8,11 @@ log() {
 log "Running shellcheck on all scripts..."
 git grep -l '^#!.*sh\b' | xargs shellcheck
 
+# TODO test scenarios:
+# TODO - happy path
+# TODO - migration image doesn't start
+# TODO - out of space while upgrading
+# TODO - run on windows, macOS; ideally in CI
+# TODO - script importing an example DB into the 9.6 container and then running the upgrade
+
 log "All OK!"
