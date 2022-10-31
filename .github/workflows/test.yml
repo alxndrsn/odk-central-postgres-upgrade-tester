@@ -29,24 +29,6 @@ jobs:
       - name: postgres-14 logs
         if: always()
         run: docker logs central_postgres-14_1
-  test-migration-macos-reciped:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: docker-practice/actions-setup-docker@master
-        timeout-minutes: 10
-      - name: test migration
-        shell: bash
-        run: ./test-migration
-      - name: service logs
-        if: always()
-        run: docker logs central_service_1
-      - name: postgres logs
-        if: always()
-        run: docker logs central_postgres_1
-      - name: postgres-14 logs
-        if: always()
-        run: docker logs central_postgres-14_1
   test-migration-macos-manual:
     runs-on: macos-latest
     steps:
