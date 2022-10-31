@@ -46,9 +46,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-      - name: switch docker to linux mode
-        shell: powershell
-        run: ./DockerCli.exe -SwitchDaemon .
+      - name: install docker for windows
+        shell: bash
+        run: ./install-docker-windows
       - name: test migration
         shell: bash
         run: ./test-migration
