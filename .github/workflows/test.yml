@@ -10,28 +10,29 @@ jobs:
   test-the-tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - run: ./test-tests
+      - uses: actions/checkout@v3
+      - run: ./test-tests
   test-migration-ubuntu:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: test migration
-      shell: bash
-      run: ./test-migration
+      - uses: actions/checkout@v3
+      - name: test migration
+        shell: bash
+        run: ./test-migration
   test-migration-macos:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: test migration
-      shell: bash
-      run: ./test-migration
+      - uses: actions/checkout@v3
+      - name: test migration
+        shell: bash
+        run: ./test-migration
   test-migration-windows:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: switch docker to linux mode
-      run: "DockerCli.exe -SwitchDaemon ."
-    - name: test migration
-      shell: bash
-      run: ./test-migration
+      - uses: actions/checkout@v3
+      - name: switch docker to linux mode
+        shell: powershell
+        run: '& $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchDaemon .'
+      - name: test migration
+        shell: bash
+        run: ./test-migration
