@@ -12,4 +12,7 @@ curl --output installer.exe --url 'https://desktop.docker.com/win/main/amd64/Doc
 log "Starting installer..."
 ./installer.exe install --accept-license --no-windows-containers
 
+log "Starting docker desktop..."
+'C:\Program Files\Docker\Docker\Docker for Windows.exe'
+
 log "Complete."
