@@ -16,6 +16,7 @@ export SYSADMIN_EMAIL=no-reply@getodk.org
 export DOMAIN=local
 export HTTP_PORT=18080
 export HTTPS_PORT=18443
+export SSL_TYPE=selfsign
 
 testPrefix="$(basename "$0")"
 log() {
@@ -63,6 +64,23 @@ confirm_seed_data() {
   fi
 }
 
+confirm_backend_running_ok() {
+  local response_code
+  for _ in {0..60}; do
+    response_code="$(curl -k -s -w "%{http_code}" "https://localhost:$HTTPS_PORT/v1/session" --data '{"email":"doesntexist@example.com","password":"doesntmatter"}' --header 'Content-Type: application/json')"
+    if [[ "$response_code" = 401 ]]; then
+      log "[confirm_backend_running_ok] Looks OK!"
+      return
+    fi
+    log "[confirm_backend_running_ok] Backend returned unexpected response: $response_code.  Sleeping..."
+    sleep 1
+  done
+  log "[confirm_backend_running_ok] !!!"
+  log "[confirm_backend_running_ok] !!! Backend did not start."
+  log "[confirm_backend_running_ok] !!!"
+  exit 1
+}
+
 wait_for_service_container() {
   log "[wait_for_service_container] Waiting for service container to start..."
   sleep 10
@@ -76,7 +94,9 @@ wait_for_service_container() {
     log "[wait_for_service_container] Database config hasn't updated.  Sleeping..."
     sleep 1
   done
-  warn "[wait_for_service_container] Database config never updated."
+  warn "[wait_for_service_container] !!!"
+  warn "[wait_for_service_container] !!! Database config never updated."
+  warn "[wait_for_service_container] !!!"
   exit 1
 }
 
