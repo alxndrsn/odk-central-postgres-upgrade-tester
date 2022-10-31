@@ -9,15 +9,15 @@ const { password, ...redactedConfig } = config;
 log('DB config:', redactedConfig);
 
 (async () => {
-	log('Connecting to DB...');
+  log('Connecting to DB...');
 
   const client = new Client(config);
-	await client.connect();
+  await client.connect();
 
-	log('Connected OK; fetching version...');
+  log('Connected OK; fetching version...');
 
-	await client.query(`INSERT INTO config (key, value) VALUES('migration-seed', '{"ok":true}')`);
+  await client.query(`INSERT INTO config (key, value) VALUES('migration-seed', '{"ok":true}')`);
 
-	log('Complete.');
-	process.exit();
+  log('Complete.');
+  process.exit();
 })();
