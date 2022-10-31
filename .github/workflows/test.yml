@@ -18,4 +18,5 @@ jobs:
         base-image: [ ubuntu-latest, macos-latest, windows-latest ]
     runs-on: ${{ matrix.base-image }}
     steps:
+    - uses: actions/checkout@v3
     - run: ./test-migration
