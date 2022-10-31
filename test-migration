@@ -2,7 +2,11 @@
 set -o pipefail
 
 baseDir="$(pwd)"
-tty="$(readlink /proc/$$/fd/2)"
+if [[ "$OSTYPE" = darwin ]]; then
+  tty="$(tty)"
+else
+  tty="$(readlink /proc/$$/fd/2)"
+fi
 
 baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
 initialVersion=v1.5.3-with-extra-debug
