@@ -1,0 +1,21 @@
+#!/bin/bash -eux
+# see: https://docs.docker.com/desktop/install/mac-install/#install-from-the-command-line
+
+testPrefix="$(basename "$0")"
+log() {
+  echo "[$testPrefix] $*"
+}
+
+log "Downloading..."
+wget 'https://desktop.docker.com/mac/main/amd64/Docker.dmg'
+
+log "Running arcane command #1..."
+sudo hdiutil attach Docker.dmg
+
+log "Starting installer..."
+sudo /Volumes/Docker/Docker.app/Contents/MacOS/install --accept-license
+
+log "Running arcane command #2..."
+sudo hdiutil detach /Volumes/Docker
+
+log "Complete."

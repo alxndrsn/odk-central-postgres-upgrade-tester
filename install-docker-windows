@@ -1,0 +1,15 @@
+#!/bin/bash -eux
+# see: https://docs.docker.com/desktop/install/windows-install/#install-from-the-command-line
+
+testPrefix="$(basename "$0")"
+log() {
+  echo "[$testPrefix] $*"
+}
+
+log "Downloading..."
+wget 'https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe'
+
+log "Starting installer..."
+./"Docker Desktop Installer.exe" install
+
+log "Complete."
