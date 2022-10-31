@@ -31,6 +31,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+      - name: find docker cli
+        shell: bash
+        run: find / -name DockerCli.exe
       - name: switch docker to linux mode
         shell: powershell
         run: '& $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchDaemon .'
