@@ -28,6 +28,13 @@ warn() {
   echo
 }
 
+if ! which docker-compose >/dev/null; then
+  log "!!!"
+  log "!!! docker-compose not found!"
+  log "!!!"
+  exit 1
+fi
+
 exec_in_service_container() {
   local scriptName="$1"
   docker exec -i central_service_1 node -e "$(cat "$baseDir/$scriptName")"
