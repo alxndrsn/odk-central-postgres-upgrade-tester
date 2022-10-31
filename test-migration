@@ -30,7 +30,7 @@ warn() {
 
 exec_in_service_container() {
   local scriptName="$1"
-  docker exec -i central_service_1 node -e "$(cat "$baseDir/$scriptName")" 2>/dev/tty0
+  docker exec -i central_service_1 node -e "$(cat "$baseDir/$scriptName")" 2>/dev/tty1
 }
 
 confirm_postgres_version() {
