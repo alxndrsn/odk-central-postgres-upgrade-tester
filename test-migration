@@ -125,7 +125,7 @@ git submodule init
 git submodule update -i --progress --jobs 16
 
 log "\nChecking for existing containers..."
-if [[ "$(docker-compose ps | tail -n+3 | wc --lines)" != "0" ]]; then
+if [[ "$(docker-compose ps | tail -n+3 | wc -l)" != "0" ]]; then
   warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
   docker-compose ps
   warn "THESE CONTAINERS AND THEIR VOLUMES WILL BE DESTROYED!"
