@@ -10,6 +10,6 @@ log "Downloading..."
 curl --output installer.exe --url 'https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe'
 
 log "Starting installer..."
-./installer.exe install
+./installer.exe install --accept-license --no-windows-containers
 
 log "Complete."
