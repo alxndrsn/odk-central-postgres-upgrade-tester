@@ -22,4 +22,3 @@ jobs:
     - name: test migration
       shell: sh
       run: ./test-migration
-      
