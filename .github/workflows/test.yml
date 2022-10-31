@@ -20,6 +20,9 @@ jobs:
       - name: test migration
         shell: bash
         run: ./test-migration
+      - name: service logs
+        if: always()
+        run: docker logs central_service_1
       - name: postgres logs
         if: always()
         run: docker logs central_postgres_1
@@ -35,6 +38,9 @@ jobs:
       - name: test migration
         shell: bash
         run: ./test-migration
+      - name: service logs
+        if: always()
+        run: docker logs central_service_1
       - name: postgres logs
         if: always()
         run: docker logs central_postgres_1
@@ -52,6 +58,9 @@ jobs:
       - name: test migration
         shell: bash
         run: ./test-migration
+      - name: service logs
+        if: always()
+        run: docker logs central_service_1
       - name: postgres logs
         if: always()
         run: docker logs central_postgres_1
@@ -69,6 +78,9 @@ jobs:
       - name: test migration
         shell: bash
         run: ./test-migration
+      - name: service logs
+        if: always()
+        run: docker logs central_service_1
       - name: postgres logs
         if: always()
         run: docker logs central_postgres_1
