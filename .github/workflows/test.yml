@@ -71,6 +71,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+      - name: download installer
+        shell: bash
+        run: "curl --output installer.exe --url 'https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe'"
       - name: install docker for windows
         shell: powershell
         run: .\install-docker-windows.ps1
