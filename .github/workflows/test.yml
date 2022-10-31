@@ -30,6 +30,9 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
+    - name: switch docker to linux mode
+      shell: powershell
+      run: & $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchDaemon .
     - name: test migration
       shell: bash
       run: ./test-migration
