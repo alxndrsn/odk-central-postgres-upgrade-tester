@@ -18,4 +18,7 @@ $env:Path += ";C:\Program Files\Docker\Docker\Resources\bin"
 $env:Path += ";C:\Program Files\Docker\Docker\Resources"
 Write-Host "Started successfully."
 
+Write-Host "Enabling linux containers..."
+start-process "C:\Program Files\Docker\Docker\DockerCli.exe" -SwitchLinuxEngine
+
 Write-Host "Complete."
