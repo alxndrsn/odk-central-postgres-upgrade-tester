@@ -11,10 +11,13 @@ git grep -l '^#!.*sh\b' | xargs shellcheck
 # TODO test scenarios:
 # TODO - happy path
 # TODO - migration image doesn't start
+# TODO - maybe if multiple images are started at once?
 # TODO - out of space while upgrading
+# TODO - interrupted part-way through (how to randomise this?)
 # TODO - run on windows, macOS; ideally in CI
 # TODO - script importing an example DB into the 9.6 container and then running the upgrade
 
 # TODO review all steps and possible failure modes at https://www.postgresql.org/docs/current/pgupgrade.html
+# TODO do we need a migration-started flag file?
 
 log "All OK!"
