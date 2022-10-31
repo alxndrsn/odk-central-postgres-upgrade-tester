@@ -28,7 +28,7 @@ warn() {
   echo
 }
 
-if ! which docker-compose >/dev/null; then
+if ! command -v docker-compose >/dev/null; then
   log "!!!"
   log "!!! docker-compose not found!"
   log "!!!"
