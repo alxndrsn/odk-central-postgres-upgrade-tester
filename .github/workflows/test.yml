@@ -72,8 +72,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: install docker for windows
-        shell: bash
-        run: ./install-docker-windows
+        shell: powershell
+        run: install-docker-windows.ps1
         timeout-minutes: 10
       - name: test migration
         shell: bash
