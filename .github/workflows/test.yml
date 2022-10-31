@@ -50,6 +50,8 @@ jobs:
   test-migration-macos-manual:
     runs-on: macos-latest
     steps:
+      - name: making weird directory TODO document me better
+        run: mkdir /data/transfer
       - uses: actions/checkout@v3
       - name: install docker for macos
         shell: bash
