@@ -2,6 +2,7 @@
 set -o pipefail
 
 baseDir="$(pwd)"
+tty="$(readlink /proc/$$/fd/2)"
 
 baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
 initialVersion=v1.5.3-with-extra-debug
@@ -30,7 +31,7 @@ warn() {
 
 exec_in_service_container() {
   local scriptName="$1"
-  docker exec -i central_service_1 node -e "$(cat "$baseDir/$scriptName")" 2>/dev/tty2
+  docker exec -i central_service_1 node -e "$(cat "$baseDir/$scriptName")" 2>"$tty"
 }
 
 confirm_postgres_version() {
