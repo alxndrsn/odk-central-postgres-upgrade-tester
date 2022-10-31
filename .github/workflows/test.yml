@@ -45,7 +45,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
-      - run: ./install-docker-macos
+      - name: install docker for macos
+        shell: bash
+        run: ./install-docker-macos
+        timeout-minutes: 10
       - name: test migration
         shell: bash
         run: ./test-migration
