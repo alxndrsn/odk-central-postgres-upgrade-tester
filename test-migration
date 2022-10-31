@@ -2,7 +2,7 @@
 set -o pipefail
 
 baseDir="$(pwd)"
-if [[ "$OSTYPE" = darwin ]]; then
+if [[ "$OSTYPE" =~ ^darwin ]]; then
   tty="$(tty)"
 else
   tty="$(readlink /proc/$$/fd/2)"
