@@ -124,6 +124,9 @@ git checkout "$initialVersion"
 git submodule init
 git submodule update -i --progress --jobs 16
 
+# make /data/transfer dir work on MacOSX darwin
+sed s:/data/transfer:./files/service/data-transfer: docker-compose.yml
+
 log "\nChecking for existing containers..."
 if [[ "$(docker-compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
   warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
