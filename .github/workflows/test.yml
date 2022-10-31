@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: docker-practice/actions-setup-docker@master
-        timeout-minutes: 2
+        timeout-minutes: 10
       - name: test migration
         shell: bash
         run: ./test-migration
