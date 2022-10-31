@@ -31,7 +31,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: switch docker to linux mode
-      #run: "& $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchDaemon ."
       run: "DockerCli.exe -SwitchDaemon ."
     - name: test migration
       shell: bash
