@@ -107,6 +107,14 @@ wait_for_service_container() {
   exit 1
 }
 
+patch_docker_compose_yml() {
+  # make /data/transfer dir work on MacOSX darwin
+  sed -i.bak s:/data/transfer:./files/service/data-transfer: docker-compose.yml
+}
+restore_docker_compose_yml() {
+  mv docker-compose.yml.bak docker-compose.yml
+}
+
 log "Cleaning up test directory..."
 rm -rf "$testDir" || true
 mkdir -p "$testDir"
@@ -121,12 +129,9 @@ log "Cloning odk-central git repo..."
 git clone --progress "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
 cd central
 git checkout "$initialVersion"
+patch_docker_compose_yml
 git submodule init
 git submodule update -i --progress --jobs 16
-
-# make /data/transfer dir work on MacOSX darwin
-sed -i.bak s:/data/transfer:./files/service/data-transfer: docker-compose.yml
-rm docker-compose.yml.bak
 
 log "\nChecking for existing containers..."
 if [[ "$(docker-compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
@@ -162,7 +167,9 @@ confirm_postgres_version 9.6
 
 log "Upgrading central..."
 # see: https://docs.getodk.org/central-upgrade/
+restore_docker_compose_yml
 git checkout "$targetVersion"
+patch_docker_compose_yml
 git submodule update -i --progress --jobs 16
 docker-compose build --parallel
 
