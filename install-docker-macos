@@ -22,6 +22,6 @@ log "Starting docker desktop..."
 # see: https://github.com/docker/for-mac/issues/2359#issuecomment-943131345
 sudo /Applications/Docker.app/Contents/MacOS/Docker --unattended --install-privileged-components
 open -a /Applications/Docker.app --args --unattended --accept-license
-while ! /Applications/Docker.app/Contents/Resources/bin/docker info &>/dev/null; do sleep 1; done
+while ! /Applications/Docker.app/Contents/Resources/bin/docker info; do sleep 1; done
 
 log "Complete."

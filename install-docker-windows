@@ -14,5 +14,6 @@ log "Starting installer..."
 
 log "Starting docker desktop..."
 'C:\Program Files\Docker\Docker\Docker for Windows.exe'
+while ! docker info; do sleep 1; done
 
 log "Complete."
