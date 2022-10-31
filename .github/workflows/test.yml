@@ -60,9 +60,6 @@ jobs:
         shell: powershell
         run: .\install-docker-windows.ps1
         timeout-minutes: 10
-      - name: enable docker linux images
-        shell: cmd
-        run: '"C:\Program Files\Docker\Docker\DockerCli.exe" -SwitchDaemon'
       - name: test migration
         shell: bash
         run: ./test-migration
