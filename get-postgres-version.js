@@ -9,23 +9,27 @@ const { password, ...redactedConfig } = config;
 log('DB config:', redactedConfig);
 
 (async () => {
-	log('Connecting to DB...');
+  try {
+    log('Connecting to DB...');
 
-  const client = new Client(config);
-	await client.connect();
+    const client = new Client(config);
+    await client.connect();
 
-	log('Connected OK; fetching version...');
+    log('Connected OK; fetching version...');
 
-	const { rows } = await client.query('SELECT VERSION()');
-	const fullVersion = rows[0].version.match(/^PostgreSQL (\S+) /)[1];
+    const { rows } = await client.query('SELECT VERSION()');
+    const fullVersion = rows[0].version.match(/^PostgreSQL (\S+) /)[1];
 
-	log('Got full version:', fullVersion);
+    log('Got full version:', fullVersion);
 
-	const parts = fullVersion.split('.', 2);
+    const parts = fullVersion.split('.', 2);
 
-	if(parts[0] < 10) console.log(parts.join('.'));
-	else              console.log(parts[0]);
+    if(parts[0] < 10) console.log(parts.join('.'));
+    else              console.log(parts[0]);
 
-	log('Complete.');
-	process.exit();
+    log('Complete.');
+    process.exit();
+  } catch(err) {
+    log('Failed to get version:', err);
+  }
 })();
