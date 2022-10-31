@@ -65,6 +65,7 @@ jobs:
       - name: install docker for windows
         shell: bash
         run: ./install-docker-windows
+        timeout-minutes: 10
       - name: test migration
         shell: bash
         run: ./test-migration
