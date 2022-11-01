@@ -153,6 +153,7 @@ if [[ "$(docker-compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs
 fi
 
 log "FIXME getting desperate on Windows..."
+C:/Program\ Files/Docker/Docker/DockerCli.exe -h
 C:/Program\ Files/Docker/Docker/DockerCli.exe -SwitchDaemon
 
 log "Starting $initialVersion..."
