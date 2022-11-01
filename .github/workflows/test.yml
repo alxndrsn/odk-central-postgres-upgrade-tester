@@ -29,47 +29,49 @@ jobs:
       - name: postgres-14 logs
         if: always()
         run: docker logs central_postgres-14_1
-  test-migration-macos-manual:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: install docker for macos
-        shell: bash
-        run: ./install-docker-macos
-        timeout-minutes: 15
-      - name: test migration
-        shell: bash
-        run: ./test-migration
-      - name: service logs
-        if: always()
-        run: docker logs central_service_1
-      - name: postgres logs
-        if: always()
-        run: docker logs central_postgres_1
-      - name: postgres-14 logs
-        if: always()
-        run: docker logs central_postgres-14_1
-  test-migration-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: download installer
-        # using curl seems to be faster and more reliable than PowerShell
-        shell: bash
-        run: "curl --output installer.exe --url 'https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe'"
-      - name: install docker for windows
-        shell: powershell
-        run: .\install-docker-windows.ps1
-        timeout-minutes: 10
-      - name: test migration
-        shell: bash
-        run: ./test-migration
-      - name: service logs
-        if: always()
-        run: docker logs central_service_1
-      - name: postgres logs
-        if: always()
-        run: docker logs central_postgres_1
-      - name: postgres-14 logs
-        if: always()
-        run: docker logs central_postgres-14_1
+# These jobs are currently not essential; TODO re-evaluate before release
+# Track https://github.com/actions/toolkit/issues/399
+#  test-migration-macos-manual:
+#    runs-on: macos-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: install docker for macos
+#        shell: bash
+#        run: ./install-docker-macos
+#        timeout-minutes: 15
+#      - name: test migration
+#        shell: bash
+#        run: ./test-migration
+#      - name: service logs
+#        if: always()
+#        run: docker logs central_service_1
+#      - name: postgres logs
+#        if: always()
+#        run: docker logs central_postgres_1
+#      - name: postgres-14 logs
+#        if: always()
+#        run: docker logs central_postgres-14_1
+#  test-migration-windows:
+#    runs-on: windows-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: download installer
+#        # using curl seems to be faster and more reliable than PowerShell
+#        shell: bash
+#        run: "curl --output installer.exe --url 'https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe'"
+#      - name: install docker for windows
+#        shell: powershell
+#        run: .\install-docker-windows.ps1
+#        timeout-minutes: 10
+#      - name: test migration
+#        shell: bash
+#        run: ./test-migration
+#      - name: service logs
+#        if: always()
+#        run: docker logs central_service_1
+#      - name: postgres logs
+#        if: always()
+#        run: docker logs central_postgres_1
+#      - name: postgres-14 logs
+#        if: always()
+#        run: docker logs central_postgres-14_1
