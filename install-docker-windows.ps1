@@ -21,6 +21,10 @@ Write-Host "Started successfully."
 Write-Host "Enabling linux containers..."
 & "C:\Program Files\Docker\Docker\DockerCli.exe" "-SwitchLinuxEngine"
 
+Write-Host "Restarting..."
+Restart-Service com.docker.service;
+Restart-Service Docker;
+
 Write-Host "Complete."
 # exit manually so that the exit code is 0
 exit
