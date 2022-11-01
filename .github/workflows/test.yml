@@ -54,6 +54,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: download installer
+        # using curl seems to be faster and more reliable than PowerShell
         shell: bash
         run: "curl --output installer.exe --url 'https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe'"
       - name: install docker for windows
