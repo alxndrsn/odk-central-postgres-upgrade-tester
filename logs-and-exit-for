@@ -1,0 +1,6 @@
+#!/bin/bash -eux
+name="$1"
+hash="$(docker ps | awk '$2 ~ "central_'"$name"'" { print $1 }')"
+docker logs "central_${name}_1"
+exitCode="$(docker inspect "$hash" --format='{{.State.ExitCode}}')"
+exit "$exitCode"

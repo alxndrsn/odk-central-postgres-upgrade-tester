@@ -22,13 +22,13 @@ jobs:
         run: ./test-migration
       - name: service logs
         if: always()
-        run: docker logs central_service_1
+        run: ./logs-and-exit-for service
       - name: postgres logs
         if: always()
-        run: docker logs central_postgres_1
+        run: ./logs-and-exit-for postgres
       - name: postgres-14 logs
         if: always()
-        run: docker logs central_postgres-14_1
+        run: ./logs-and-exit-for postgres-14
 # These jobs are currently not essential; TODO re-evaluate before release
 # Track https://github.com/actions/toolkit/issues/399
 #  test-migration-macos-manual:
