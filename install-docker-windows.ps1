@@ -19,7 +19,7 @@ $env:Path += ";C:\Program Files\Docker\Docker\Resources"
 Write-Host "Started successfully."
 
 Write-Host "Enabling linux containers..."
-& "C:\Program Files\Docker\Docker\DockerCli.exe" "-SwitchDaemon"
+& "C:\Program Files\Docker\Docker\DockerCli.exe" "-SwitchLinuxEngine"
 
 Write-Host "Complete."
 # exit manually so that the exit code is 0
