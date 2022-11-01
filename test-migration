@@ -154,7 +154,9 @@ fi
 
 log "FIXME getting desperate on Windows..."
 C:/Program\ Files/Docker/Docker/DockerCli.exe -h
-C:/Program\ Files/Docker/Docker/DockerCli.exe -SwitchDaemon
+C:/Program\ Files/Docker/Docker/DockerCli.exe -Version
+C:/Program\ Files/Docker/Docker/DockerCli.exe -SwitchDaemon || true
+C:/Program\ Files/Docker/Docker/DockerCli.exe -SwitchLinuxEngine || true
 
 log "Starting $initialVersion..."
 docker-compose build --parallel
