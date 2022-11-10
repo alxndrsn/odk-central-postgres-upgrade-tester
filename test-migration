@@ -40,6 +40,15 @@ exec_in_service_container() {
   docker exec -i central_service_1 node -e "$(cat "$baseDir/$scriptName")"
 }
 
+dev_speed_patch() {
+  # (temporary?) have for faster development
+  tail -n+8 nginx.dockerfile | sed /intermediate/d > nginx.dockerfile.tmp
+  mv nginx.dockerfile.tmp nginx.dockerfile
+}
+dev_speed_unpatch() {
+  git checkout -- nginx.dockerfile
+}
+
 confirm_postgres_version() {
   local expectedVersion="$1"
   local actualVersion
@@ -153,7 +162,9 @@ if [[ "$(docker-compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs
 fi
 
 log "Starting $initialVersion..."
+dev_speed_patch
 docker-compose build --parallel
+dev_speed_unpatch
 docker-compose up --remove-orphans --detach
 
 wait_for_service_container
@@ -172,7 +183,9 @@ restore_docker_compose_yml
 git checkout "$targetVersion"
 patch_docker_compose_yml
 git submodule update -i --progress --jobs 16
+dev_speed_patch
 docker-compose build --parallel
+dev_speed_unpatch
 
 log "Restarting containers..."
 docker-compose stop
