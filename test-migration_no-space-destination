@@ -116,6 +116,24 @@ wait_for_service_container() {
   exit 1
 }
 
+log "\nChecking for existing docker volumes..."
+if [[ "$(docker volume ls -f name=central_pg14 | tail -n+2 | wc -l)" != "0" ]]; then
+  warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
+  docker volume ls -f name=central_pg14
+  warn "THESE VOLUMES WILL BE DESTROYED!"
+
+  read -r -n1 -p "Continue (y/n)? " choice
+  echo
+  case "$choice" in
+    y|Y) echo "OK, volumes will be destroyed..." ;;
+    *  ) log "Aborted."; exit 1 ;;
+  esac
+
+  log "Cleaning docker volumes...\n"
+  docker volume rm central_pg14
+  echo
+fi
+
 log "Cleaning up test directory..."
 rm -rf "$testDir" || true
 mkdir -p "$testDir"
@@ -172,6 +190,9 @@ log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git checkout "$targetVersion"
 log "Restricting target volume size..."
 cat >>docker-compose.yml <<EOF
+    driver: local
+    driver_opts:
+      device: ./files/postgres-14/volume-pg14
       type: tmpfs
       o: "size=1m"
 EOF

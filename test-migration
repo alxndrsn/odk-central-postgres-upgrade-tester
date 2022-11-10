@@ -161,6 +161,24 @@ if [[ "$(docker-compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs
   echo
 fi
 
+log "\nChecking for existing docker volumes..."
+if [[ "$(docker volume ls -f name=central_pg14 | tail -n+2 | wc -l)" != "0" ]]; then
+  warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
+  docker volume ls -f name=central_pg14
+  warn "THESE VOLUMES WILL BE DESTROYED!"
+
+  read -r -n1 -p "Continue (y/n)? " choice
+  echo
+  case "$choice" in
+    y|Y) echo "OK, volumes will be destroyed..." ;;
+    *  ) log "Aborted."; exit 1 ;;
+  esac
+
+  log "Cleaning docker volumes...\n"
+  docker volume rm central_pg14
+  echo
+fi
+
 log "Starting $initialVersion..."
 dev_speed_patch
 docker-compose build --parallel
