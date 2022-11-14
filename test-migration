@@ -1,6 +1,11 @@
 #!/bin/bash -eux
 set -o pipefail
 
+if [[ ${1-} = --force ]]; then
+  force_destruction="confirmed"
+  shift
+fi
+
 baseDir="$(pwd)"
 
 baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
@@ -149,12 +154,14 @@ if [[ "$(docker-compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs
   docker-compose ps
   warn "THESE CONTAINERS AND THEIR VOLUMES WILL BE DESTROYED!"
 
-  read -r -n1 -p "Continue (y/n)? " choice
-  echo
-  case "$choice" in
-    y|Y) echo "OK, containers and volumes will be destroyed..." ;;
-    *  ) log "Aborted."; exit 1 ;;
-  esac
+  if [[ "$force_destruction" != "confirmed" ]]; then
+    read -r -n1 -p "Continue (y/n)? " choice
+    echo
+    case "$choice" in
+      y|Y) echo "OK, containers and volumes will be destroyed..." ;;
+      *  ) log "Aborted."; exit 1 ;;
+    esac
+  fi
 
   log "Cleaning docker-compose...\n"
   docker-compose down --remove-orphans --volumes
@@ -167,12 +174,14 @@ if [[ "$(docker volume ls -f name=central_pg14 | tail -n+2 | wc -l)" != "0" ]]; 
   docker volume ls -f name=central_pg14
   warn "THESE VOLUMES WILL BE DESTROYED!"
 
-  read -r -n1 -p "Continue (y/n)? " choice
-  echo
-  case "$choice" in
-    y|Y) echo "OK, volumes will be destroyed..." ;;
-    *  ) log "Aborted."; exit 1 ;;
-  esac
+  if [[ "$force_destruction" != "confirmed" ]]; then
+    read -r -n1 -p "Continue (y/n)? " choice
+    echo
+    case "$choice" in
+      y|Y) echo "OK, volumes will be destroyed..." ;;
+      *  ) log "Aborted."; exit 1 ;;
+    esac
+  fi
 
   log "Cleaning docker volumes...\n"
   docker volume rm central_pg14
