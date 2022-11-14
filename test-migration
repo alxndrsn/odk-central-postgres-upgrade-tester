@@ -130,6 +130,18 @@ restore_docker_compose_yml() {
   mv docker-compose.yml.bak docker-compose.yml
 }
 
+confirm_if_required() {
+  local confirmed_message="$1"
+  if [[ "$force_destruction" != "confirmed" ]]; then
+    read -r -n1 -p "Continue (y/n)? " choice
+    echo
+    case "$choice" in
+      y|Y) echo "$confirmed_message" ;;
+      *  ) log "Aborted."; exit 1 ;;
+    esac
+  fi
+}
+
 log "Cleaning up test directory..."
 rm -rf "$testDir" || true
 mkdir -p "$testDir"
@@ -155,14 +167,7 @@ if [[ "$(docker-compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs
   docker-compose ps
   warn "THESE CONTAINERS AND THEIR VOLUMES WILL BE DESTROYED!"
 
-  if [[ "$force_destruction" != "confirmed" ]]; then
-    read -r -n1 -p "Continue (y/n)? " choice
-    echo
-    case "$choice" in
-      y|Y) echo "OK, containers and volumes will be destroyed..." ;;
-      *  ) log "Aborted."; exit 1 ;;
-    esac
-  fi
+  confirm_if_required "OK, containers and volumes will be destroyed..."
 
   log "Cleaning docker-compose...\n"
   docker-compose down --remove-orphans --volumes
@@ -175,14 +180,7 @@ if [[ "$(docker volume ls -f name=central_pg14 | tail -n+2 | wc -l)" != "0" ]]; 
   docker volume ls -f name=central_pg14
   warn "THESE VOLUMES WILL BE DESTROYED!"
 
-  if [[ "$force_destruction" != "confirmed" ]]; then
-    read -r -n1 -p "Continue (y/n)? " choice
-    echo
-    case "$choice" in
-      y|Y) echo "OK, volumes will be destroyed..." ;;
-      *  ) log "Aborted."; exit 1 ;;
-    esac
-  fi
+  confirm_if_required "OK, volumes will be destroyed..."
 
   log "Cleaning docker volumes...\n"
   docker volume rm central_pg14
