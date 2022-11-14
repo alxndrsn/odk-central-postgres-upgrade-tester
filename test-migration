@@ -145,21 +145,13 @@ git config --local advice.detachedHead false
 
 log "Cloning odk-central git repo..."
 # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
-if [[ "${CI-}" = "true" ]]; then
-  git clone --quiet    "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
-else
-  git clone --progress "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
-fi
+git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
 cd central
 touch allow-postgres-database-version-updated
 git checkout "$initialVersion"
 git show --pretty=oneline --summary
 git submodule init
-if [[ "${CI-}" = "true" ]]; then
-  git submodule update -i --quiet    --jobs 16
-else
-  git submodule update -i --progress --jobs 16
-fi
+git submodule update -i --jobs 16
 
 log "\nChecking for existing containers..."
 if [[ "$(docker-compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
@@ -206,7 +198,7 @@ confirm_postgres_version 9.6
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git checkout "$targetVersion"
 git show --pretty=oneline --summary
-git submodule update -i --progress --jobs 16
+git submodule update -i --jobs 16
 dev_speed_patch
 docker-compose build
 dev_speed_unpatch
