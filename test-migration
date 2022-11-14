@@ -180,7 +180,7 @@ fi
 
 log "Starting $initialVersion..."
 dev_speed_patch
-docker-compose build --parallel
+docker-compose build
 dev_speed_unpatch
 docker-compose up --remove-orphans --detach
 
@@ -198,7 +198,7 @@ log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git checkout "$targetVersion"
 git submodule update -i --progress --jobs 16
 dev_speed_patch
-docker-compose build --parallel
+docker-compose build
 dev_speed_unpatch
 
 log "Restarting containers..."

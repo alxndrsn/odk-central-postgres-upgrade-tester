@@ -180,7 +180,7 @@ fi
 
 log "Starting $initialVersion..."
 dev_speed_patch
-docker-compose build --parallel
+docker-compose build
 dev_speed_unpatch
 docker-compose up --remove-orphans --detach
 
@@ -207,7 +207,7 @@ EOF
 
 git submodule update -i --progress --jobs 16
 dev_speed_patch
-docker-compose build --parallel
+docker-compose build
 dev_speed_unpatch
 
 log "Restarting containers..."
