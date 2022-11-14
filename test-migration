@@ -122,14 +122,6 @@ wait_for_service_container() {
   exit 1
 }
 
-patch_docker_compose_yml() {
-  # make /data/transfer dir work on MacOSX darwin
-  sed -i.bak s:/data/transfer:./files/service/data-transfer: docker-compose.yml
-}
-restore_docker_compose_yml() {
-  mv docker-compose.yml.bak docker-compose.yml
-}
-
 confirm_if_required() {
   local confirmed_message="$1"
   if [[ "$force_destruction" != "confirmed" ]]; then
@@ -157,7 +149,6 @@ git clone --progress "$baseRepo" central # fetch the whole repo so that git desc
 cd central
 touch allow-postgres-database-version-updated
 git checkout "$initialVersion"
-patch_docker_compose_yml
 git submodule init
 git submodule update -i --progress --jobs 16
 
@@ -203,11 +194,8 @@ exec_in_service_container seed-db.js
 confirm_seed_data
 confirm_postgres_version 9.6
 
-log "Upgrading central..."
-# see: https://docs.getodk.org/central-upgrade/
-restore_docker_compose_yml
+log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git checkout "$targetVersion"
-patch_docker_compose_yml
 git submodule update -i --progress --jobs 16
 dev_speed_patch
 docker-compose build --parallel
