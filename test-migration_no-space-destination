@@ -1,6 +1,12 @@
 #!/bin/bash -eux
 set -o pipefail
 
+force_destruction=""
+if [[ ${1-} = --force ]]; then
+  force_destruction="confirmed"
+  shift
+fi
+
 baseDir="$(pwd)"
 
 baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
@@ -99,7 +105,7 @@ confirm_backend_running_ok() {
 
 wait_for_service_container() {
   log "[wait_for_service_container] Waiting for service container to start..."
-  sleep 10
+  sleep 10 # TODO remove explicit sleep
   # ...and for the local.json config file to have been created
   for _ in {0..60}; do
     dbHost="$(exec_in_service_container get-db-host.js)"
@@ -116,23 +122,17 @@ wait_for_service_container() {
   exit 1
 }
 
-log "\nChecking for existing docker volumes..."
-if [[ "$(docker volume ls -f name=central_pg14 | tail -n+2 | wc -l)" != "0" ]]; then
-  warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
-  docker volume ls -f name=central_pg14
-  warn "THESE VOLUMES WILL BE DESTROYED!"
-
-  read -r -n1 -p "Continue (y/n)? " choice
-  echo
-  case "$choice" in
-    y|Y) echo "OK, volumes will be destroyed..." ;;
-    *  ) log "Aborted."; exit 1 ;;
-  esac
-
-  log "Cleaning docker volumes...\n"
-  docker volume rm central_pg14
-  echo
-fi
+confirm_if_required() {
+  local confirmed_message="$1"
+  if [[ "$force_destruction" != "confirmed" ]]; then
+    read -r -n1 -p "Continue (y/n)? " choice
+    echo
+    case "$choice" in
+      y|Y) echo "$confirmed_message" ;;
+      *  ) log "Aborted."; exit 1 ;;
+    esac
+  fi
+}
 
 log "Cleaning up test directory..."
 rm -rf "$testDir" || true
@@ -158,15 +158,23 @@ if [[ "$(docker-compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs
   docker-compose ps
   warn "THESE CONTAINERS AND THEIR VOLUMES WILL BE DESTROYED!"
 
-  read -r -n1 -p "Continue (y/n)? " choice
-  echo
-  case "$choice" in
-    y|Y) echo "OK, containers and volumes will be destroyed..." ;;
-    *  ) log "Aborted."; exit 1 ;;
-  esac
+  confirm_if_required "OK, containers and volumes will be destroyed..."
 
   log "Cleaning docker-compose...\n"
   docker-compose down --remove-orphans --volumes
+  echo
+fi
+
+log "\nChecking for existing docker volumes..."
+if [[ "$(docker volume ls -f name=central_pg14 | tail -n+2 | wc -l)" != "0" ]]; then
+  warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
+  docker volume ls -f name=central_pg14
+  warn "THESE VOLUMES WILL BE DESTROYED!"
+
+  confirm_if_required "OK, volumes will be destroyed..."
+
+  log "Cleaning docker volumes...\n"
+  docker volume rm central_pg14
   echo
 fi
 
