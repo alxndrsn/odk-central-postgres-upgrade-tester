@@ -1,6 +1,7 @@
 #!/bin/bash -eux
 set -o pipefail
 
+force_destruction=""
 if [[ ${1-} = --force ]]; then
   force_destruction="confirmed"
   shift
