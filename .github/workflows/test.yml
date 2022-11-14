@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: test migration
         shell: bash
-        run: ./test-migration
+        run: ./test-migration --force
       - name: service logs
         if: always()
         run: ./logs-and-exit-for service
