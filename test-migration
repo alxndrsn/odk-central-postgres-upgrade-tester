@@ -212,8 +212,6 @@ confirm_seed_data
 confirm_postgres_version 14
 confirm_backend_running_ok
 
-cat ./migration-logs/migrate-postgres-9.6-14.log
-echo "TODO should test file contents here."
-exit 1
+grep '[odk-migrate-postgres] Migration complete.' ./migration-logs/migrate-postgres-9.6-14.log
 
 log "Test passed OK!"
