@@ -149,6 +149,7 @@ git clone --progress "$baseRepo" central # fetch the whole repo so that git desc
 cd central
 touch allow-postgres-database-version-updated
 git checkout "$initialVersion"
+git show --pretty=oneline --summary
 git submodule init
 git submodule update -i --progress --jobs 16
 
@@ -196,6 +197,7 @@ confirm_postgres_version 9.6
 
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git checkout "$targetVersion"
+git show --pretty=oneline --summary
 log "Restricting target volume size..."
 cat >>docker-compose.yml <<EOF
     driver: local
