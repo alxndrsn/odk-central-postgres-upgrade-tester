@@ -13,13 +13,26 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./test-tests
-  test-migration-ubuntu:
+  test-happy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: test migration (happy path)
         shell: bash
         run: ./test-migration --force
+      - name: service logs
+        if: always()
+        run: ./logs-and-exit-for service
+      - name: postgres logs
+        if: always()
+        run: ./logs-and-exit-for postgres
+      - name: postgres-14 logs
+        if: always()
+        run: ./logs-and-exit-for postgres-14
+  test-no-space:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
       - name: test migration (no space left on target device)
         shell: bash
         run: ./test-migration_no-space-destination --force
