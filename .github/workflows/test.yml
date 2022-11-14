@@ -17,9 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: test migration
+      - name: test migration (happy path)
         shell: bash
         run: ./test-migration --force
+      - name: test migration (no space left on target device)
+        shell: bash
+        run: ./test-migration_no-space-destination --force
       - name: service logs
         if: always()
         run: ./logs-and-exit-for service
