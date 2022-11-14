@@ -145,7 +145,11 @@ git config --local advice.detachedHead false
 
 log "Cloning odk-central git repo..."
 # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
-git clone --progress "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
+if [[ "${CI-}" = "true" ]]; then
+  git clone --quiet    "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
+else
+  git clone --progress "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
+fi
 cd central
 touch allow-postgres-database-version-updated
 git checkout "$initialVersion"
