@@ -15,10 +15,6 @@ cat >>docker-compose.yml <<EOF
       o: "size=45m"
 EOF
 
-# trying to find a different failure:
-# too low: 39m
-# too high: 52m
-
 git submodule update -i --jobs 16
 dev_speed_patch
 docker-compose build
@@ -32,7 +28,7 @@ wait_for_service_container
 
 confirm_postgres_version ECONNREFUSED
 migrationLogFile="./migration-logs/migrate-postgres-9.6-14.log"
-if ! grep -E 'UTC .* FATAL: .*: No space left on device$' "$migrationLogFile"; then
+if ! grep -E '^pg_restore: error: could not execute query: ERROR:  could not write to file ".*": No space left on device$' "$migrationLogFile"; then
   log "------------------ $migrationLogFile ------------------"
   cat "$migrationLogFile"
   log "-------------------------------------------------------"
