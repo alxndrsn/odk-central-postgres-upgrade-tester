@@ -26,7 +26,7 @@ docker-compose up --remove-orphans --detach
 
 wait_for_service_container
 
-confirm_postgres_version "" # i.e. not running
+confirm_postgres_version ECONNREFUSED
 migrationLogFile="./migration-logs/migrate-postgres-9.6-14.log"
 if ! grep -E 'UTC .* FATAL: .*: No space left on device$' "$migrationLogFile"; then
   log "------------------ $migrationLogFile ------------------"
