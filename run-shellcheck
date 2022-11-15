@@ -6,7 +6,8 @@ log() {
 }
 
 log "Running shellcheck on all scripts..."
-git grep -l '^#!.*sh\b' | xargs shellcheck
+#cat <(git grep -l '^#!.*sh\b') <(git ls-files '*.bash') | xargs shellcheck -a -x lib.bash
+shellcheck -a -x lib.bash $(git grep -l '^#!.*sh\b') $(git ls-files '*.bash')
 
 # TODO test scenarios:
 # TODO - happy path
