@@ -159,9 +159,8 @@ confirm_backend_running_ok() {
 
 wait_for_service_container() {
   log "[wait_for_service_container] Waiting for service container to start..."
-  sleep 10 # TODO remove explicit sleep
   # ...and for the local.json config file to have been created
-  for _ in {0..60}; do
+  for _ in {0..90}; do
     dbHost="$(exec_in_service_container get-db-host.js)"
     if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres-14 ]]; then
       log "[wait_for_service_container] Database config looks OK!"
