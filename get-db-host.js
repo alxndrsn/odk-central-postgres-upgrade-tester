@@ -7,5 +7,5 @@ try {
 
   console.log(config.host);
 } catch(err) {
-  log('Failed to get DB host:', err);
+  console.log('Failed to get DB host:', err);
 }

@@ -14,7 +14,7 @@ log('DB config:', redactedConfig);
   const client = new Client(config);
   await client.connect();
 
-  log('Connected OK; fetching version...');
+  log('Connected OK; inserting...');
 
   await client.query(`INSERT INTO config (key, value) VALUES('migration-seed', '{"ok":true}')`);
 

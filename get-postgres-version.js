@@ -30,6 +30,6 @@ log('DB config:', redactedConfig);
     log('Complete.');
     process.exit();
   } catch(err) {
-    log('Failed to get version:', err);
+    console.log('Failed to get version:', err);
   }
 })();
