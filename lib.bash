@@ -1,12 +1,12 @@
 set -o pipefail
 
-
-#> PROCESS CLI ARGS
+#> PROCESS CLI ARGS >#
 force_destruction=""
 if [[ ${1-} = --force ]]; then
   force_destruction="confirmed"
   shift
 fi
+#< PROCESS CLI ARGS <#
 
 testPrefix="$(basename "$0")"
 log() {
