@@ -168,7 +168,7 @@ confirm_seed_data() {
 
 confirm_backend_running_ok() {
   local response_code
-  for _ in {0..120}; do
+  for _ in {0..180}; do
     response_code="$(curl -k -s -o /dev/null -w "%{http_code}" "https://localhost:$HTTPS_PORT/v1/sessions" --data '{"email":"doesntexist@example.com","password":"doesntmatter"}' --header 'Content-Type: application/json' || true)"
     if [[ "$response_code" = 401 ]]; then
       log "[confirm_backend_running_ok] Looks OK!"
@@ -186,7 +186,7 @@ confirm_backend_running_ok() {
 wait_for_service_container() {
   log "[wait_for_service_container] Waiting for service container to start..."
   # ...and for the local.json config file to have been created
-  for _ in {0..90}; do
+  for _ in {0..180}; do
     dbHost="$(exec_in_service_container get-db-host.js)"
     if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres-14 ]]; then
       log "[wait_for_service_container] Database config looks OK!"
