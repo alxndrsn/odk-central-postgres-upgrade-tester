@@ -21,6 +21,7 @@ jobs:
         shell: bash
         run: ./test-new-install --force
       - uses: ./.github/actions/dump-log-files
+        if: always()
   test-happy:
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +30,7 @@ jobs:
         shell: bash
         run: ./test-migration_ok --force
       - uses: ./.github/actions/dump-log-files
+        if: always()
   test-no-space-early:
     runs-on: ubuntu-latest
     steps:
@@ -37,6 +39,7 @@ jobs:
         shell: bash
         run: ./test-migration_no-space-destination --force
       - uses: ./.github/actions/dump-log-files
+        if: always()
   test-no-space-late:
     runs-on: ubuntu-latest
     steps:
@@ -45,6 +48,7 @@ jobs:
         shell: bash
         run: ./test-migration_late-failure --force
       - uses: ./.github/actions/dump-log-files
+        if: always()
   test-docker-build-failure:
     runs-on: ubuntu-latest
     steps:
@@ -53,3 +57,4 @@ jobs:
         shell: bash
         run: ./test-migration_docker-build-failure --force
       - uses: ./.github/actions/dump-log-files
+        if: always()
