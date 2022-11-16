@@ -1,13 +1,16 @@
-steps:
-  - name: service logs
-    if: always()
-    continue-on-error: true
-    run: ./logs-and-exit-for service
-  - name: postgres logs
-    if: always()
-    continue-on-error: true
-    run: ./logs-and-exit-for postgres
-  - name: postgres-14 logs
-    if: always()
-    continue-on-error: true
-    run: ./logs-and-exit-for postgres-14
+name: dump log files
+runs:
+  using: composite
+  steps:
+    - name: service logs
+      if: always()
+      continue-on-error: true
+      run: ./logs-and-exit-for service
+    - name: postgres logs
+      if: always()
+      continue-on-error: true
+      run: ./logs-and-exit-for postgres
+    - name: postgres-14 logs
+      if: always()
+      continue-on-error: true
+      run: ./logs-and-exit-for postgres-14
