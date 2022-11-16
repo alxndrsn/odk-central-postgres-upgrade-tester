@@ -85,12 +85,14 @@ rebuild_containers() {
   dev_speed_patch
   docker-compose build
   dev_speed_unpatch
+  log "Containers rebuilt OK."
 }
 
 restart_containers() {
   log "Restarting containers..."
   docker-compose stop
   docker-compose up --remove-orphans --detach
+  log "Containers restarted OK."
 }
 
 check_for_dirty_docker() {
