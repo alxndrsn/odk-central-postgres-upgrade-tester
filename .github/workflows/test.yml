@@ -16,7 +16,6 @@ jobs:
   test-new-install:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/checkout@v3
       - uses: actions/checkout@v3
       - name: test migration (happy path)
         shell: bash
