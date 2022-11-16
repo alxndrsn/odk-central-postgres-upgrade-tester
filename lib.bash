@@ -1,4 +1,4 @@
-set -eux
+set -eu
 set -o pipefail
 
 #> PROCESS CLI ARGS >#
