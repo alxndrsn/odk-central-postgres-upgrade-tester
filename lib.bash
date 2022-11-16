@@ -62,11 +62,29 @@ clone_central_repo() {
   git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
   cd central
   touch allow-postgres-database-version-updated
-  git checkout "$initialVersion"
-  log "Checked out '$initialVersion':"
-  git show --pretty=oneline --summary
+  git_checkout "$initialVersion"
+}
+
+git_checkout() {
+  log "Checking out '$1'..."
+  git checkout "$1"
   git submodule init
   git submodule update -i --jobs 16
+  log "Checked out '$1':"
+  git show --pretty=oneline --summary
+}
+
+rebuild_and_restart_containers() {
+  log "Rebuilding containers..."
+  dev_speed_patch
+  docker-compose build
+  dev_speed_unpatch
+
+  log "Restarting containers..."
+  docker-compose stop
+  docker-compose up --remove-orphans --detach
+
+  wait_for_service_container
 }
 
 check_for_dirty_docker() {

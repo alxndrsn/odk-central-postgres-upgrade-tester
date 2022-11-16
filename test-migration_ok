@@ -1,21 +1,11 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 
 . ./lib.bash
 setup_standard
 
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
-git checkout "$targetVersion"
-git show --pretty=oneline --summary
-git submodule update -i --jobs 16
-dev_speed_patch
-docker-compose build
-dev_speed_unpatch
-
-log "Restarting containers..."
-docker-compose stop
-docker-compose up --remove-orphans --detach
-
-wait_for_service_container
+git_checkout "$targetVersion"
+rebuild_and_restart_containers
 
 confirm_postgres_version 14
 confirm_seed_data
