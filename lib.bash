@@ -139,6 +139,7 @@ dev_speed_unpatch() {
 
 confirm_postgres_version() {
   local expectedVersion="$1"
+  log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion'..."
   local actualVersion
   actualVersion="$(exec_in_service_container get-postgres-version.js)"
   if [[ "$actualVersion" = "$expectedVersion" ]]; then
