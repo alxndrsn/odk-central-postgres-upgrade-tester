@@ -22,12 +22,15 @@ jobs:
         run: ./test-new-install --force
       - name: service logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for service
       - name: postgres logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for postgres
       - name: postgres-14 logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for postgres-14
   test-happy:
     runs-on: ubuntu-latest
@@ -38,12 +41,15 @@ jobs:
         run: ./test-migration_ok --force
       - name: service logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for service
       - name: postgres logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for postgres
       - name: postgres-14 logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for postgres-14
   test-no-space-early:
     runs-on: ubuntu-latest
@@ -54,12 +60,15 @@ jobs:
         run: ./test-migration_no-space-destination --force
       - name: service logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for service
       - name: postgres logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for postgres
       - name: postgres-14 logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for postgres-14
   test-no-space-late:
     runs-on: ubuntu-latest
@@ -70,12 +79,15 @@ jobs:
         run: ./test-migration_late-failure --force
       - name: service logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for service
       - name: postgres logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for postgres
       - name: postgres-14 logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for postgres-14
   test-docker-build-failure:
     runs-on: ubuntu-latest
@@ -86,10 +98,13 @@ jobs:
         run: ./test-migration_docker-build-failure --force
       - name: service logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for service
       - name: postgres logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for postgres
       - name: postgres-14 logs
         if: always()
+        continue-on-error: true
         run: ./logs-and-exit-for postgres-14
