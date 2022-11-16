@@ -32,7 +32,7 @@ configure_environment() {
   baseDir="$(pwd)"
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
-  initialVersion=v1.5.3-with-extra-debug
+  initialVersion="${INITIAL_VERSION-v1.5.3-with-extra-debug}"
   targetVersion=upgrade-postgres
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
@@ -75,16 +75,22 @@ git_checkout() {
 }
 
 rebuild_and_restart_containers() {
+  rebuild_containers
+  restart_containers
+  wait_for_service_container
+}
+
+rebuild_containers() {
   log "Rebuilding containers..."
   dev_speed_patch
   docker-compose build
   dev_speed_unpatch
+}
 
+restart_containers() {
   log "Restarting containers..."
   docker-compose stop
   docker-compose up --remove-orphans --detach
-
-  wait_for_service_container
 }
 
 check_for_dirty_docker() {

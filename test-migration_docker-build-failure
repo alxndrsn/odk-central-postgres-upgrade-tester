@@ -1,0 +1,28 @@
+#!/bin/bash -eu
+
+# Test that failures in docker-build will be clearly communicated to
+# on the console.
+
+. ./lib.bash
+setup_standard
+
+log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
+git_checkout "$targetVersion"
+
+log "Injecting missing dependency into service Dockerfile..."
+sed -Ei 's/(apt-get install -y .*)/\1 i-do-not-exist/' service.dockerfile
+
+log "Rebuilding containers..."
+dev_speed_patch
+
+composeBuildLog="docker-compose-build.log"
+(docker-compose build || true) | tee "$composeBuildLog"
+
+if ! grep -E 'E: Unable to locate package i-do-not-exist$' "$composeBuildLog"; then
+  log "!!!"
+  log "!!! docker-compose build did not fail, or did not fail in the expected way!"
+  log "!!!"
+  exit 1
+fi
+
+log "Test passed OK!"

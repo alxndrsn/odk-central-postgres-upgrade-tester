@@ -1,5 +1,8 @@
 #!/bin/bash -eu
 
+# Test that running out of disk space during the migration stage is
+# communicated via the migration log file.
+
 . ./lib.bash
 setup_standard
 

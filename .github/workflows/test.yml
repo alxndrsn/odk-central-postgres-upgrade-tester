@@ -61,3 +61,19 @@ jobs:
       - name: postgres-14 logs
         if: always()
         run: ./logs-and-exit-for postgres-14
+  test-docker-build-failure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: test migration (no space left on target device)
+        shell: bash
+        run: ./test-migration_docker-build-failure --force
+      - name: service logs
+        if: always()
+        run: ./logs-and-exit-for service
+      - name: postgres logs
+        if: always()
+        run: ./logs-and-exit-for postgres
+      - name: postgres-14 logs
+        if: always()
+        run: ./logs-and-exit-for postgres-14
