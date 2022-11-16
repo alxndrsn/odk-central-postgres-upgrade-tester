@@ -1,0 +1,26 @@
+#!/bin/bash -eu
+
+# Test that a fresh install with the latest central version will
+# start normally.
+
+INITIAL_VERSION="upgrade-postgres"
+
+. ./lib.bash
+
+check_for_dependencies
+configure_environment
+clone_central_repo
+check_for_dirty_docker
+
+log "Starting $targetVersion..."
+dev_speed_patch
+docker-compose build
+dev_speed_unpatch
+docker-compose up --remove-orphans --detach
+
+wait_for_service_container
+
+confirm_postgres_version 14
+confirm_backend_running_ok
+
+log "Test passed OK!"

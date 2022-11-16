@@ -13,6 +13,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./lint
+  test-new-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: test migration (happy path)
+        shell: bash
+        run: ./test-new-install --force
+      - name: service logs
+        if: always()
+        run: ./logs-and-exit-for service
+      - name: postgres logs
+        if: always()
+        run: ./logs-and-exit-for postgres
+      - name: postgres-14 logs
+        if: always()
+        run: ./logs-and-exit-for postgres-14
   test-happy:
     runs-on: ubuntu-latest
     steps:
