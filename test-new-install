@@ -20,7 +20,7 @@ docker-compose up --remove-orphans --detach
 
 wait_for_service_container
 
-confirm_postgres_version 14
+confirm_postgres_version 15
 confirm_backend_running_ok
 
 log "Test passed OK!"
