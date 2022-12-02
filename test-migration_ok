@@ -8,6 +8,16 @@ setup_standard
 
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetVersion"
+
+log "Restricting target volume size to confirm we don't need triple size..."
+cat >>docker-compose.yml <<EOF
+    driver: local
+    driver_opts:
+      device: ./files/postgres-15/volume-pg15
+      type: tmpfs
+      o: "size=50m"
+EOF
+
 rebuild_and_restart_containers
 
 confirm_postgres_version 15
