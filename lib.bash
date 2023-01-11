@@ -138,28 +138,36 @@ dev_speed_unpatch() {
   git checkout -- nginx.dockerfile
 }
 
-_confirm_postgres_version() {
-  local expectedVersion="$1"
-  local actualVersion
-  actualVersion="$(exec_in_service_container get-postgres-version.js)"
-  if [[ "$actualVersion" = "$expectedVersion" ]]; then
-    log "[confirm_postgres_version] Postgres version confirmed: $expectedVersion"
-  elif [[ "$actualVersion" = "" ]]; then
-    log "[confirm_postgres_version] Retrying..."
-    _confirm_postgres_version "$1"
-  else
-    log "[confirm_postgres_version] !!!"
-    log "[confirm_postgres_version] !!! Incorrect postgres version !!!"
-    log "[confirm_postgres_version] !!!   Expected: $expectedVersion"
-    log "[confirm_postgres_version] !!!    but got: $actualVersion"
-    log "[confirm_postgres_version] !!!"
-    exit 1
-  fi
-}
 confirm_postgres_version() {
   local expectedVersion="$1"
   log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion'..."
-  timeout 30s _confirm_postgres_version "$expectedVersion"
+  local actualVersion
+  local retries=0
+  while true; do
+    actualVersion="$(exec_in_service_container get-postgres-version.js)"
+    if [[ "$actualVersion" = "$expectedVersion" ]]; then
+      log "[confirm_postgres_version] Postgres version confirmed: $expectedVersion"
+      exit 0
+    elif [[ "$actualVersion" = "" ]]; then
+      if [[ "$retries" -lt 5 ]]; then
+        log "[confirm_postgres_version] Retrying..."
+        (( ++retries ))
+        sleep 2
+      else
+        log "[confirm_postgres_version] !!!"
+        log "[confirm_postgres_version] !!! Retry count exceeded !!!"
+        log "[confirm_postgres_version] !!!"
+        exit 1
+      fi
+    else
+      log "[confirm_postgres_version] !!!"
+      log "[confirm_postgres_version] !!! Incorrect postgres version !!!"
+      log "[confirm_postgres_version] !!!   Expected: $expectedVersion"
+      log "[confirm_postgres_version] !!!    but got: $actualVersion"
+      log "[confirm_postgres_version] !!!"
+      exit 1
+    fi
+  done
 }
 
 confirm_seed_data() {
