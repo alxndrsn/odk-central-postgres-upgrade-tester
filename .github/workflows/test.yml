@@ -51,7 +51,7 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres-14
-  test-no-space-early:
+  test-no-space-destination:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
