@@ -138,11 +138,6 @@ dev_speed_unpatch() {
   git checkout -- nginx.dockerfile
 }
 
-confirm_postgres_version() {
-  local expectedVersion="$1"
-  log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion'..."
-  timeout 30s _confirm_postgres_version "$expectedVersion"
-}
 _confirm_postgres_version() {
   local expectedVersion="$1"
   local actualVersion
@@ -160,6 +155,11 @@ _confirm_postgres_version() {
     log "[confirm_postgres_version] !!!"
     exit 1
   fi
+}
+confirm_postgres_version() {
+  local expectedVersion="$1"
+  log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion'..."
+  timeout 30s _confirm_postgres_version "$expectedVersion"
 }
 
 confirm_seed_data() {
