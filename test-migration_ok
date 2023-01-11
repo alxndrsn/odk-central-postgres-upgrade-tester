@@ -10,6 +10,19 @@ log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetVersion"
 
 log "Restricting target volume size to confirm we don't need triple size..."
+# TODO although this doesn't really do that - we'd need to import a known
+# amount of data and see what happens.  E.g. some blob:
+#
+# From: https://dba.stackexchange.com/a/22571
+# CREATE OR REPLACE FUNCTION random_bytea(bytea_length integer)
+# RETURNS bytea AS $body$
+#   SELECT decode(string_agg(lpad(to_hex(width_bucket(random(), 0, 1, 256)-1),2,'0') ,''), 'hex')
+#     FROM generate_series(1, $1);
+# $body$
+# LANGUAGE 'sql'
+# VOLATILE
+# SET search_path = 'pg_catalog';
+# INSERT INTO blobs (sha,content,"contentType",md5) VALUES ('', random_bytea(50000000), '', '');
 cat >>docker-compose.yml <<EOF
     driver: local
     driver_opts:
