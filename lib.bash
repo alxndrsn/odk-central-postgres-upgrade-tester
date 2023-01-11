@@ -110,15 +110,15 @@ check_for_dirty_docker() {
   fi
 
   log "\nChecking for existing docker volumes..."
-  if [[ "$(docker volume ls -f name=central_pg15 | tail -n+2 | wc -l)" != "0" ]]; then
+  if [[ "$(docker volume ls -f name=central_pg14 | tail -n+2 | wc -l)" != "0" ]]; then
     warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
-    docker volume ls -f name=central_pg15
+    docker volume ls -f name=central_pg14
     warn "THESE VOLUMES WILL BE DESTROYED!"
 
     confirm_if_required "OK, volumes will be destroyed..."
 
     log "Cleaning docker volumes...\n"
-    docker volume rm central_pg15
+    docker volume rm central_pg14
     echo
   fi
 }
@@ -192,7 +192,7 @@ wait_for_service_container() {
   # ...and for the local.json config file to have been created
   for _ in {0..180}; do
     dbHost="$(exec_in_service_container get-db-host.js)"
-    if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres-15 ]]; then
+    if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres-14 ]]; then
       log "[wait_for_service_container] Database config looks OK!"
       return
     fi

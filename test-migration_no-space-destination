@@ -13,7 +13,7 @@ log "Restricting target volume size..."
 cat >>docker-compose.yml <<EOF
     driver: local
     driver_opts:
-      device: ./files/postgres-15/volume-pg15
+      device: ./files/postgres-14/volume-pg14
       type: tmpfs
       o: "size=1m"
 EOF
@@ -21,7 +21,7 @@ EOF
 rebuild_and_restart_containers
 
 confirm_postgres_version ECONNREFUSED
-migrationLogFile="./migration-logs/migrate-postgres-9.6-15.log"
+migrationLogFile="./migration-logs/migrate-postgres-9.6-14.log"
 if ! grep -E 'UTC .* FATAL: .*: No space left on device$' "$migrationLogFile"; then
   log "------------------ $migrationLogFile ------------------"
   cat "$migrationLogFile"
