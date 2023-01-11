@@ -141,10 +141,17 @@ dev_speed_unpatch() {
 confirm_postgres_version() {
   local expectedVersion="$1"
   log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion'..."
+  timeout 30s _confirm_postgres_version "$expectedVersion"
+}
+_confirm_postgres_version() {
+  local expectedVersion="$1"
   local actualVersion
   actualVersion="$(exec_in_service_container get-postgres-version.js)"
   if [[ "$actualVersion" = "$expectedVersion" ]]; then
     log "[confirm_postgres_version] Postgres version confirmed: $expectedVersion"
+  elif [[ "$actualVersion" = "" ]]; then
+    log "[confirm_postgres_version] Retrying..."
+    _confirm_postgres_version "$1"
   else
     log "[confirm_postgres_version] !!!"
     log "[confirm_postgres_version] !!! Incorrect postgres version !!!"
