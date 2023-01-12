@@ -27,7 +27,7 @@ if ! grep -E 'UTC .* FATAL: .*: No space left on device$' "$upgradeLogFile"; the
   cat "$upgradeLogFile"
   log "-------------------------------------------------------"
   log "!!!"
-  log "!!! Migration failed for unexpected reason!  Please review logs above."
+  log "!!! Upgrade failed for unexpected reason!  Please review logs above."
   log "!!!"
   exit 1
 fi
