@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
-# Test that running out of disk space during the migration stage is
-# communicated via the migration log file.
+# Test that running out of disk space during the upgrade stage is
+# communicated via the upgrade log file.
 
 . ./lib.bash
 setup_standard
@@ -21,10 +21,10 @@ EOF
 rebuild_and_restart_containers
 
 confirm_postgres_version ECONNREFUSED
-migrationLogFile="./migration-logs/migrate-postgres-9.6-14.log"
-if ! grep -E 'UTC .* FATAL: .*: No space left on device$' "$migrationLogFile"; then
-  log "------------------ $migrationLogFile ------------------"
-  cat "$migrationLogFile"
+upgradeLogFile="./postgres-upgrade-logs/upgrade-postgres-9.6-14.log"
+if ! grep -E 'UTC .* FATAL: .*: No space left on device$' "$upgradeLogFile"; then
+  log "------------------ $upgradeLogFile ------------------"
+  cat "$upgradeLogFile"
   log "-------------------------------------------------------"
   log "!!!"
   log "!!! Migration failed for unexpected reason!  Please review logs above."
