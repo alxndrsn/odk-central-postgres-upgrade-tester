@@ -147,7 +147,7 @@ confirm_postgres_version() {
     actualVersion="$(exec_in_service_container get-postgres-version.js)"
     if [[ "$actualVersion" = "$expectedVersion" ]]; then
       log "[confirm_postgres_version] Postgres version confirmed: $expectedVersion"
-      exit 0
+      return
     elif [[ "$actualVersion" = "" ]]; then
       if [[ "$retries" -lt 5 ]]; then
         log "[confirm_postgres_version] Retrying..."
