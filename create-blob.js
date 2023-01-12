@@ -27,7 +27,7 @@ log('DB config:', redactedConfig);
 			SET search_path = 'pg_catalog';
 	`);
 
-	const blobSizeMb = 50;
+	const blobSizeMb = 250;
   log(`Function created OK; creating blob of ${blobSizeMb} MB...`);
 	await client.query(`
 		INSERT INTO blobs (sha, "contentType", md5, content)
