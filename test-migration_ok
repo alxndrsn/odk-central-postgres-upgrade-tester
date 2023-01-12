@@ -10,6 +10,7 @@ log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetVersion"
 
 log "Restricting target volume size to confirm we don't need triple size..."
+# TODO this doesn't actually prove that - we'd have to also restrict the original pg volume size too (could we?)
 # base requirement:  55 MB
 #       extra blob: 250 MB
 #            total: 305 MB
