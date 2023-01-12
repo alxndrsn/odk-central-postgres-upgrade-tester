@@ -16,7 +16,7 @@ log('DB config:', redactedConfig);
 
   log('Connected OK; inserting...');
 
-  await client.query(`INSERT INTO config (key, value) VALUES('migration-seed', '{"ok":true}')`);
+  await client.query(`INSERT INTO config (key, value) VALUES('upgrade-seed', '{"ok":true}')`);
 
   log('Complete.');
   process.exit();

@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-# Test that a successful migration will cause a specific file to be
+# Test that a successful upgrade will cause a specific file to be
 # created in the shared migation-logs directory.
 
 . ./lib.bash
@@ -30,7 +30,7 @@ confirm_seed_data
 confirm_postgres_version 14
 confirm_backend_running_ok
 
-if ! [[ -f ./migration-logs/migrate-postgres-9.6-14.completed.ok ]]; then
+if ! [[ -f ./postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok ]]; then
   log "!!!"
   log "!!! Migration success flag file not found!"
   log "!!!"

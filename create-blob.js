@@ -1,4 +1,4 @@
-const log = (...args) => console.error('[get-migration-seed]', ...args);
+const log = (...args) => console.error('[create-blob]', ...args);
 
 log('Loading dependencies...');
 

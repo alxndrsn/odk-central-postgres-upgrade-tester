@@ -172,12 +172,12 @@ confirm_postgres_version() {
 
 confirm_seed_data() {
   local isOk
-  isOk="$(exec_in_service_container get-migration-seed.js)"
+  isOk="$(exec_in_service_container get-upgrade-seed.js)"
   if [[ "$isOk" = "true" ]]; then
     log "[confirm_seed_data] Seed data OK!"
   else
     log "[confirm_seed_data] !!!"
-    log "[confirm_seed_data] !!! Incorrect migration seed !!!"
+    log "[confirm_seed_data] !!! Incorrect upgrade seed !!!"
     log "[confirm_seed_data] !!!   Expected: true"
     log "[confirm_seed_data] !!!    but got: $isOk"
     log "[confirm_seed_data] !!!"

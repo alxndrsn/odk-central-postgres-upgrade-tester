@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: test migration (happy path)
+      - name: test upgrade (happy path)
         shell: bash
         run: ./test-new-install --force
       - name: service logs
@@ -36,9 +36,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: test migration (happy path)
+      - name: test upgrade (happy path)
         shell: bash
-        run: ./test-migration_ok --force
+        run: ./test-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -55,9 +55,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: test migration (no space left on target device)
+      - name: test upgrade (no space left on target device)
         shell: bash
-        run: ./test-migration_no-space-destination --force
+        run: ./test-upgrade_no-space-destination --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -74,9 +74,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: test migration (no space left on target device)
+      - name: test upgrade (no space left on target device)
         shell: bash
-        run: ./test-migration_docker-build-failure --force
+        run: ./test-upgrade_docker-build-failure --force
       - name: service logs
         if: always()
         continue-on-error: true
