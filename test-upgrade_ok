@@ -18,7 +18,7 @@ exec_in_service_container create-blob.js
 cat >>docker-compose.yml <<EOF
     driver: local
     driver_opts:
-      device: ./files/postgres-14/volume-pg14
+      device: ./files/postgres-14/volume-postgres_14
       type: tmpfs
       o: "size=305m"
 EOF
