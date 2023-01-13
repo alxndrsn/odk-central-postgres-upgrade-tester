@@ -32,7 +32,7 @@ configure_environment() {
   baseDir="$(pwd)"
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
-  initialVersion="${INITIAL_VERSION-v1.5.3}"
+  initialVersion="${INITIAL_VERSION-v1.5.3-with-extra-debug}"
   targetVersion="upgrade-postgres"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
