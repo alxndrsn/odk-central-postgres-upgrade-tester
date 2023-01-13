@@ -30,11 +30,14 @@ confirm_seed_data
 confirm_postgres_version 14
 confirm_backend_running_ok
 
+# FIXME rename dir to postgres-14-upgrade; remove version numbers from names of things below that
 if ! [[ -f ./postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok ]]; then
   log "!!!"
   log "!!! Upgrade success flag file not found!"
   log "!!!"
   exit 1
 fi
+
+# FIXME check we can do the deletey thing here
 
 log "Test passed OK!"
