@@ -3,7 +3,7 @@
 # Test that a fresh install with the latest central version will
 # start normally.
 
-INITIAL_VERSION="upgrade-postgres-next"
+INITIAL_VERSION="upgrade-postgres"
 
 . ./lib.bash
 
