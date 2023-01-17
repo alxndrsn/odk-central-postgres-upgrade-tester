@@ -39,26 +39,32 @@ if ! [[ -f ./postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok ]]; then
 fi
 
 log "Upgrade completed OK!  Testing cleanup..."
-docker volume ls
+
+# FIXME another debug check:
+log "Volume count: $(docker volume ls | wc -l)"
 
 # FIXME remove debug
 log "DEBUG: checking various things..."
-docker-compose run postgres ls -al /var/lib/postgresql
-docker volume ls
-docker-compose run postgres ls -al /var/lib/postgresql/data
-docker volume ls
-docker-compose run postgres ls -al /var/lib/postgresql/9.6/data
-docker volume ls
-docker-compose run postgres ls -al /var/lib/postgresql/14/data
-docker volume ls
+docker-compose -f ls.docker-compose.yml up postgres
+
+# FIXME another debug check:
+log "Volume count: $(docker volume ls | wc -l)"
 
 log "Creating cleanup flag file..."
-docker-compose run postgres touch /postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
+touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
 
 log "Starting cleanup..."
 docker-compose up --abort-on-container-exit postgres
 
+# FIXME another debug check:
+log "Volume count: $(docker volume ls | wc -l)"
+
 # TODO test that the space was saved, or that the volume has gone
-docker volume ls
+# FIXME remove debug
+log "DEBUG: checking various things..."
+docker-compose -f ls.docker-compose.yml up postgres
+
+# FIXME another debug check:
+log "Volume count: $(docker volume ls | wc -l)"
 
 log "Cleanup completed OK."

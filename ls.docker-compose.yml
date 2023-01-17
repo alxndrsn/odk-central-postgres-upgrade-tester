@@ -1,0 +1,19 @@
+version: "3"
+services:
+  postgres:
+    # This service maintains the same definition as in the main
+    # docker-compose.yml to inherit the anonymous volume from there.
+    # This allows us to check that the data has truly been deleted.
+    build:
+      context: .
+      dockerfile: postgres-upgrade.dockerfile
+    volumes:
+      - /var/lib/postgresql/data
+      - ./postgres-upgrade-logs:/postgres-upgrade-logs
+    environment:
+      PGUSER: odk
+      POSTGRES_INITDB_ARGS: -U odk
+      POSTGRES_PASSWORD: odk
+      POSTGRES_DATABASE: odk
+    # --- Below this line, things diverge from the main docker.compose.yml --- #
+    command: ls -al /var/lib/postgresql/data
