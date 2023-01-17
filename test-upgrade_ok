@@ -38,9 +38,11 @@ if ! [[ -f ./postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok ]]; then
   exit 1
 fi
 
-# FIXME check we can do the deletey thing here
-
 log "Upgrade completed OK!  Testing cleanup..."
+
+# FIXME remove debug
+log "DEBUG: checking running processes"
+docker-compose run postgres ps aux
 
 log "Creating cleanup flag file..."
 docker-compose run postgres touch /postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
