@@ -1,9 +1,11 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 
 testPrefix="$(basename "$0")"
 log() {
   echo "[$testPrefix] $*"
 }
+
+ls -al .
 
 log "Creating cleanup flag file..."
 touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
