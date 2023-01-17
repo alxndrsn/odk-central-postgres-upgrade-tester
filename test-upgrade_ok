@@ -52,7 +52,7 @@ docker-compose -f ls.docker-compose.yml up postgres
 log "Volume count: $(docker volume ls | wc -l)"
 
 log "Creating cleanup flag file..."
-touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
+sudo touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
 
 log "Starting cleanup..."
 docker-compose up --abort-on-container-exit postgres
