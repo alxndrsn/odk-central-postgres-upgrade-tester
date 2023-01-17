@@ -3,3 +3,5 @@
 # TODO clean up
 # TODO fail if it fails
 # TODO success if it successes
+
+exit 1
