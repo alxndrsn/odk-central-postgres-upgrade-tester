@@ -62,7 +62,7 @@ log "Volume count: $(docker volume ls | wc -l)"
 # TODO test that the space was saved, or that the volume has gone
 # FIXME remove debug
 log "DEBUG: checking various things..."
-docker-compose -f ls.docker-compose.yml up postgres
+docker-compose -f ../../../../ls.docker-compose.yml up postgres
 
 # FIXME another debug check:
 log "Volume count: $(docker volume ls | wc -l)"
