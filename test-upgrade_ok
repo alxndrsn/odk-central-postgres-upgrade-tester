@@ -41,8 +41,11 @@ fi
 log "Upgrade completed OK!  Testing cleanup..."
 
 # FIXME remove debug
-log "DEBUG: checking running processes"
-docker-compose run postgres ps aux
+log "DEBUG: checking various things..."
+docker-compose run postgres ls -al /var/lib/postgresql
+docker-compose run postgres ls -al /var/lib/postgresql/data
+docker-compose run postgres ls -al /var/lib/postgresql/9.6/data
+docker-compose run postgres ls -al /var/lib/postgresql/14/data
 
 log "Creating cleanup flag file..."
 docker-compose run postgres touch /postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
