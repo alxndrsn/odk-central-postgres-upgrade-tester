@@ -1,7 +1,16 @@
 #!/bin/bash -eu
 
-# TODO clean up
-# TODO fail if it fails
-# TODO success if it successes
+testPrefix="$(basename "$0")"
+log() {
+  echo "[$testPrefix] $*"
+}
 
-exit 1
+log "Creating cleanup flag file..."
+touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
+
+log "Starting cleanup..."
+docker-compose up --abort-on-container-exit postgres
+
+# TODO test that the space was saved, or that the volume has gone
+
+log "Cleanup completed OK."
