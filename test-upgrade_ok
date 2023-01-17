@@ -43,7 +43,7 @@ fi
 log "Upgrade completed OK!  Testing cleanup..."
 
 log "Creating cleanup flag file..."
-docker exec central_postgres_1 touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
+docker-compose run postgres touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
 
 log "Starting cleanup..."
 docker-compose up --abort-on-container-exit postgres
