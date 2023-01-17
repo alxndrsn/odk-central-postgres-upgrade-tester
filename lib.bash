@@ -30,7 +30,6 @@ check_for_dependencies() {
 
 configure_environment() {
   baseDir="$(pwd)"
-  export ODK_PG_UPGRADE_BASE_DIR="$baseDir"
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
   initialVersion="${INITIAL_VERSION-v1.5.3-with-extra-debug}"

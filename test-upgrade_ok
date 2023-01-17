@@ -40,4 +40,14 @@ fi
 
 # FIXME check we can do the deletey thing here
 
-log "Test passed OK!"
+log "Upgrade completed OK!  Testing cleanup..."
+
+log "Creating cleanup flag file..."
+touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
+
+log "Starting cleanup..."
+docker-compose up --abort-on-container-exit postgres
+
+# TODO test that the space was saved, or that the volume has gone
+
+log "Cleanup completed OK."
