@@ -1,11 +1,11 @@
 #!/bin/bash -eux
 
+cd "$ODK_PG_UPGRADE_BASE_DIR"
+
 testPrefix="$(basename "$0")"
 log() {
   echo "[$testPrefix] $*"
 }
-
-ls -al .
 
 log "Creating cleanup flag file..."
 touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
