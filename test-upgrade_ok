@@ -38,7 +38,13 @@ if ! [[ -f ./postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok ]]; then
   exit 1
 fi
 
-log "Upgrade completed OK!  Testing cleanup..."
+log "Upgrade completed OK!"
+
+log "---------- postgres container logs ----------"
+docker logs central_postgres_1
+log "---------------------------------------------"
+
+log "Testing cleanup..."
 
 # FIXME another debug check:
 log "Volume count: $(docker volume ls | wc -l)"
