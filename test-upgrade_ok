@@ -40,9 +40,16 @@ fi
 
 log "Upgrade completed OK!"
 
+# FIXME is this true?  The postgres container logs from upgrade will be clearer when the
+# container is recreated below, so we need to dump the logs now to
+# avoid losing them.
+# TODO these logs may still be preserved in /postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok, so for now we dump both to compare
 log "---------- postgres container logs ----------"
 docker logs central_postgres_1
 log "---------------------------------------------"
+log "---------- ./postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok ----------"
+cat ./postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok
+log "----------------------------------------------------------------------------------"
 
 log "Testing cleanup..."
 
