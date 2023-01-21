@@ -33,7 +33,7 @@ confirm_backend_running_ok
 # FIXME rename dir to postgres-14-upgrade; remove version numbers from names of things below that
 if ! [[ -f ./postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok ]]; then
   log "!!!"
-  log "!!! Upgrade success flag file not found!"
+  log "!!! ERROR: Upgrade success flag file not found!"
   log "!!!"
   exit 1
 fi
@@ -52,33 +52,36 @@ cat ./postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok
 log "----------------------------------------------------------------------------------"
 
 log "Testing cleanup..."
-
-# FIXME another debug check:
-log "Volume count: $(docker volume ls | wc -l)"
-
-# FIXME remove debug
-cp ../../../../ls.docker-compose.yml .
-log "DEBUG: checking various things..."
-docker-compose -f ls.docker-compose.yml up --no-recreate postgres
-
-# FIXME another debug check:
-log "Volume count: $(docker volume ls | wc -l)"
+volumeCount="$(docker volume ls | wc -l)"
 
 log "Creating cleanup flag file..."
 sudo touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
 
+freeSpace_before="$(df --output=avail . | tail -n1)"
+
 log "Starting cleanup..."
 docker-compose up --abort-on-container-exit postgres
 
-# FIXME another debug check:
-log "Volume count: $(docker volume ls | wc -l)"
+freeSpace_after="$(df --output=avail . | tail -n1)"
 
-# TODO test that the space was saved, or that the volume has gone
-# FIXME remove debug
-log "DEBUG: checking various things..."
-docker-compose -f ls.docker-compose.yml up postgres
+newVolumeCount="$(docker volume ls | wc -l)"
+if [[ "$newVolumeCount" != "$volumeCount" ]]; then
+  log "!!!"
+  log "!!! ERROR: Docker volume count has changed !!!"
+  log "!!!"
+  log "!!!   was: $volumeCount"
+  log "!!!   now: $newVolumeCount"
+  log "!!!"
+  exit 1
+fi
 
-# FIXME another debug check:
-log "Volume count: $(docker volume ls | wc -l)"
+log "!!!"
+log "!!! FREE SPACE !!!"
+log "!!!"
+log "!!! before: $freeSpace_before"
+log "!!!  after: $freeSpace_after"
+log "!!!"
+# TODO do some sanity check on free space change
+exit 1
 
 log "Cleanup completed OK."
