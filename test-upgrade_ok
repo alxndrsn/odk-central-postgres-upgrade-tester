@@ -31,7 +31,7 @@ confirm_postgres_version 14
 confirm_backend_running_ok
 
 # FIXME rename dir to postgres-14-upgrade; remove version numbers from names of things below that
-if ! [[ -f ./postgres-upgrade-logs/upgrade-postgres-9.6-14.completed.ok ]]; then
+if ! [[ -f ./postgres-14-upgrade/upgrade-completed-ok ]]; then
   log "!!!"
   log "!!! ERROR: Upgrade success flag file not found!"
   log "!!!"
@@ -45,7 +45,7 @@ log "Testing cleanup..."
 volumeCount="$(docker volume ls | wc -l)"
 
 log "Creating cleanup flag file..."
-sudo touch ./postgres-upgrade-logs/delete-old-postgres9.6-data-on-next-restart
+sudo touch ./postgres-14-upgrade/delete-old-data-on-next-restart
 
 freeSpace_before="$(df --output=avail . | tail -n1)"
 

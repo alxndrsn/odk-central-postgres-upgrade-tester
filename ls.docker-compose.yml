@@ -9,7 +9,7 @@ services:
       dockerfile: postgres-upgrade.dockerfile
     volumes:
       - /var/lib/postgresql/data
-      - ./postgres-upgrade-logs:/postgres-upgrade-logs
+      - ./postgres-14-upgrade:/postgres-14-upgrade
     environment:
       PGUSER: odk
       POSTGRES_INITDB_ARGS: -U odk
