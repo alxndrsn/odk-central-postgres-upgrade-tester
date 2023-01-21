@@ -18,7 +18,7 @@ exec_in_service_container create-blob.js
 cat >>docker-compose.yml <<EOF
     driver: local
     driver_opts:
-      device: ./files/postgres-14/volume-postgres_14
+      device: ./files/postgres14/volume-postgres14
       type: tmpfs
       o: "size=305m"
 EOF
@@ -30,8 +30,8 @@ confirm_seed_data
 confirm_postgres_version 14
 confirm_backend_running_ok
 
-# FIXME rename dir to postgres-14-upgrade; remove version numbers from names of things below that
-if ! [[ -f ./postgres-14-upgrade/upgrade-completed-ok ]]; then
+# FIXME rename dir to postgres14-upgrade; remove version numbers from names of things below that
+if ! [[ -f ./postgres14-upgrade/upgrade-completed-ok ]]; then
   log "!!!"
   log "!!! ERROR: Upgrade success flag file not found!"
   log "!!!"
@@ -45,7 +45,7 @@ log "Testing cleanup..."
 volumeCount="$(docker volume ls | wc -l)"
 
 log "Creating cleanup flag file..."
-sudo touch ./postgres-14-upgrade/delete-old-data-on-next-restart
+sudo touch ./postgres14-upgrade/delete-old-data-on-next-restart
 
 freeSpace_before="$(df --output=avail . | tail -n1)"
 

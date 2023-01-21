@@ -61,7 +61,7 @@ clone_central_repo() {
   # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
   git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
   cd central
-  touch allow-postgres-14-upgrade
+  touch allow-postgres14-upgrade
   git_checkout "$initialVersion"
 }
 
@@ -110,15 +110,15 @@ check_for_dirty_docker() {
   fi
 
   log "\nChecking for existing docker volumes..."
-  if [[ "$(docker volume ls -f name=central_postgres_14 | tail -n+2 | wc -l)" != "0" ]]; then
+  if [[ "$(docker volume ls -f name=central_postgres14 | tail -n+2 | wc -l)" != "0" ]]; then
     warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
-    docker volume ls -f name=central_postgres_14
+    docker volume ls -f name=central_postgres14
     warn "THESE VOLUMES WILL BE DESTROYED!"
 
     confirm_if_required "OK, volumes will be destroyed..."
 
     log "Cleaning docker volumes...\n"
-    docker volume rm central_postgres_14
+    docker volume rm central_postgres14
     echo
   fi
 }
@@ -207,7 +207,7 @@ wait_for_service_container() {
   # ...and for the local.json config file to have been created
   for _ in {0..180}; do
     dbHost="$(exec_in_service_container get-db-host.js)"
-    if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres-14 ]]; then
+    if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres14 ]]; then
       log "[wait_for_service_container] Database config looks OK!"
       return
     fi

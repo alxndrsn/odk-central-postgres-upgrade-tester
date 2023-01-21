@@ -28,10 +28,10 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres
-      - name: postgres-14 logs
+      - name: postgres14 logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres-14
+        run: ./logs-and-exit-for postgres14
   test-happy:
     runs-on: ubuntu-latest
     steps:
@@ -47,10 +47,10 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres
-      - name: postgres-14 logs
+      - name: postgres14 logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres-14
+        run: ./logs-and-exit-for postgres14
   test-no-space-destination:
     runs-on: ubuntu-latest
     steps:
@@ -66,10 +66,10 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres
-      - name: postgres-14 logs
+      - name: postgres14 logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres-14
+        run: ./logs-and-exit-for postgres14
   test-docker-build-failure:
     runs-on: ubuntu-latest
     steps:
@@ -85,7 +85,7 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres
-      - name: postgres-14 logs
+      - name: postgres14 logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres-14
+        run: ./logs-and-exit-for postgres14
