@@ -1,4 +1,4 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 
 # Test that a successful upgrade will cause a specific file to be
 # created in the shared migation-logs directory.
