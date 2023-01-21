@@ -75,13 +75,19 @@ if [[ "$newVolumeCount" != "$volumeCount" ]]; then
   exit 1
 fi
 
-log "!!!"
-log "!!! FREE SPACE !!!"
-log "!!!"
-log "!!! before: $freeSpace_before"
-log "!!!  after: $freeSpace_after"
-log "!!!"
-# TODO do some sanity check on free space change
-exit 1
+spaceFreed="$((freeSpace_after-freeSpace_before))"
+[[ $((y-x)) -gt 300000 ]]; echo $?
+log
+log "Available disk space:"
+log "  before: $freeSpace_before"
+log "   after: $freeSpace_after"
+log "   freed: $spaceFreed"
+
+if [[ "$spaceFreed" -lt 305000 ]]; then
+  log "!!!"
+  log "!!! ERROR: not enough space freed !!!"
+  log "!!!"
+  exit 1
+fi
 
 log "Cleanup completed OK."
