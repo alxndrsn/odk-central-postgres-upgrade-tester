@@ -1,0 +1,11 @@
+#!/bin/bash -eu
+set -o pipefail
+
+log() {
+  echo "[shellcheck] $*"
+}
+
+log "Running shellcheck on all scripts..."
+cat <(git grep -l '^#!.*sh\b') <(git ls-files '*.bash') | xargs shellcheck -a -x lib.bash
+
+log "All OK!"
