@@ -126,7 +126,7 @@ check_for_dirty_docker() {
 exec_in_service_container() {
   local scriptName="$1"
   # failure should not kill the script - leave error handling up to the caller
-  docker exec -i central_service_1 node -e "$(cat "$baseDir/$scriptName")" || true
+  docker exec -i central_service_1 node -e "$(cat "$baseDir/js/$scriptName")" || true
 }
 
 dev_speed_patch() {
