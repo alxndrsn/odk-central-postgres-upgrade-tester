@@ -76,7 +76,7 @@ if [[ "$newVolumeCount" != "$volumeCount" ]]; then
 fi
 
 spaceFreed="$((freeSpace_after-freeSpace_before))"
-[[ $((y-x)) -gt 300000 ]]; echo $?
+
 log
 log "Available disk space:"
 log "  before: $freeSpace_before"
