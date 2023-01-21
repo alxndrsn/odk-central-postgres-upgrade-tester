@@ -82,6 +82,7 @@ log "Available disk space:"
 log "  before: $freeSpace_before"
 log "   after: $freeSpace_after"
 log "   freed: $spaceFreed"
+log
 
 if [[ "$spaceFreed" -lt 305000 ]]; then
   log "!!!"
