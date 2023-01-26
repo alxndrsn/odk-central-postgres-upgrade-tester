@@ -30,7 +30,6 @@ confirm_seed_data
 confirm_postgres_version 14
 confirm_backend_running_ok
 
-# FIXME rename dir to postgres14-upgrade; remove version numbers from names of things below that
 if ! [[ -f ./postgres14-upgrade/upgrade-completed-ok ]]; then
   log "!!!"
   log "!!! ERROR: Upgrade success flag file not found!"
