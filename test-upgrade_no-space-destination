@@ -21,7 +21,7 @@ EOF
 rebuild_and_restart_containers
 
 confirm_postgres_version ECONNREFUSED
-upgradeLogFile="./postgres14-upgrade/upgrade-postgres.log"
+upgradeLogFile="./files/postgres14/upgrade/upgrade-postgres.log"
 if ! grep -E 'UTC .* FATAL: .*: No space left on device$' "$upgradeLogFile"; then
   log "------------------ $upgradeLogFile ------------------"
   cat "$upgradeLogFile"
