@@ -61,6 +61,7 @@ clone_central_repo() {
   # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
   git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
   cd central
+  ls
   touch ./files/postgres/allow-postgres14-upgrade
   git_checkout "$initialVersion"
 }
