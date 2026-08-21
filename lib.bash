@@ -97,7 +97,7 @@ restart_containers() {
 }
 
 check_for_dirty_docker() {
-  log "\nChecking for existing containers..."
+  log "Checking for existing containers..."
   if [[ "$(docker compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
     warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
     docker compose ps
@@ -105,12 +105,12 @@ check_for_dirty_docker() {
 
     confirm_if_required "OK, containers and volumes will be destroyed..."
 
-    log "Cleaning docker-compose...\n"
+    log "Cleaning docker-compose..."
     docker compose down --remove-orphans --volumes
     echo
   fi
 
-  log "\nChecking for existing docker volumes..."
+  log "Checking for existing docker volumes..."
   if [[ "$(docker volume ls -f name=central_postgres14 | tail -n+2 | wc -l)" != "0" ]]; then
     warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
     docker volume ls -f name=central_postgres14
@@ -118,7 +118,7 @@ check_for_dirty_docker() {
 
     confirm_if_required "OK, volumes will be destroyed..."
 
-    log "Cleaning docker volumes...\n"
+    log "Cleaning docker volumes..."
     docker volume rm central_postgres14
     echo
   fi
