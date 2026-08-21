@@ -62,8 +62,8 @@ clone_central_repo() {
   git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
   cd central
   ls
-  git_checkout "$initialVersion"
   touch ./files/allow-postgres14-upgrade
+  git_checkout "$initialVersion"
 }
 
 git_checkout() {
