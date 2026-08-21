@@ -49,7 +49,7 @@ sudo touch ./files/postgres14/upgrade/delete-old-data-on-next-restart
 freeSpace_before="$(df --output=avail . | tail -n1)"
 
 log "Starting cleanup..."
-docker-compose up --abort-on-container-exit postgres
+docker compose up --abort-on-container-exit postgres
 
 freeSpace_after="$(df --output=avail . | tail -n1)"
 

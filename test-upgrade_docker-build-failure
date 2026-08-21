@@ -16,7 +16,7 @@ log "Rebuilding containers..."
 dev_speed_patch
 
 composeBuildLog="docker-compose-build.log"
-(docker-compose build || true) | tee "$composeBuildLog"
+(docker compose build || true) | tee "$composeBuildLog"
 
 if ! grep -E 'E: Unable to locate package i-do-not-exist$' "$composeBuildLog"; then
   log "!!!"

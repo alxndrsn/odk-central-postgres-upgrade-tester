@@ -20,9 +20,9 @@ warn() {
 }
 
 check_for_dependencies() {
-  if ! command -v docker-compose >/dev/null; then
+  if ! command -v docker >/dev/null; then
     log "!!!"
-    log "!!! docker-compose not found!"
+    log "!!! docker not found!"
     log "!!!"
     exit 1
   fi
@@ -84,29 +84,29 @@ rebuild_and_restart_containers() {
 rebuild_containers() {
   log "Rebuilding containers..."
   dev_speed_patch
-  docker-compose build
+  docker compose build
   dev_speed_unpatch
   log "Containers rebuilt OK."
 }
 
 restart_containers() {
   log "Restarting containers..."
-  docker-compose stop
-  docker-compose up --remove-orphans --detach
+  docker compose stop
+  docker compose up --remove-orphans --detach
   log "Containers restarted OK."
 }
 
 check_for_dirty_docker() {
   log "\nChecking for existing containers..."
-  if [[ "$(docker-compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
+  if [[ "$(docker compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
     warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
-    docker-compose ps
+    docker compose ps
     warn "THESE CONTAINERS AND THEIR VOLUMES WILL BE DESTROYED!"
 
     confirm_if_required "OK, containers and volumes will be destroyed..."
 
     log "Cleaning docker-compose...\n"
-    docker-compose down --remove-orphans --volumes
+    docker compose down --remove-orphans --volumes
     echo
   fi
 
@@ -241,9 +241,9 @@ setup_standard() {
 
   log "Starting $initialVersion..."
   dev_speed_patch
-  docker-compose build
+  docker compose build
   dev_speed_unpatch
-  docker-compose up --remove-orphans --detach
+  docker compose up --remove-orphans --detach
 
   wait_for_service_container
 
