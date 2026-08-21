@@ -73,7 +73,7 @@ git_checkout() {
   git --version
   echo "--------------------"
   git submodule init
-  git submodule update -i --jobs 16
+  git submodule update --init --jobs 16
   log "Checked out '$1':"
   git show --pretty=oneline --summary
 }
