@@ -83,9 +83,9 @@ rebuild_and_restart_containers() {
 
 rebuild_containers() {
   log "Rebuilding containers..."
-  dev_speed_patch
+  patch_nginx_dockerfile
   docker compose build
-  dev_speed_unpatch
+  unpatch_nginx_dockerfile
   log "Containers rebuilt OK."
 }
 
@@ -130,12 +130,32 @@ exec_in_service_container() {
   docker exec -i central_service_1 node -e "$(cat "$baseDir/js/$scriptName")" || true
 }
 
-dev_speed_patch() {
+patch_nginx_dockerfile() {
+  patch -p1 <<EOF
+--- a/nginx.dockerfile
++++ b/nginx.dockerfile
+@@ -13,6 +13,14 @@ EXPOSE 443
+VOLUME [ "/etc/dh", "/etc/selfsign", "/etc/nginx/conf.d" ]
+ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
+
++# Fix archived debian repos.
++RUN sed -i \
++        -e 's/deb.debian.org/archive.debian.org/g' \
++        -e 's/security.debian.org/archive.debian.org/g' \
++        -e '/stretch-updates/d' \
++        -e '/buster-updates/d' \
++        /etc/apt/sources.list
++
+RUN apt-get update; apt-get install -y openssl netcat nginx-extras lua-zlib
+
+RUN mkdir -p /etc/selfsign/live/local/
+EOF
+
   # (temporary?) have for faster development
   tail -n+8 nginx.dockerfile | sed /intermediate/d > nginx.dockerfile.tmp
   mv nginx.dockerfile.tmp nginx.dockerfile
 }
-dev_speed_unpatch() {
+unpatch_nginx_dockerfile() {
   git checkout -- nginx.dockerfile
 }
 
@@ -240,9 +260,9 @@ setup_standard() {
   check_for_dirty_docker
 
   log "Starting $initialVersion..."
-  dev_speed_patch
+  patch_nginx_dockerfile
   docker compose build
-  dev_speed_unpatch
+  unpatch_nginx_dockerfile
   docker compose up --remove-orphans --detach
 
   wait_for_service_container
