@@ -31,7 +31,8 @@ check_for_dependencies() {
 configure_environment() {
   baseDir="$(pwd)"
 
-  baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
+  baseRepo=https://github.com/getodk/central.git
+ #baseRepo=https://github.com/alxndrsn/odk-central.git
   initialVersion="${INITIAL_VERSION-v1.5.3-with-extra-debug}"
   targetVersion="upgrade-postgres"
   # include a nonce in the test directory, as we will not own the postgres data
