@@ -33,7 +33,7 @@ configure_environment() {
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
   initialVersion="${INITIAL_VERSION-upgrade-pg-9.6}"
-  targetVersion="upgrade-pg-14"
+  targetVersion="upgrade-pg-18"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
   # removing the test directory, but better to not require extra permissions.
@@ -69,6 +69,7 @@ clone_central_repo() {
 git_checkout() {
   log "Checking out '$1'..."
   git checkout "$1"
+  touch .env
   git submodule init
   git submodule update --init --jobs 16
   log "Checked out '$1':"
@@ -125,7 +126,11 @@ check_for_dirty_docker() {
 exec_in_service_container() {
   local scriptName="$1"
   # failure should not kill the script - leave error handling up to the caller
-  docker exec -i central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
+  if docker exec central-service-1 bash -c '[[ -f /usr/bin/with-pgenvblock.pl ]]'; then
+    docker exec -i central-service-1 /usr/bin/with-pgenvblock.pl /dev/shm/docker-envblock node -e "$(cat "$baseDir/js/$scriptName")" || true
+  else
+    docker exec -i central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
+  fi
 }
 
 confirm_postgres_version() {
@@ -138,7 +143,7 @@ confirm_postgres_version() {
     if [[ "$actualVersion" = "$expectedVersion" ]]; then
       log "[confirm_postgres_version] Postgres version confirmed: $expectedVersion"
       return
-    elif [[ "$actualVersion" = "" ]]; then
+    elif [[ "$actualVersion" = "" ]] || [[ "$actualVersion" = "ECONNREFUSED" ]]; then
       if [[ "$retries" -lt 5 ]]; then
         log "[confirm_postgres_version] Retrying..."
         (( ++retries ))
@@ -178,7 +183,7 @@ confirm_seed_data() {
 confirm_backend_running_ok() {
   local response_code
   for _ in {0..180}; do
-    response_code="$(curl -k -s -o /dev/null -w "%{http_code}" "https://localhost:$HTTPS_PORT/v1/sessions" --data '{"email":"doesntexist@example.com","password":"doesntmatter"}' --header 'Content-Type: application/json' || true)"
+    response_code="$(curl -k -s -o /dev/null -w "%{http_code}" "https://localhost:$HTTPS_PORT/v1/sessions" -H 'Host: local' --data '{"email":"doesntexist@example.com","password":"doesntmatter"}' --header 'Content-Type: application/json' || true)"
     if [[ "$response_code" = 401 ]]; then
       log "[confirm_backend_running_ok] Looks OK!"
       return
@@ -197,6 +202,7 @@ wait_for_service_container() {
   # ...and for the local.json config file to have been created
   for _ in {0..180}; do
     dbHost="$(exec_in_service_container get-db-host.js)"
+    log "[wait_for_service_container] got dbHost: '$dbHost'"
     if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres14 ]]; then
       log "[wait_for_service_container] Database config looks OK!"
       return

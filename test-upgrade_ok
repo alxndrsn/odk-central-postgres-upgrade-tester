@@ -25,9 +25,9 @@ EOF
 
 rebuild_and_restart_containers
 
-confirm_postgres_version 14
+confirm_postgres_version 18
 confirm_seed_data
-confirm_postgres_version 14
+confirm_postgres_version 18
 confirm_backend_running_ok
 
 if ! [[ -f ./files/postgres14/upgrade/upgrade-completed-ok ]]; then

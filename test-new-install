@@ -3,7 +3,7 @@
 # Test that a fresh install with the latest central version will
 # start normally.
 
-INITIAL_VERSION="upgrade-pg-14"
+INITIAL_VERSION="upgrade-pg-18"
 
 . ./lib.bash
 
@@ -18,7 +18,7 @@ docker compose up --remove-orphans --detach
 
 wait_for_service_container
 
-confirm_postgres_version 14
+confirm_postgres_version 18
 confirm_backend_running_ok
 
 log "Test passed OK!"
