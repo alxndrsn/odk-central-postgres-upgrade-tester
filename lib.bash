@@ -131,13 +131,13 @@ exec_in_service_container() {
 }
 
 patch_nginx_dockerfile() {
-  patch -p1 <<EOF
+  patch -p1 <<'EOF'
 --- a/nginx.dockerfile
 +++ b/nginx.dockerfile
-@@ -13,6 +13,14 @@ EXPOSE 443
-VOLUME [ "/etc/dh", "/etc/selfsign", "/etc/nginx/conf.d" ]
-ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
-
+@@ -13,5 +13,13 @@ EXPOSE 443
+ VOLUME [ "/etc/dh", "/etc/selfsign", "/etc/nginx/conf.d" ]
+ ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
+ 
 +# Fix archived debian repos.
 +RUN sed -i \
 +        -e 's/deb.debian.org/archive.debian.org/g' \
@@ -146,9 +146,9 @@ ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
 +        -e '/buster-updates/d' \
 +        /etc/apt/sources.list
 +
-RUN apt-get update; apt-get install -y openssl netcat nginx-extras lua-zlib
-
-RUN mkdir -p /etc/selfsign/live/local/
+ RUN apt-get update; apt-get install -y openssl netcat nginx-extras lua-zlib
+ 
+ RUN mkdir -p /etc/selfsign/live/local/
 EOF
 
   # (temporary?) have for faster development
