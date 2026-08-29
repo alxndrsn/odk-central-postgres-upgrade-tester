@@ -83,9 +83,9 @@ rebuild_and_restart_containers() {
 
 rebuild_containers() {
   log "Rebuilding containers..."
-  patch_nginx_dockerfile
+  patch_dockerfiles
   docker compose build
-  unpatch_nginx_dockerfile
+  unpatch_dockerfiles
   log "Containers rebuilt OK."
 }
 
@@ -130,7 +130,7 @@ exec_in_service_container() {
   docker exec -i central_service_1 node -e "$(cat "$baseDir/js/$scriptName")" || true
 }
 
-patch_nginx_dockerfile() {
+patch_dockerfiles() {
   patch -p1 <<'EOF'
 --- a/nginx.dockerfile
 +++ b/nginx.dockerfile
@@ -151,12 +151,28 @@ patch_nginx_dockerfile() {
  RUN mkdir -p /etc/selfsign/live/local/
 EOF
 
+  patch -p1 <<'EOF'
+--- a/service.dockerfile
++++ b/service.dockerfile
+@@ -12,8 +12,7 @@ FROM node:16.17.0
+ 
+ WORKDIR /usr/odk
+ 
+-RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ $(grep -oP 'VERSION_CODENAME=\K\w+' /etc/os-release)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list; \
+-  curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg; \
++RUN \
+   apt-get update; \
+   apt-get install -y cron gettext postgresql-client-14
+ 
+EOF
+
+
   # (temporary?) have for faster development
   tail -n+8 nginx.dockerfile | sed /intermediate/d > nginx.dockerfile.tmp
   mv nginx.dockerfile.tmp nginx.dockerfile
 }
-unpatch_nginx_dockerfile() {
-  git checkout -- nginx.dockerfile
+unpatch_dockerfiles() {
+  git checkout -- nginx.dockerfile service.dockerfile
 }
 
 confirm_postgres_version() {
@@ -260,9 +276,9 @@ setup_standard() {
   check_for_dirty_docker
 
   log "Starting $initialVersion..."
-  patch_nginx_dockerfile
+  patch_dockerfiles
   docker compose build
-  unpatch_nginx_dockerfile
+  unpatch_dockerfiles
   docker compose up --remove-orphans --detach
 
   wait_for_service_container
