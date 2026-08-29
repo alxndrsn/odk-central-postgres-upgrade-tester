@@ -13,9 +13,9 @@ clone_central_repo
 check_for_dirty_docker
 
 log "Starting $targetVersion..."
-patch_nginx_dockerfile
+patch_dockerfiles
 docker compose build
-unpatch_nginx_dockerfile
+unpatch_dockerfiles
 docker compose up --remove-orphans --detach
 
 wait_for_service_container
