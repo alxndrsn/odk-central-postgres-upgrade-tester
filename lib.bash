@@ -198,6 +198,7 @@ wait_for_service_container() {
   # ...and for the local.json config file to have been created
   for _ in {0..180}; do
     dbHost="$(exec_in_service_container get-db-host.js)"
+    log "[wait_for_service_container] got dbHost: '$dbHost'"
     if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres14 ]]; then
       log "[wait_for_service_container] Database config looks OK!"
       return
