@@ -126,7 +126,11 @@ check_for_dirty_docker() {
 exec_in_service_container() {
   local scriptName="$1"
   # failure should not kill the script - leave error handling up to the caller
-  docker exec -i central-service-1 /usr/bin/with-pgenvblock.pl /dev/shm/docker-envblock node -e "$(cat "$baseDir/js/$scriptName")" || true
+  if docker exec -i central-service-1 bash -c '[[ -f /usr/bin/with-pgenvblock.pl ]]'; then
+    docker exec -i central-service-1 /usr/bin/with-pgenvblock.pl /dev/shm/docker-envblock node -e "$(cat "$baseDir/js/$scriptName")" || true
+  else
+    docker exec -i central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
+  fi
 }
 
 confirm_postgres_version() {
