@@ -33,7 +33,7 @@ configure_environment() {
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
   initialVersion="${INITIAL_VERSION-upgrade-pg-9.6}"
-  targetVersion="upgrade-pg-14"
+  targetVersion="upgrade-pg-18"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
   # removing the test directory, but better to not require extra permissions.
@@ -69,6 +69,7 @@ clone_central_repo() {
 git_checkout() {
   log "Checking out '$1'..."
   git checkout "$1"
+  touch .env
   git submodule init
   git submodule update --init --jobs 16
   log "Checked out '$1':"

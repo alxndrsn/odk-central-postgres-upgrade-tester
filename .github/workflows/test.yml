@@ -32,13 +32,32 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
-  test-happy:
+  test-happy-single:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: test upgrade (happy path)
+      - name: test upgrade (happy path, single upgrade)
         shell: bash
         run: ./test-upgrade_ok --force
+      - name: service logs
+        if: always()
+        continue-on-error: true
+        run: ./logs-and-exit-for service
+      - name: postgres logs
+        if: always()
+        continue-on-error: true
+        run: ./logs-and-exit-for postgres
+      - name: postgres14 logs
+        if: always()
+        continue-on-error: true
+        run: ./logs-and-exit-for postgres14
+  test-happy-double:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: test upgrade (happy path, double upgrade)
+        shell: bash
+        run: ./test-double-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
