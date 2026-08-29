@@ -1,0 +1,67 @@
+#!/bin/bash -eu
+
+# Test that a successful upgrade will cause a specific file to be
+# created in the shared migation-logs directory.
+
+. ./lib.bash
+setup_standard
+
+log "Upgrading central to pg v14..." # see: https://docs.getodk.org/central-upgrade/
+git_checkout "upgrade-pg-14"
+
+log "Restricting target volume size to confirm we don't need triple size..."
+# TODO this doesn't actually prove that - we'd have to also restrict the original pg volume size too (could we?)
+# base requirement:  55 MB
+#       extra blob: 250 MB
+#            total: 305 MB
+exec_in_service_container create-blob.js
+cat >>docker-compose.yml <<EOF
+    driver: local
+    driver_opts:
+      device: ./files/postgres14/volume-postgres14
+      type: tmpfs
+      o: "size=305m"
+EOF
+
+rebuild_and_restart_containers
+
+confirm_postgres_version 14
+confirm_seed_data
+confirm_postgres_version 14
+confirm_backend_running_ok
+
+if ! [[ -f ./files/postgres14/upgrade/upgrade-completed-ok ]]; then
+  log "!!!"
+  log "!!! ERROR: Upgrade success flag file not found!"
+  log "!!!"
+  exit 1
+fi
+
+log "Upgrade to v14 completed OK!"
+
+
+log "Upgrading central to pg v18..." # see: https://docs.getodk.org/central-upgrade/
+git_checkout "$targetVersion"
+
+log "Restricting target volume size to confirm we don't need triple size..."
+# TODO this doesn't actually prove that - we'd have to also restrict the original pg volume size too (could we?)
+# base requirement:  55 MB
+#       extra blob: 250 MB
+#            total: 305 MB
+exec_in_service_container create-blob.js
+cat >>docker-compose.yml <<EOF
+    driver: local
+    driver_opts:
+      device: ./files/postgres14/volume-postgres14
+      type: tmpfs
+      o: "size=305m"
+EOF
+
+rebuild_and_restart_containers
+
+confirm_postgres_version 18
+confirm_seed_data
+confirm_postgres_version 18
+confirm_backend_running_ok
+
+log "Upgrade to v18 completed OK!"
