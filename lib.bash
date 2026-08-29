@@ -83,9 +83,7 @@ rebuild_and_restart_containers() {
 
 rebuild_containers() {
   log "Rebuilding containers..."
-  dev_speed_patch
   docker compose build
-  dev_speed_unpatch
   log "Containers rebuilt OK."
 }
 
@@ -128,15 +126,6 @@ exec_in_service_container() {
   local scriptName="$1"
   # failure should not kill the script - leave error handling up to the caller
   docker exec -i central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
-}
-
-dev_speed_patch() {
-  # (temporary?) have for faster development
-  tail -n+8 nginx.dockerfile | sed /intermediate/d > nginx.dockerfile.tmp
-  mv nginx.dockerfile.tmp nginx.dockerfile
-}
-dev_speed_unpatch() {
-  git checkout -- nginx.dockerfile
 }
 
 confirm_postgres_version() {
@@ -240,9 +229,7 @@ setup_standard() {
   check_for_dirty_docker
 
   log "Starting $initialVersion..."
-  dev_speed_patch
   docker compose build
-  dev_speed_unpatch
   docker compose up --remove-orphans --detach
 
   wait_for_service_container
