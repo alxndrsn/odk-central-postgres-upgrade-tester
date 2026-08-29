@@ -69,6 +69,7 @@ clone_central_repo() {
 git_checkout() {
   log "Checking out '$1'..."
   git checkout "$1"
+  touch .env
   git submodule init
   git submodule update --init --jobs 16
   log "Checked out '$1':"
