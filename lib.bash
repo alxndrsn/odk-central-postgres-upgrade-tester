@@ -154,7 +154,7 @@ EOF
   patch -p1 <<'EOF'
 --- a/service.dockerfile
 +++ b/service.dockerfile
-@@ -12,8 +12,7 @@ FROM node:16.17.0
+@@ -12,10 +12,9 @@ FROM node:16.17.0
  
  WORKDIR /usr/odk
  
@@ -162,7 +162,9 @@ EOF
 -  curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg; \
 +RUN \
    apt-get update; \
-   apt-get install -y cron gettext postgresql-client-14
+-  apt-get install -y cron gettext postgresql-client-14
++  apt-get install -y cron gettext
+
  
 EOF
 
