@@ -179,7 +179,7 @@ confirm_seed_data() {
 confirm_backend_running_ok() {
   local response_code
   for _ in {0..180}; do
-    response_code="$(curl -k -s -o /dev/null -w "%{http_code}" "https://localhost:$HTTPS_PORT/v1/sessions" --data '{"email":"doesntexist@example.com","password":"doesntmatter"}' --header 'Content-Type: application/json' || true)"
+    response_code="$(curl -k -s -o /dev/null -w "%{http_code}" "https://localhost:$HTTPS_PORT/v1/sessions" -H 'Host: local' --data '{"email":"doesntexist@example.com","password":"doesntmatter"}' --header 'Content-Type: application/json' || true)"
     if [[ "$response_code" = 401 ]]; then
       log "[confirm_backend_running_ok] Looks OK!"
       return
