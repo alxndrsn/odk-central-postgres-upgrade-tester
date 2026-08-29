@@ -13,9 +13,7 @@ clone_central_repo
 check_for_dirty_docker
 
 log "Starting $targetVersion..."
-dev_speed_patch
 docker compose build
-dev_speed_unpatch
 docker compose up --remove-orphans --detach
 
 wait_for_service_container
