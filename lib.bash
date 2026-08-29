@@ -178,6 +178,25 @@ EOF
  
 EOF
 
+  patch -p1 <<'EOF'
+--- a/enketo.dockerfile
++++ b/enketo.dockerfile
+@@ -14,6 +14,13 @@ COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json.temp
+ COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json
+ COPY files/enketo/start-enketo.sh ${ENKETO_SRC_DIR}/start-enketo.sh
+ 
++# Fix archived debian repos.
++RUN sed -i \
++        -e 's/deb.debian.org/archive.debian.org/g' \
++        -e 's/security.debian.org/archive.debian.org/g' \
++        -e '/stretch-updates/d' \
++        -e '/buster-updates/d' \
++        /etc/apt/sources.list
+ RUN apt-get update; apt-get install gettext-base
+ 
+ EXPOSE 8005
+EOF
+
 
   # (temporary?) have for faster development
   tail -n+8 nginx.dockerfile | sed /intermediate/d > nginx.dockerfile.tmp
