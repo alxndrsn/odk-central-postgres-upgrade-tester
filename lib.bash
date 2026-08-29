@@ -111,15 +111,15 @@ check_for_dirty_docker() {
   fi
 
   log "Checking for existing docker volumes..."
-  if [[ "$(docker volume ls -f name=central_postgres14 | tail -n+2 | wc -l)" != "0" ]]; then
+  if [[ "$(docker volume ls -f name=central-postgres14 | tail -n+2 | wc -l)" != "0" ]]; then
     warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
-    docker volume ls -f name=central_postgres14
+    docker volume ls -f name=central-postgres14
     warn "THESE VOLUMES WILL BE DESTROYED!"
 
     confirm_if_required "OK, volumes will be destroyed..."
 
     log "Cleaning docker volumes..."
-    docker volume rm central_postgres14
+    docker volume rm central-postgres14
     echo
   fi
 }
@@ -127,7 +127,7 @@ check_for_dirty_docker() {
 exec_in_service_container() {
   local scriptName="$1"
   # failure should not kill the script - leave error handling up to the caller
-  docker exec -i central_service_1 node -e "$(cat "$baseDir/js/$scriptName")" || true
+  docker exec -i central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
 }
 
 patch_dockerfiles() {
