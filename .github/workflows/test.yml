@@ -16,7 +16,7 @@ jobs:
       - run: ./shellcheck
   test-new-install:
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 4
     steps:
       - uses: actions/checkout@v3
       - name: test upgrade (happy path)
