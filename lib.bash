@@ -131,6 +131,8 @@ exec_in_service_container() {
 }
 
 patch_dockerfiles() {
+  # TODO maybe just do these patches on the specific central branch that's being tested?
+
   patch -p1 <<'EOF'
 --- a/nginx.dockerfile
 +++ b/nginx.dockerfile
