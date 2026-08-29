@@ -83,9 +83,9 @@ rebuild_and_restart_containers() {
 
 rebuild_containers() {
   log "Rebuilding containers..."
-  patch_dockerfiles
+  dev_speed_patch
   docker compose build
-  unpatch_dockerfiles
+  dev_speed_unpatch
   log "Containers rebuilt OK."
 }
 
@@ -130,80 +130,13 @@ exec_in_service_container() {
   docker exec -i central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
 }
 
-patch_dockerfiles() {
-  # TODO maybe just do these patches on the specific central branch that's being tested?
-
-  patch -p1 <<'EOF'
---- a/nginx.dockerfile
-+++ b/nginx.dockerfile
-@@ -13,5 +13,13 @@ EXPOSE 443
- VOLUME [ "/etc/dh", "/etc/selfsign", "/etc/nginx/conf.d" ]
- ENTRYPOINT [ "/bin/bash", "/scripts/odk-setup.sh" ]
- 
-+# Fix archived debian repos.
-+RUN sed -i \
-+        -e 's/deb.debian.org/archive.debian.org/g' \
-+        -e 's/security.debian.org/archive.debian.org/g' \
-+        -e '/stretch-updates/d' \
-+        -e '/buster-updates/d' \
-+        /etc/apt/sources.list
-+
- RUN apt-get update; apt-get install -y openssl netcat nginx-extras lua-zlib
- 
- RUN mkdir -p /etc/selfsign/live/local/
-EOF
-
-  patch -p1 <<'EOF'
---- a/service.dockerfile
-+++ b/service.dockerfile
-@@ -12,10 +12,16 @@ FROM node:16.17.0
- 
- WORKDIR /usr/odk
- 
--RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ $(grep -oP 'VERSION_CODENAME=\K\w+' /etc/os-release)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list; \
--  curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg; \
-+# Fix archived debian repos.
-+RUN sed -i \
-+        -e 's/deb.debian.org/archive.debian.org/g' \
-+        -e 's/security.debian.org/archive.debian.org/g' \
-+        -e '/stretch-updates/d' \
-+        -e '/buster-updates/d' \
-+        /etc/apt/sources.list
-+RUN \
-   apt-get update; \
--  apt-get install -y cron gettext postgresql-client-14
-+  apt-get install -y cron gettext
- 
- COPY files/service/crontab /etc/cron.d/odk
- 
-EOF
-
-  patch -p1 <<'EOF'
---- a/enketo.dockerfile
-+++ b/enketo.dockerfile
-@@ -14,6 +14,13 @@ COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json.temp
- COPY files/enketo/config.json.template ${ENKETO_SRC_DIR}/config/config.json
- COPY files/enketo/start-enketo.sh ${ENKETO_SRC_DIR}/start-enketo.sh
- 
-+# Fix archived debian repos.
-+RUN sed -i \
-+        -e 's/deb.debian.org/archive.debian.org/g' \
-+        -e 's/security.debian.org/archive.debian.org/g' \
-+        -e '/stretch-updates/d' \
-+        -e '/buster-updates/d' \
-+        /etc/apt/sources.list
- RUN apt-get update; apt-get install gettext-base
- 
- EXPOSE 8005
-EOF
-
-
+dev_speed_patch() {
   # (temporary?) have for faster development
   tail -n+8 nginx.dockerfile | sed /intermediate/d > nginx.dockerfile.tmp
   mv nginx.dockerfile.tmp nginx.dockerfile
 }
-unpatch_dockerfiles() {
-  git checkout -- nginx.dockerfile service.dockerfile
+dev_speed_unpatch() {
+  git checkout -- nginx.dockerfile
 }
 
 confirm_postgres_version() {
@@ -307,9 +240,9 @@ setup_standard() {
   check_for_dirty_docker
 
   log "Starting $initialVersion..."
-  patch_dockerfiles
+  dev_speed_patch
   docker compose build
-  unpatch_dockerfiles
+  dev_speed_unpatch
   docker compose up --remove-orphans --detach
 
   wait_for_service_container
