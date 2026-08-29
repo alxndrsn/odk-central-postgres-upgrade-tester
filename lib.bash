@@ -154,17 +154,25 @@ EOF
   patch -p1 <<'EOF'
 --- a/service.dockerfile
 +++ b/service.dockerfile
-@@ -12,10 +12,9 @@ FROM node:16.17.0
+@@ -12,10 +12,16 @@ FROM node:16.17.0
  
  WORKDIR /usr/odk
  
 -RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ $(grep -oP 'VERSION_CODENAME=\K\w+' /etc/os-release)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list; \
 -  curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg; \
++# Fix archived debian repos.
++RUN sed -i \
++        -e 's/deb.debian.org/archive.debian.org/g' \
++        -e 's/security.debian.org/archive.debian.org/g' \
++        -e '/stretch-updates/d' \
++        -e '/buster-updates/d' \
++        /etc/apt/sources.list
 +RUN \
    apt-get update; \
 -  apt-get install -y cron gettext postgresql-client-14
 +  apt-get install -y cron gettext
-
+ 
+ COPY files/service/crontab /etc/cron.d/odk
  
 EOF
 
