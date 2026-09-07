@@ -69,6 +69,7 @@ clone_central_repo() {
 git_checkout() {
   log "Checking out '$1'..."
   git checkout "$1"
+  touch .env
   git submodule init
   git submodule update --init --jobs 16
   log "Checked out '$1':"
@@ -135,6 +136,7 @@ confirm_postgres_version() {
   local retries=0
   while true; do
     actualVersion="$(exec_in_service_container get-postgres-version.js)"
+    log "[confirm_postgres_version] Got postgres version: '$actualVersion'..."
     if [[ "$actualVersion" = "$expectedVersion" ]]; then
       log "[confirm_postgres_version] Postgres version confirmed: $expectedVersion"
       return
@@ -197,6 +199,7 @@ wait_for_service_container() {
   # ...and for the local.json config file to have been created
   for _ in {0..180}; do
     dbHost="$(exec_in_service_container get-db-host.js)"
+    log "[wait_for_service_container] got dbHost: '$dbHost'"
     if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres14 ]]; then
       log "[wait_for_service_container] Database config looks OK!"
       return
