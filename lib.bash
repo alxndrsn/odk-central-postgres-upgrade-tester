@@ -140,6 +140,7 @@ confirm_postgres_version() {
   local retries=0
   while true; do
     actualVersion="$(exec_in_service_container get-postgres-version.js)"
+    log "[confirm_postgres_version] Got postgres version: '$actualVersion'..."
     if [[ "$actualVersion" = "$expectedVersion" ]]; then
       log "[confirm_postgres_version] Postgres version confirmed: $expectedVersion"
       return
