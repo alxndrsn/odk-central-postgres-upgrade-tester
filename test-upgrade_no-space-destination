@@ -20,6 +20,9 @@ EOF
 
 rebuild_and_restart_containers
 
+# ECONNREFUSED now occurs even in normal startup FIXME confirm this FIXME so sleep for a while before checking for failed postgres14 container startup
+sleep 30
+
 confirm_postgres_version ECONNREFUSED
 upgradeLogFile="./files/postgres14/upgrade/upgrade-postgres.log"
 if ! grep -E 'UTC .* FATAL: .*: No space left on device$' "$upgradeLogFile"; then
