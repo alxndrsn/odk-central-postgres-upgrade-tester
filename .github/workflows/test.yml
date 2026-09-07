@@ -12,14 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
       - run: ./shellcheck
   test-new-install:
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
       - name: test upgrade (happy path)
         shell: bash
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
       - name: test upgrade (happy path)
         shell: bash
@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
       - name: test upgrade (no space left on target device)
         shell: bash
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
       - name: test upgrade (docker build failure)
         shell: bash
