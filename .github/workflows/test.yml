@@ -23,6 +23,7 @@ jobs:
       - name: test upgrade (happy path)
         shell: bash
         run: ./test-new-install --force
+      - run: ./test-restart
       - name: service logs
         if: always()
         continue-on-error: true
@@ -44,6 +45,7 @@ jobs:
       - name: test upgrade (happy path)
         shell: bash
         run: ./test-upgrade_ok --force
+      - run: ./test-restart
       - name: service logs
         if: always()
         continue-on-error: true

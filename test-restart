@@ -1,0 +1,11 @@
+#!/bin/bash -eu
+
+# Test that all services can restart after a successful
+# upgrade or install, and that data is still available.
+
+. ./lib.bash
+
+restart_containers
+wait_for_service_container
+confirm_seed_data
+confirm_backend_running_ok
