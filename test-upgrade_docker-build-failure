@@ -10,7 +10,7 @@ log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetVersion"
 
 log "Injecting missing dependency into service Dockerfile..."
-sed -Ei 's/(apt-get install -y .*)/\1 i-do-not-exist/' service.dockerfile
+sed -Ei 's/(apt-get install -y [^\\]*)/\1 i-do-not-exist /' service.dockerfile
 
 log "Rebuilding containers..."
 
