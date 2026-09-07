@@ -30,7 +30,9 @@ confirm_seed_data
 confirm_postgres_version 18
 confirm_backend_running_ok
 
-if ! [[ -f ./files/postgres14/upgrade/upgrade-completed-ok ]]; then
+# This file's name changed in https://github.com/getodk/central/pull/395, hopefully before release.
+if ! [[ -f ./files/postgres14/upgrade/upgrade-completed-ok ]] \
+&& ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
   log "!!!"
   log "!!! ERROR: Upgrade success flag file not found!"
   log "!!!"
