@@ -6,7 +6,7 @@ configPath=/etc/docker/buildkitd.toml
 
 if ! [[ -f "$configPath" ]]; then
   log "No config found; creating now..."
-  cat >"$configPath" <<EOF
+  sudo cat >"$configPath" <<EOF
 [http]
   [http.retry]
     max = 5
