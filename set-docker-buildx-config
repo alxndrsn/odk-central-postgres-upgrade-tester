@@ -2,6 +2,8 @@
 
 log() { echo "[$(basename "$0")] $*"; }
 
+configPath=/etc/docker/buildkitd.toml
+
 if ! [[ -f "$configPath" ]]; then
   log "No config found; creating now..."
   cat >"$configPath" <<EOF
