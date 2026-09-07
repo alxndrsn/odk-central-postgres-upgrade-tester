@@ -2,7 +2,7 @@
 
 log() { echo "[$(basename "$0")] $*"; }
 
-if ! [[ ${CI-} = 1 ]]; then
+if ! [[ ${CI-} = true ]]; then
   log "You're not running in CI.  You probably don't want to run this script."
   exit 1
 fi
