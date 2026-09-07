@@ -7,6 +7,8 @@ const config = require('config').get('default.database');
 
 const { password, ...redactedConfig } = config;
 log('DB config:', redactedConfig);
+log('DB env vars:');
+Object.entries(process.env).filter(([ k ]) => k.startsWith('PG')).forEach(([ k, v ]) => log(`  ${k}=${v}`));
 
 (async () => {
   try {
