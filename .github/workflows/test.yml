@@ -51,6 +51,10 @@ jobs:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
       - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_ok --force
+      - name: final free space
+        if: always()
+        continue-on-error: true
+        run: sudo df -h
       - name: service logs
         if: always()
         continue-on-error: true
