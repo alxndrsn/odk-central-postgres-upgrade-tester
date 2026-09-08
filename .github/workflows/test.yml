@@ -23,18 +23,7 @@ jobs:
       - name: test upgrade (happy path)
         shell: bash
         run: ./test-new-install --force
-      - name: service logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for service
-      - name: postgres logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for postgres
-      - name: postgres14 logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for postgres14
+      - uses: ./.github/actions/print-container-logs
   test-happy:
     runs-on: ubuntu-latest
     timeout-minutes: 8
@@ -44,18 +33,7 @@ jobs:
       - name: test upgrade (happy path)
         shell: bash
         run: ./test-upgrade_ok --force
-      - name: service logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for service
-      - name: postgres logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for postgres
-      - name: postgres14 logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for postgres14
+      - uses: ./.github/actions/print-container-logs
   test-no-space-destination:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -65,18 +43,7 @@ jobs:
       - name: test upgrade (no space left on target device)
         shell: bash
         run: ./test-upgrade_no-space-destination --force
-      - name: service logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for service
-      - name: postgres logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for postgres
-      - name: postgres14 logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for postgres14
+      - uses: ./.github/actions/print-container-logs
   test-docker-build-failure:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -86,15 +53,4 @@ jobs:
       - name: test upgrade (docker build failure)
         shell: bash
         run: ./test-upgrade_docker-build-failure --force
-      - name: service logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for service
-      - name: postgres logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for postgres
-      - name: postgres14 logs
-        if: always()
-        continue-on-error: true
-        run: ./logs-and-exit-for postgres14
+      - uses: ./.github/actions/print-container-logs

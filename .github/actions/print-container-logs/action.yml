@@ -1,0 +1,21 @@
+name: Print Container Logs
+description: Prints logs from relevant containers
+
+runs:
+  using: composite
+  steps: 
+  - name: service logs
+    if: always()
+    continue-on-error: true
+    shell: bash
+    run: ./logs-and-exit-for service
+  - name: postgres logs
+    if: always()
+    continue-on-error: true
+    shell: bash
+    run: ./logs-and-exit-for postgres
+  - name: postgres14 logs
+    if: always()
+    continue-on-error: true
+    shell: bash
+    run: ./logs-and-exit-for postgres14
