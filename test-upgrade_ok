@@ -37,4 +37,6 @@ if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
   exit 1
 fi
 
+test_restart
+
 log "Upgrade completed OK!"
