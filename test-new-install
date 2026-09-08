@@ -21,4 +21,6 @@ wait_for_service_container
 confirm_postgres_version 14
 confirm_backend_running_ok
 
+test_restart
+
 log "Test passed OK!"
