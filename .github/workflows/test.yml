@@ -36,10 +36,13 @@ jobs:
   test-happy:
     runs-on: ubuntu-latest
     timeout-minutes: 8
+    strategy:
+      matrix:
+        initialVersion: [ "9.6", "14" ]
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: ./test-upgrade_ok --force
+      - run: INITIAL_VERSION=${{ matrix.initialVersion }} ./test-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
