@@ -18,7 +18,7 @@ Object.entries(process.env).filter(([ k ]) => k.startsWith('PG')).forEach(([ k, 
 
   log('Connected OK; inserting...');
 
-  await client.query(`INSERT INTO config (key, value) VALUES('upgrade-seed', '{"ok":true}')`);
+  await client.query(`INSERT INTO config (key, value) VALUES('db-seed', '{"ok":true}')`);
 
   log('Complete.');
   process.exit();
