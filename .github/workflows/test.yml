@@ -37,8 +37,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     strategy:
+      fail-fast: false
       matrix:
-        initialVersion: [ "9.6", "14" ]
+        initialVersion: 
+        - "upgrade-9.6"
+        - "upgrade-pg-14-official"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
