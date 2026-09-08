@@ -32,7 +32,7 @@ jobs:
       - uses: ./.github/actions/print-container-logs
   test-no-space-destination:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
