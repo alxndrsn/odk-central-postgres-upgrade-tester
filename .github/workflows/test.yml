@@ -39,7 +39,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        initialVersion: 
+        initialVersion:
         - "upgrade-9.6"
         - "upgrade-pg-14-official"
     steps:
