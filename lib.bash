@@ -1,6 +1,8 @@
 set -eu
 set -o pipefail
 
+seedFlag=.db-seed-created
+
 #> PROCESS CLI ARGS >#
 force_destruction=""
 if [[ ${1-} = --force ]]; then
@@ -29,6 +31,20 @@ check_for_dependencies() {
 }
 
 configure_environment() {
+  if [[ -f "$seedFlag" ]]; then
+    if ! [[ "${CI-}" = '' ]]; then
+      log "!!!"
+      log "!!! Seed flag already found at $seedFlag !"
+      log "!!! Check why - the environment may be dirty."
+      log "!!!"
+      log "!!! ABORTING TEST"
+      log "!!!"
+      exit 1
+    fi
+    log "Clearing old seed flag..."
+    rm "$seedFlag"
+  fi
+
   baseDir="$(pwd)"
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
@@ -225,6 +241,17 @@ confirm_if_required() {
   fi
 }
 
+seed_db() {
+  log "Seeding database..."
+  if [[ -f "$seedFlag" ]]; then
+    log "Seed flag already exists at $seedFlag !  Has the database already been seeded this test run?"
+  fi
+  touch "$seedFlag"
+
+  exec_in_service_container seed-db.js
+  confirm_seed_data
+}
+
 setup_standard() {
   check_for_dependencies
   configure_environment
@@ -240,9 +267,7 @@ setup_standard() {
   confirm_postgres_version 9.6
   confirm_backend_running_ok
 
-  log "Seeding database..."
-  exec_in_service_container seed-db.js
-  confirm_seed_data
+  seed_db
   confirm_postgres_version 9.6
 }
 
