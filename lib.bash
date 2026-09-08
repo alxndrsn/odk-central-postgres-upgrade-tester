@@ -281,7 +281,7 @@ test_restart() {
   restart_containers
   wait_for_service_container
   confirm_backend_running_ok
-  confirm_postgres_version 14
+  confirm_postgres_version 18
   confirm_seed_data
   log "Containers restarted ok."
 }
