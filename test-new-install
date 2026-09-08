@@ -22,7 +22,6 @@ confirm_postgres_version 14
 confirm_backend_running_ok
 
 exec_in_service_container seed-db.js
-
 test_restart
 
 log "Test passed OK!"
