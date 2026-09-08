@@ -33,11 +33,12 @@ configure_environment() {
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
   initialBranch="${INITIAL_BRANCH-upgrade-pg-9.6}"
-  targetVersion="upgrade-pg-18"
+  initialVesion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$initialBranch")"
+  targetBranch="upgrade-pg-18"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
   # removing the test directory, but better to not require extra permissions.
-  testDir="tmp/$initialBranch-to-$targetVersion/$(date +%s)"
+  testDir="tmp/$initialBranch-to-$targetBranch/$(date +%s)"
 
   # a bunch of env vars for containers
   export SYSADMIN_EMAIL=no-reply@getodk.org
@@ -241,11 +242,11 @@ setup_standard() {
 
   wait_for_service_container
 
-  confirm_postgres_version 9.6
+  confirm_postgres_version "$initialVersion"
   confirm_backend_running_ok
 
   log "Seeding database..."
   exec_in_service_container seed-db.js
   confirm_seed_data
-  confirm_postgres_version 9.6
+  confirm_postgres_version "$initialVersion"
 }
