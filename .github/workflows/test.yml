@@ -20,9 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - name: test upgrade (happy path)
-        shell: bash
-        run: ./test-new-install --force
+      - run: ./test-new-install --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -41,9 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - name: test upgrade (happy path)
-        shell: bash
-        run: ./test-upgrade_ok --force
+      - run: ./test-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -62,9 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - name: test upgrade (no space left on target device)
-        shell: bash
-        run: ./test-upgrade_no-space-destination --force
+      - run: ./test-upgrade_no-space-destination --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -83,9 +77,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - name: test upgrade (docker build failure)
-        shell: bash
-        run: ./test-upgrade_docker-build-failure --force
+      - run: ./test-upgrade_docker-build-failure --force
       - name: service logs
         if: always()
         continue-on-error: true
