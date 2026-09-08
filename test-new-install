@@ -3,7 +3,7 @@
 # Test that a fresh install with the latest central version will
 # start normally.
 
-INITIAL_VERSION="upgrade-pg-14-official"
+INITIAL_BRANCH="upgrade-pg-14-official"
 
 . ./lib.bash
 
@@ -12,7 +12,7 @@ configure_environment
 clone_central_repo
 check_for_dirty_docker
 
-log "Starting $targetVersion..."
+log "Starting $targetBranch..."
 docker compose build
 docker compose up --remove-orphans --detach
 

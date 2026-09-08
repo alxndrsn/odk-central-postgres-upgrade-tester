@@ -48,12 +48,12 @@ configure_environment() {
   baseDir="$(pwd)"
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
-  initialVersion="${INITIAL_VERSION-upgrade-pg-9.6}"
-  targetVersion="upgrade-pg-14-official"
+  initialBranch="${INITIAL_BRANCH-upgrade-pg-9.6}"
+  targetBranch="upgrade-pg-14-official"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
   # removing the test directory, but better to not require extra permissions.
-  testDir="tmp/$initialVersion-to-$targetVersion/$(date +%s)"
+  testDir="tmp/$initialBranch-to-$targetBranch/$(date +%s)"
 
   # a bunch of env vars for containers
   export SYSADMIN_EMAIL=no-reply@getodk.org
@@ -78,7 +78,7 @@ clone_central_repo() {
   git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
   cd central
   ls
-  git_checkout "$initialVersion"
+  git_checkout "$initialBranch"
   touch ./files/allow-postgres14-upgrade
 }
 
@@ -258,7 +258,7 @@ setup_standard() {
   clone_central_repo
   check_for_dirty_docker
 
-  log "Starting $initialVersion..."
+  log "Starting $initialBranch..."
   docker compose build
   docker compose up --remove-orphans --detach
 
