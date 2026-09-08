@@ -43,18 +43,9 @@ jobs:
         - "upgrade-pg-9.6"
         - "upgrade-pg-14-official"
     steps:
-      - run: sudo df -h
-      - run: sudo rm -rf /usr/share/dotnet
-      - run: sudo df -h
-      - run: sudo rm -rf /usr/local/lib/android
-      - run: sudo df -h
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
       - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_ok --force
-      - name: final free space
-        if: always()
-        continue-on-error: true
-        run: sudo df -h
       - name: service logs
         if: always()
         continue-on-error: true
