@@ -20,7 +20,7 @@ cat >>docker-compose.yml <<EOF
     driver_opts:
       device: ./files/postgres14/volume-postgres14
       type: tmpfs
-      o: "size=305m"
+      o: "size=500m"
 EOF
 
 rebuild_and_restart_containers
