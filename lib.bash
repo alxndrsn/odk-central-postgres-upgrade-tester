@@ -99,16 +99,29 @@ rebuild_and_restart_containers() {
   wait_for_service_container
 }
 
+debug_volumes() {
+  log "-------- DEBUG VOLUMES --------"
+  docker volume inspect central_postgres14 || true
+  log "-------------------------------"
+  cat docker-compose.yml || true
+  log "-------------------------------"
+}
+
 rebuild_containers() {
   log "Rebuilding containers..."
+  debug_volumes
   docker compose build
+  debug_volumes
   log "Containers rebuilt OK."
 }
 
 restart_containers() {
   log "Restarting containers..."
+  debug_volumes
   docker compose stop
+  debug_volumes
   docker compose up --remove-orphans --detach
+  debug_volumes
   log "Containers restarted OK."
 }
 
