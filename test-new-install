@@ -21,7 +21,7 @@ wait_for_service_container
 confirm_postgres_version 14
 confirm_backend_running_ok
 
-exec_in_service_container seed-db.js
+seed_db
 test_restart
 
 log "Test passed OK!"
