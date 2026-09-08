@@ -49,6 +49,7 @@ configure_environment() {
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
   initialBranch="${INITIAL_BRANCH-upgrade-pg-9.6}"
+  initialVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$initialBranch")"
   targetBranch="upgrade-pg-14-official"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
@@ -264,11 +265,11 @@ setup_standard() {
 
   wait_for_service_container
 
-  confirm_postgres_version 9.6
+  confirm_postgres_version "$initialVersion"
   confirm_backend_running_ok
 
   seed_db
-  confirm_postgres_version 9.6
+  confirm_postgres_version "$initialVersion"
 }
 
 test_restart() {
