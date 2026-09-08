@@ -12,7 +12,7 @@ configure_environment
 clone_central_repo
 check_for_dirty_docker
 
-log "Starting $targetVersion..."
+log "Starting $targetBranch..."
 docker compose build
 docker compose up --remove-orphans --detach
 
