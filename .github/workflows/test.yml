@@ -39,13 +39,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        initialVersion:
+        initialBranch:
         - "upgrade-pg-9.6"
         - "upgrade-pg-14-official"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: INITIAL_VERSION=${{ matrix.initialVersion }} ./test-upgrade_ok --force
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
