@@ -7,7 +7,7 @@
 setup_standard
 
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
-git_checkout "$targetVersion"
+git_checkout "$targetBranch"
 
 log "Restricting target volume size..."
 cat >>docker-compose.yml <<EOF
