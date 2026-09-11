@@ -61,10 +61,16 @@ jobs:
   test-no-space-destination:
     runs-on: ubuntu-latest
     timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        initialBranch:
+        - "upgrade-pg-9.6"
+        - "upgrade-pg-14-official"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: ./test-upgrade_no-space-destination --force
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_no-space-destination --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -80,10 +86,16 @@ jobs:
   test-docker-build-failure:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        initialBranch:
+        - "upgrade-pg-9.6"
+        - "upgrade-pg-14-official"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: ./test-upgrade_docker-build-failure --force
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_docker-build-failure --force
       - name: service logs
         if: always()
         continue-on-error: true
