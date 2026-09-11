@@ -149,6 +149,8 @@ exec_in_service_container() {
 confirm_postgres_version() {
   local expectedVersion="$1"
   log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion'..."
+  exec_in_service_container wait-for-postgres.js
+
   local actualVersion
   local retries=0
   while true; do
