@@ -3,10 +3,10 @@
 # Test that running out of disk space during the upgrade stage is
 # communicated via the upgrade log file.
 
+. ./lib.bash
+
 log "Restricting target volume size..."
 volumeOpts="size=1m"
-
-. ./lib.bash
 
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetBranch"
