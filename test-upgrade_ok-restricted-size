@@ -18,9 +18,9 @@ exec_in_service_container create-blob.js
 log "Rebuilding and restarting containers..."
 rebuild_and_restart_containers
 
-confirm_postgres_version 14
+confirm_postgres_version 18
 confirm_seed_data
-confirm_postgres_version 14
+confirm_postgres_version 18
 confirm_backend_running_ok
 log "Containers rebuilt and restarted OK."
 
