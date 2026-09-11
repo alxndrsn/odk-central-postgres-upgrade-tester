@@ -3,9 +3,6 @@
 # Test that a successful upgrade will cause a specific file to be
 # created in the shared migation-logs directory.
 
-# Extra blob: 250 MB; allow for double that.
-volumeOpts="size=500m"
-
 . ./lib.bash
 setup_standard
 
