@@ -254,9 +254,10 @@ seed_db() {
 }
 
 setup_standard() {
-  log "Setting up branch: $initialBranch"
   check_for_dependencies
   configure_environment
+
+  log "Setting up branch: $initialBranch"
   clone_central_repo
   check_for_dirty_docker
 
