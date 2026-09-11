@@ -108,6 +108,12 @@ git_checkout() {
 
   # Add consistent postgres14 volume opts iff it's defined.
   if ! [[ "${volumeOpts-}" = "" ]] && ! [[ "$1" = upgrade-pg-9.6 ]]; then
+    log "[git_checkout] WARN"
+    log "[git_checkout] WARN Reconfiguring postgres14 volume to use tmpfs."
+    log "[git_checkout] WARN"
+    log "[git_checkout] WARN This option is NOT compatible with container restarts or multi-stage"
+    log "[git_checkout] WARN upgrade testing, as tmpfs volume is recreated on container restart(?)"
+    log "[git_checkout] WARN"
     cat >>docker-compose.yml <<EOF
     driver: local
     driver_opts:

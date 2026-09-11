@@ -33,7 +33,7 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
-  test-happy:
+  test-happy-with-restart:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     strategy:
@@ -45,7 +45,32 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_ok --force
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_ok-with-restart --force
+      - name: service logs
+        if: always()
+        continue-on-error: true
+        run: ./logs-and-exit-for service
+      - name: postgres logs
+        if: always()
+        continue-on-error: true
+        run: ./logs-and-exit-for postgres
+      - name: postgres14 logs
+        if: always()
+        continue-on-error: true
+        run: ./logs-and-exit-for postgres14
+  test-happy-restricted-volume:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        initialBranch:
+        - "upgrade-pg-9.6"
+        - "upgrade-pg-14-official"
+    steps:
+      - uses: actions/checkout@v6
+      - run: ./set-docker-buildx-config
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_ok-restricted-size --force
       - name: service logs
         if: always()
         continue-on-error: true
