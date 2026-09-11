@@ -8,6 +8,8 @@
 log "Restricting target volume size..."
 volumeOpts="size=1m"
 
+setup_standard
+
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetBranch"
 
