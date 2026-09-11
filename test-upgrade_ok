@@ -3,6 +3,9 @@
 # Test that a successful upgrade will cause a specific file to be
 # created in the shared migation-logs directory.
 
+# Extra blob: 250 MB; allow for double that.
+volumeOpts="size=500m"
+
 . ./lib.bash
 setup_standard
 
@@ -10,15 +13,7 @@ log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetBranch"
 
 log "Restricting target volume size to confirm we don't need triple size..."
-# Extra blob: 250 MB; allow for double that.
 exec_in_service_container create-blob.js
-cat >>docker-compose.yml <<EOF
-    driver: local
-    driver_opts:
-      device: ./files/postgres14/volume-postgres14
-      type: tmpfs
-      o: "size=500m"
-EOF
 
 log "Rebuilding and restarting containers..."
 rebuild_and_restart_containers
