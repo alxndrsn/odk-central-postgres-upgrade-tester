@@ -53,7 +53,7 @@ configure_environment() {
       log "!!!"
       exit 1
     fi
-    log "Clearing old seed flag..."
+    log "[configure_environment] Clearing old seed flag..."
     rm "$seedFlag"
   fi
 
@@ -75,18 +75,18 @@ configure_environment() {
   export HTTPS_PORT=18443
   export SSL_TYPE=selfsign
 
-  log "Cleaning up test directory..."
+  log "[configure_environment] Cleaning up test directory..."
   rm -rf "$testDir" || true
   mkdir -p "$testDir"
 
-  log "Creating test directory..."
+  log "[configure_environment] Creating test directory..."
   cd "$testDir"
   # disable annoying git messages
   git config --local advice.detachedHead false
 }
 
 clone_central_repo() {
-  log "Cloning odk-central git repo ($baseRepo)..."
+  log "[clone_central_repo] Cloning odk-central git repo ($baseRepo)..."
   # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
   git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
   cd central
@@ -96,13 +96,13 @@ clone_central_repo() {
 }
 
 git_checkout() {
-  log "Checking out '$1'..."
+  log "[git_checkout] Checking out '$1'..."
   git checkout -- docker-compose.yml
   git checkout "$1"
   touch .env
   git submodule init
   git submodule update --init --jobs 16
-  log "Checked out '$1':"
+  log "[git_checkout] Checked out '$1':"
   git show --pretty=oneline --summary
 
   # Add consistent postgres14 volume opts iff it's defined.
@@ -124,9 +124,9 @@ rebuild_and_restart_containers() {
 }
 
 rebuild_containers() {
-  log "Rebuilding containers..."
+  log "[rebuild_containers] Rebuilding containers..."
   docker compose build
-  log "Containers rebuilt OK."
+  log "[rebuild_containers] Containers rebuilt OK."
 }
 
 restart_containers() {
@@ -137,7 +137,7 @@ restart_containers() {
 }
 
 check_for_dirty_docker() {
-  log "Checking for existing containers..."
+  log "[check_for_dirty_docker] Checking for existing containers..."
   if [[ "$(docker compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
     warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
     docker compose ps
@@ -145,12 +145,12 @@ check_for_dirty_docker() {
 
     confirm_if_required "OK, containers and volumes will be destroyed..."
 
-    log "Cleaning docker-compose..."
+    log "[check_for_dirty_docker] Cleaning docker-compose..."
     docker compose down --remove-orphans --volumes
     echo
   fi
 
-  log "Checking for existing docker volumes..."
+  log "[check_for_dirty_docker] Checking for existing docker volumes..."
   volumeName=central_postgres14
   if [[ "$(docker volume ls -f name="$volumeName" | tail -n+2 | wc -l)" != "0" ]]; then
     warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
@@ -159,7 +159,7 @@ check_for_dirty_docker() {
 
     confirm_if_required "OK, volumes will be destroyed..."
 
-    log "Cleaning docker volumes..."
+    log "[check_for_dirty_docker] Cleaning docker volumes..."
     docker volume rm "$volumeName"
     echo
   fi
@@ -266,15 +266,15 @@ confirm_if_required() {
     echo
     case "$choice" in
       y|Y) echo "$confirmed_message" ;;
-      *  ) log "Aborted."; exit 1 ;;
+      *  ) log "[confirm_if_required] Aborted."; exit 1 ;;
     esac
   fi
 }
 
 seed_db() {
-  log "Seeding database..."
+  log "[seed_db] Seeding database..."
   if [[ -f "$seedFlag" ]]; then
-    log "Seed flag already exists at $seedFlag !  Has the database already been seeded this test run?"
+    log "[seed_db] Seed flag already exists at $seedFlag !  Has the database already been seeded this test run?"
   fi
   touch "$seedFlag"
 
@@ -286,11 +286,11 @@ setup_standard() {
   check_for_dependencies
   configure_environment
 
-  log "Setting up branch: $initialBranch"
+  log "[setup_standard] Setting up branch: $initialBranch"
   clone_central_repo
   check_for_dirty_docker
 
-  log "Building and starting containers..."
+  log "[setup_standard] Building and starting containers..."
   docker compose build
   docker compose up --remove-orphans --detach
 
@@ -298,18 +298,18 @@ setup_standard() {
 
   confirm_postgres_version "$initialVersion"
   confirm_backend_running_ok
-  log "Containers started OK."
+  log "[setup_standard] Containers started OK."
 
   seed_db
   confirm_postgres_version "$initialVersion"
 }
 
 test_restart() {
-  log "Testing container restart..."
+  log "[test_restart] Testing container restart..."
   restart_containers
   wait_for_service_container
   confirm_backend_running_ok
   confirm_postgres_version 18
   confirm_seed_data
-  log "Containers restarted ok."
+  log "[test_restart] Containers restarted ok."
 }
