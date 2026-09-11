@@ -30,6 +30,7 @@ check_for_dependencies() {
   fi
 }
 
+fullArgs="$*"
 configure_environment() {
   if [[ "${INITIAL_BRANCH-}" = "" ]]; then
     log "!!!"
@@ -37,8 +38,8 @@ configure_environment() {
     log "!!!"
     log "!!! Recommended values:"
     log "!!!"
-    log "!!!     INITIAL_BRANCH=upgrade-pg-9.6         $BASH_ARGV0 ${BASH_ARGV[@]}"
-    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official $BASH_ARGV0 ${BASH_ARGV[@]}"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-9.6         $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official $BASH_ARGV0" "$fullArgs"
     log "!!!"
     exit 1
   fi
