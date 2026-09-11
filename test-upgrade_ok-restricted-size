@@ -12,7 +12,7 @@ setup_standard
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetBranch"
 
-log "Restricting target volume size to confirm we don't need triple size..."
+log "Creating a massive blob..."
 exec_in_service_container create-blob.js
 
 log "Rebuilding and restarting containers..."

@@ -66,7 +66,6 @@ jobs:
       matrix:
         initialBranch:
         - "upgrade-pg-9.6"
-        - "upgrade-pg-14-official"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config

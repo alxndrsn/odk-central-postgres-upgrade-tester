@@ -3,6 +3,9 @@
 # Test that a successful upgrade will cause a specific file to be
 # created in the shared migation-logs directory.
 
+
+
+
 . ./lib.bash
 setup_standard
 
