@@ -22,7 +22,8 @@ process.stdout.write('[wait-for-postgres] Waiting for postgres...');
         // Extra sleep for luck ¯\_(ツ)_/¯
         await sleep1();
 
-        process.stdout.write('OK.\n');
+        process.stdout.write('OK.');
+        console.log();
         process.exitCode = 0;
         return;
       }
@@ -30,7 +31,8 @@ process.stdout.write('[wait-for-postgres] Waiting for postgres...');
       if(Date.now() < timeout && !isFatal(err)) {
         await sleep1();
       } else {
-        process.stdout.write('FAILED!\n');
+        process.stdout.write('FAILED!');
+        console.log();
         log('Error:', err.message, err, Object.keys(err));
         process.exitCode = 1;
         return;
