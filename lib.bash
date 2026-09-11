@@ -31,6 +31,18 @@ check_for_dependencies() {
 }
 
 configure_environment() {
+  if [[ "${INITIAL_BRANCH-}" = "" ]]; then
+    log "!!!"
+    log "!!! Missing required env var: INITIAL_BRANCH"
+    log "!!!"
+    log "!!! Recommended values:"
+    log "!!!"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-9.6         $BASH_ARGV0 ${BASH_ARGV[@]}"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official $BASH_ARGV0 ${BASH_ARGV[@]}"
+    log "!!!"
+    exit 1
+  fi
+
   if [[ -f "$seedFlag" ]]; then
     if ! [[ "${CI-}" = '' ]]; then
       log "!!!"
@@ -48,7 +60,7 @@ configure_environment() {
   baseDir="$(pwd)"
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
-  initialBranch="${INITIAL_BRANCH-upgrade-pg-9.6}"
+  initialBranch="$INITIAL_BRANCH"
   initialVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$initialBranch")"
   targetBranch="upgrade-pg-18"
   # include a nonce in the test directory, as we will not own the postgres data
