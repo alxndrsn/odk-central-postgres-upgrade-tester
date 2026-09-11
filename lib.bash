@@ -127,15 +127,16 @@ check_for_dirty_docker() {
   fi
 
   log "Checking for existing docker volumes..."
-  if [[ "$(docker volume ls -f name=central-postgres14 | tail -n+2 | wc -l)" != "0" ]]; then
+  volumeName=central_postgres14
+  if [[ "$(docker volume ls -f name="$volumeName" | tail -n+2 | wc -l)" != "0" ]]; then
     warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
-    docker volume ls -f name=central-postgres14
+    docker volume ls -f name="$volumeName"
     warn "THESE VOLUMES WILL BE DESTROYED!"
 
     confirm_if_required "OK, volumes will be destroyed..."
 
     log "Cleaning docker volumes..."
-    docker volume rm central-postgres14
+    docker volume rm "$volumeName"
     echo
   fi
 }
