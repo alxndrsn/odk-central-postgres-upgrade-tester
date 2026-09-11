@@ -31,7 +31,8 @@ process.stdout.write('[wait-for-postgres] Waiting for postgres...');
         await sleep1();
 
         process.stdout.write('OK.\n');
-        process.exit(0);
+        process.exitCode = 0;
+        return;
       }
     } catch(err) {
       if(Date.now() < timeout && !isFatal(err)) {
@@ -39,7 +40,8 @@ process.stdout.write('[wait-for-postgres] Waiting for postgres...');
       } else {
         process.stdout.write('FAILED!\n');
         log('Error:', err.message, err, Object.keys(err));
-        process.exit(1);
+        process.exitCode = 1;
+        return;
       }
     } finally {
       try { await client?.end(); } catch(_) { /*ignore*/ }
