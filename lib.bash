@@ -85,12 +85,24 @@ clone_central_repo() {
 
 git_checkout() {
   log "Checking out '$1'..."
+  git checkout -- docker-compose.yml
   git checkout "$1"
   touch .env
   git submodule init
   git submodule update --init --jobs 16
   log "Checked out '$1':"
   git show --pretty=oneline --summary
+
+  # Add consistent postgres14 volume opts iff it's defined.
+  if ! [[ "${volumeOpts-}" = "" ]] && ! [[ "$1" = upgrade-pg-9.6 ]]; then
+    cat >>docker-compose.yml <<EOF
+    driver: local
+    driver_opts:
+      device: ./files/postgres14/volume-postgres14
+      type: tmpfs
+      o: "$volumeOpts"
+EOF
+  fi
 }
 
 rebuild_and_restart_containers() {
