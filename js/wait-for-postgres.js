@@ -1,5 +1,5 @@
 const { Client } = require('pg');
-const pgConfig = require('config').get('default.database');
+const config = require('config').get('default.database');
 
 const log = (...args) => console.log('[wait-for-postgres]', ...args);
 
@@ -15,7 +15,7 @@ process.stdout.write('[wait-for-postgres] Waiting for postgres...');
 
     let client;
     try {
-      client = await new Client(pgConfig);
+      client = await new Client(config);
       await client.connect(); // N.B. for backwards compatibility, this cannot be chained
       const { rows:[ { ready } ] } = await client.query(`SELECT NOT pg_is_in_recovery() AS ready`);
       if(ready === true) {
