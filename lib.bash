@@ -130,10 +130,10 @@ rebuild_containers() {
 }
 
 restart_containers() {
-  log "Restarting containers..."
+  log "[restart_containers] Restarting containers..."
   docker compose stop
   docker compose up --remove-orphans --detach
-  log "Containers restarted OK."
+  log "[restart_containers] Containers restarted OK."
 }
 
 check_for_dirty_docker() {
