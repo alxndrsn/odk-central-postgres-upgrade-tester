@@ -254,12 +254,13 @@ seed_db() {
 }
 
 setup_standard() {
+  log "Setting up branch: $initialBranch"
   check_for_dependencies
   configure_environment
   clone_central_repo
   check_for_dirty_docker
 
-  log "Starting $initialBranch..."
+  log "Building and starting containers..."
   docker compose build
   docker compose up --remove-orphans --detach
 
@@ -267,6 +268,7 @@ setup_standard() {
 
   confirm_postgres_version "$initialVersion"
   confirm_backend_running_ok
+  log "Containers started OK."
 
   seed_db
   confirm_postgres_version "$initialVersion"
