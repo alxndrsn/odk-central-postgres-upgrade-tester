@@ -10,17 +10,14 @@ log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetBranch"
 
 log "Restricting target volume size to confirm we don't need triple size..."
-# TODO this doesn't actually prove that - we'd have to also restrict the original pg volume size too (could we?)
-# base requirement:  55 MB
-#       extra blob: 250 MB
-#            total: 305 MB
+# Extra blob: 250 MB; allow for double that.
 exec_in_service_container create-blob.js
 cat >>docker-compose.yml <<EOF
     driver: local
     driver_opts:
       device: ./files/postgres14/volume-postgres14
       type: tmpfs
-      o: "size=305m"
+      o: "size=500m"
 EOF
 
 log "Rebuilding and restarting containers..."
