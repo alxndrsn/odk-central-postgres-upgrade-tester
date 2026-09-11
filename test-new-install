@@ -3,7 +3,7 @@
 # Test that a fresh install with the latest central version will
 # start normally.
 
-INITIAL_BRANCH="upgrade-pg-14-official"
+INITIAL_BRANCH="upgrade-pg-18"
 
 . ./lib.bash
 
@@ -19,7 +19,7 @@ log "Containers built and restarted OK."
 
 wait_for_service_container
 
-confirm_postgres_version 14
+confirm_postgres_version 18
 confirm_backend_running_ok
 log "Containers started OK."
 

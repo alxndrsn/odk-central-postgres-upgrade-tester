@@ -30,7 +30,20 @@ check_for_dependencies() {
   fi
 }
 
+fullArgs="$*"
 configure_environment() {
+  if [[ "${INITIAL_BRANCH-}" = "" ]]; then
+    log "!!!"
+    log "!!! Missing required env var: INITIAL_BRANCH"
+    log "!!!"
+    log "!!! Recommended values:"
+    log "!!!"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-9.6         $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official $BASH_ARGV0" "$fullArgs"
+    log "!!!"
+    exit 1
+  fi
+
   if [[ -f "$seedFlag" ]]; then
     if ! [[ "${CI-}" = '' ]]; then
       log "!!!"
@@ -48,9 +61,9 @@ configure_environment() {
   baseDir="$(pwd)"
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
-  initialBranch="${INITIAL_BRANCH-upgrade-pg-9.6}"
+  initialBranch="$INITIAL_BRANCH"
   initialVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$initialBranch")"
-  targetBranch="upgrade-pg-14-official"
+  targetBranch="upgrade-pg-18"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
   # removing the test directory, but better to not require extra permissions.
@@ -95,6 +108,12 @@ git_checkout() {
 
   # Add consistent postgres14 volume opts iff it's defined.
   if ! [[ "${volumeOpts-}" = "" ]] && ! [[ "$1" = upgrade-pg-9.6 ]]; then
+    log "[git_checkout] WARN"
+    log "[git_checkout] WARN Reconfiguring postgres14 volume to use tmpfs."
+    log "[git_checkout] WARN"
+    log "[git_checkout] WARN This option is NOT compatible with container restarts or multi-stage"
+    log "[git_checkout] WARN upgrade testing, as tmpfs volume is recreated on container restart(?)"
+    log "[git_checkout] WARN"
     cat >>docker-compose.yml <<EOF
     driver: local
     driver_opts:
@@ -172,8 +191,10 @@ confirm_postgres_version() {
     if [[ "$actualVersion" = "$expectedVersion" ]]; then
       log "[confirm_postgres_version] Postgres version confirmed: $expectedVersion"
       return
-    elif [[ "$actualVersion" = "" ]]; then
-      if [[ "$retries" -lt 5 ]]; then
+    elif [[ "$actualVersion" = "" ]] || \
+         [[ "$actualVersion" = "ENOTFOUND" ]] || \
+         [[ "$actualVersion" = "ECONNREFUSED" ]]; then
+      if [[ "$retries" -lt 15 ]]; then
         log "[confirm_postgres_version] Retrying..."
         (( ++retries ))
         sleep 2
@@ -295,7 +316,7 @@ test_restart() {
   restart_containers
   wait_for_service_container
   confirm_backend_running_ok
-  confirm_postgres_version 14
+  confirm_postgres_version 18
   confirm_seed_data
   log "[test_restart] Containers restarted ok."
 }

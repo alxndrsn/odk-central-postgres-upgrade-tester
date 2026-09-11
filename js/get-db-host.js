@@ -5,7 +5,7 @@ try {
   const config = require('config').get('default.database');
   log('Config loaded.');
 
-  console.log(config.host);
+  console.log(config.host || process.env.PGHOST);
 } catch(err) {
   console.log('Failed to get DB host:', err);
 }
