@@ -20,12 +20,14 @@ cat >>docker-compose.yml <<EOF
       o: "size=500m"
 EOF
 
+log "Rebuilding and restarting containers..."
 rebuild_and_restart_containers
 
 confirm_postgres_version 18
 confirm_seed_data
 confirm_postgres_version 18
 confirm_backend_running_ok
+log "Containers rebuilt and restarted OK."
 
 if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
   log "!!!"
@@ -34,6 +36,8 @@ if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
   exit 1
 fi
 
+log "Rebuilding and restarting containers..."
 test_restart
+log "Containers restarted OK."
 
 log "Upgrade completed OK!"
