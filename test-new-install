@@ -3,7 +3,7 @@
 # Test that a fresh install with the latest central version will
 # start normally.
 
-INITIAL_VERSION="upgrade-pg-18"
+INITIAL_BRANCH="upgrade-pg-18"
 
 . ./lib.bash
 
@@ -12,13 +12,22 @@ configure_environment
 clone_central_repo
 check_for_dirty_docker
 
-log "Starting $targetVersion..."
+log "Building and restarting containers..."
 docker compose build
 docker compose up --remove-orphans --detach
+log "Containers built and restarted OK."
 
 wait_for_service_container
 
 confirm_postgres_version 18
 confirm_backend_running_ok
+log "Containers started OK."
+
+log "Seeding database..."
+seed_db
+
+log "Rebuilding and restarting containers..."
+test_restart
+log "Containers restarted OK."
 
 log "Test passed OK!"

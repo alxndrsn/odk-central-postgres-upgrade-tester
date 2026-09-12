@@ -4,19 +4,14 @@
 # communicated via the upgrade log file.
 
 . ./lib.bash
+
+log "Restricting target volume size..."
+volumeOpts="size=1m"
+
 setup_standard
 
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
-git_checkout "$targetVersion"
-
-log "Restricting target volume size..."
-cat >>docker-compose.yml <<EOF
-    driver: local
-    driver_opts:
-      device: ./files/postgres14/volume-postgres14
-      type: tmpfs
-      o: "size=1m"
-EOF
+git_checkout "$targetBranch"
 
 rebuild_and_restart_containers
 
