@@ -12,8 +12,8 @@ setup_standard
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetBranch"
 
-
-
+# massive blob not required
+#
 
 log "Rebuilding and restarting containers..."
 rebuild_and_restart_containers
