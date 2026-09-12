@@ -1,6 +1,8 @@
 set -eu
 set -o pipefail
 
+seedFlag=.db-seed-created
+
 #> PROCESS CLI ARGS >#
 force_destruction=""
 if [[ ${1-} = --force ]]; then
@@ -28,16 +30,44 @@ check_for_dependencies() {
   fi
 }
 
+fullArgs="$*"
 configure_environment() {
+  if [[ "${INITIAL_BRANCH-}" = "" ]]; then
+    log "!!!"
+    log "!!! Missing required env var: INITIAL_BRANCH"
+    log "!!!"
+    log "!!! Recommended values:"
+    log "!!!"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-9.6         $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official $BASH_ARGV0" "$fullArgs"
+    log "!!!"
+    exit 1
+  fi
+
+  if [[ -f "$seedFlag" ]]; then
+    if ! [[ "${CI-}" = '' ]]; then
+      log "!!!"
+      log "!!! Seed flag already found at $seedFlag !"
+      log "!!! Check why - the environment may be dirty."
+      log "!!!"
+      log "!!! ABORTING TEST"
+      log "!!!"
+      exit 1
+    fi
+    log "[configure_environment] Clearing old seed flag..."
+    rm "$seedFlag"
+  fi
+
   baseDir="$(pwd)"
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
-  initialVersion="${INITIAL_VERSION-upgrade-pg-9.6}"
-  targetVersion="upgrade-pg-18"
+  initialBranch="$INITIAL_BRANCH"
+  initialVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$initialBranch")"
+  targetBranch="upgrade-pg-18"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
   # removing the test directory, but better to not require extra permissions.
-  testDir="tmp/$initialVersion-to-$targetVersion/$(date +%s)"
+  testDir="tmp/$initialBranch-to-$targetBranch/$(date +%s)"
 
   # a bunch of env vars for containers
   export SYSADMIN_EMAIL=no-reply@getodk.org
@@ -46,34 +76,52 @@ configure_environment() {
   export HTTPS_PORT=18443
   export SSL_TYPE=selfsign
 
-  log "Cleaning up test directory..."
+  log "[configure_environment] Cleaning up test directory..."
   rm -rf "$testDir" || true
   mkdir -p "$testDir"
 
-  log "Creating test directory..."
+  log "[configure_environment] Creating test directory..."
   cd "$testDir"
   # disable annoying git messages
   git config --local advice.detachedHead false
 }
 
 clone_central_repo() {
-  log "Cloning odk-central git repo ($baseRepo)..."
+  log "[clone_central_repo] Cloning odk-central git repo ($baseRepo)..."
   # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
   git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
   cd central
   ls
-  git_checkout "$initialVersion"
+  git_checkout "$initialBranch"
   touch ./files/allow-postgres14-upgrade
 }
 
 git_checkout() {
-  log "Checking out '$1'..."
+  log "[git_checkout] Checking out '$1'..."
+  git checkout -- docker-compose.yml
   git checkout "$1"
   touch .env
   git submodule init
   git submodule update --init --jobs 16
-  log "Checked out '$1':"
+  log "[git_checkout] Checked out '$1':"
   git show --pretty=oneline --summary
+
+  # Add consistent postgres14 volume opts iff it's defined.
+  if ! [[ "${volumeOpts-}" = "" ]] && ! [[ "$1" = upgrade-pg-9.6 ]]; then
+    log "[git_checkout] WARN"
+    log "[git_checkout] WARN Reconfiguring postgres14 volume to use tmpfs."
+    log "[git_checkout] WARN"
+    log "[git_checkout] WARN This option is NOT compatible with container restarts or multi-stage"
+    log "[git_checkout] WARN upgrade testing, as tmpfs volume is recreated on container restart(?)"
+    log "[git_checkout] WARN"
+    cat >>docker-compose.yml <<EOF
+    driver: local
+    driver_opts:
+      device: ./files/postgres14/volume-postgres14
+      type: tmpfs
+      o: "$volumeOpts"
+EOF
+  fi
 }
 
 rebuild_and_restart_containers() {
@@ -83,20 +131,20 @@ rebuild_and_restart_containers() {
 }
 
 rebuild_containers() {
-  log "Rebuilding containers..."
+  log "[rebuild_containers] Rebuilding containers..."
   docker compose build
-  log "Containers rebuilt OK."
+  log "[rebuild_containers] Containers rebuilt OK."
 }
 
 restart_containers() {
-  log "Restarting containers..."
+  log "[restart_containers] Restarting containers..."
   docker compose stop
   docker compose up --remove-orphans --detach
-  log "Containers restarted OK."
+  log "[restart_containers] Containers restarted OK."
 }
 
 check_for_dirty_docker() {
-  log "Checking for existing containers..."
+  log "[check_for_dirty_docker] Checking for existing containers..."
   if [[ "$(docker compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
     warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
     docker compose ps
@@ -104,21 +152,22 @@ check_for_dirty_docker() {
 
     confirm_if_required "OK, containers and volumes will be destroyed..."
 
-    log "Cleaning docker-compose..."
+    log "[check_for_dirty_docker] Cleaning docker-compose..."
     docker compose down --remove-orphans --volumes
     echo
   fi
 
-  log "Checking for existing docker volumes..."
-  if [[ "$(docker volume ls -f name=central-postgres14 | tail -n+2 | wc -l)" != "0" ]]; then
+  log "[check_for_dirty_docker] Checking for existing docker volumes..."
+  volumeName=central_postgres14
+  if [[ "$(docker volume ls -f name="$volumeName" | tail -n+2 | wc -l)" != "0" ]]; then
     warn "docker HAS ALREADY CREATED VOLUMES ON THIS SYSTEM:"
-    docker volume ls -f name=central-postgres14
+    docker volume ls -f name="$volumeName"
     warn "THESE VOLUMES WILL BE DESTROYED!"
 
     confirm_if_required "OK, volumes will be destroyed..."
 
-    log "Cleaning docker volumes..."
-    docker volume rm central-postgres14
+    log "[check_for_dirty_docker] Cleaning docker volumes..."
+    docker volume rm "$volumeName"
     echo
   fi
 }
@@ -132,15 +181,20 @@ exec_in_service_container() {
 confirm_postgres_version() {
   local expectedVersion="$1"
   log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion'..."
+  exec_in_service_container wait-for-postgres.js
+
   local actualVersion
   local retries=0
   while true; do
     actualVersion="$(exec_in_service_container get-postgres-version.js)"
+    log "[confirm_postgres_version] Got postgres version: '$actualVersion'..."
     if [[ "$actualVersion" = "$expectedVersion" ]]; then
       log "[confirm_postgres_version] Postgres version confirmed: $expectedVersion"
       return
-    elif [[ "$actualVersion" = "" ]]; then
-      if [[ "$retries" -lt 5 ]]; then
+    elif [[ "$actualVersion" = "" ]] || \
+         [[ "$actualVersion" = "ENOTFOUND" ]] || \
+         [[ "$actualVersion" = "ECONNREFUSED" ]]; then
+      if [[ "$retries" -lt 15 ]]; then
         log "[confirm_postgres_version] Retrying..."
         (( ++retries ))
         sleep 2
@@ -163,12 +217,12 @@ confirm_postgres_version() {
 
 confirm_seed_data() {
   local isOk
-  isOk="$(exec_in_service_container get-upgrade-seed.js)"
+  isOk="$(exec_in_service_container get-db-seed.js)"
   if [[ "$isOk" = "true" ]]; then
     log "[confirm_seed_data] Seed data OK!"
   else
     log "[confirm_seed_data] !!!"
-    log "[confirm_seed_data] !!! Incorrect upgrade seed !!!"
+    log "[confirm_seed_data] !!! Incorrect db-seed !!!"
     log "[confirm_seed_data] !!!   Expected: true"
     log "[confirm_seed_data] !!!    but got: $isOk"
     log "[confirm_seed_data] !!!"
@@ -179,7 +233,7 @@ confirm_seed_data() {
 confirm_backend_running_ok() {
   local response_code
   for _ in {0..180}; do
-    response_code="$(curl -k -s -o /dev/null -w "%{http_code}" "https://localhost:$HTTPS_PORT/v1/sessions" --data '{"email":"doesntexist@example.com","password":"doesntmatter"}' --header 'Content-Type: application/json' || true)"
+    response_code="$(curl -k -s -o /dev/null -w "%{http_code}" "https://localhost:$HTTPS_PORT/v1/sessions" -H 'Host: local' --data '{"email":"doesntexist@example.com","password":"doesntmatter"}' --header 'Content-Type: application/json' || true)"
     if [[ "$response_code" = 401 ]]; then
       log "[confirm_backend_running_ok] Looks OK!"
       return
@@ -198,6 +252,7 @@ wait_for_service_container() {
   # ...and for the local.json config file to have been created
   for _ in {0..180}; do
     dbHost="$(exec_in_service_container get-db-host.js)"
+    log "[wait_for_service_container] got dbHost: '$dbHost'"
     if [[ "$dbHost" = postgres ]] || [[ "$dbHost" = postgres14 ]]; then
       log "[wait_for_service_container] Database config looks OK!"
       return
@@ -218,28 +273,50 @@ confirm_if_required() {
     echo
     case "$choice" in
       y|Y) echo "$confirmed_message" ;;
-      *  ) log "Aborted."; exit 1 ;;
+      *  ) log "[confirm_if_required] Aborted."; exit 1 ;;
     esac
   fi
+}
+
+seed_db() {
+  log "[seed_db] Seeding database..."
+  if [[ -f "$seedFlag" ]]; then
+    log "[seed_db] Seed flag already exists at $seedFlag !  Has the database already been seeded this test run?"
+  fi
+  touch "$seedFlag"
+
+  exec_in_service_container seed-db.js
+  confirm_seed_data
 }
 
 setup_standard() {
   check_for_dependencies
   configure_environment
+
+  log "[setup_standard] Setting up branch: $initialBranch"
   clone_central_repo
   check_for_dirty_docker
 
-  log "Starting $initialVersion..."
+  log "[setup_standard] Building and starting containers..."
   docker compose build
   docker compose up --remove-orphans --detach
 
   wait_for_service_container
 
-  confirm_postgres_version 9.6
+  confirm_postgres_version "$initialVersion"
   confirm_backend_running_ok
+  log "[setup_standard] Containers started OK."
 
-  log "Seeding database..."
-  exec_in_service_container seed-db.js
+  seed_db
+  confirm_postgres_version "$initialVersion"
+}
+
+test_restart() {
+  log "[test_restart] Testing container restart..."
+  restart_containers
+  wait_for_service_container
+  confirm_backend_running_ok
+  confirm_postgres_version 18
   confirm_seed_data
-  confirm_postgres_version 9.6
+  log "[test_restart] Containers restarted ok."
 }
