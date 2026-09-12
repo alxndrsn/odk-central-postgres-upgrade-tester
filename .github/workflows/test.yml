@@ -10,16 +10,17 @@ on:
 jobs:
   shellcheck:
     runs-on: ubuntu-latest
+    timeout-minutes: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - run: ./shellcheck
   test-new-install:
     runs-on: ubuntu-latest
+    timeout-minutes: 6
     steps:
-      - uses: actions/checkout@v3
-      - name: test upgrade (happy path)
-        shell: bash
-        run: ./test-new-install --force
+      - uses: actions/checkout@v6
+      - run: ./set-docker-buildx-config
+      - run: ./test-new-install --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -32,13 +33,43 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
-  test-happy-single:
+  test-happy-single-with-restart:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        initialBranch:
+        - "upgrade-pg-9.6"
+        - "upgrade-pg-14-official"
     steps:
-      - uses: actions/checkout@v3
-      - name: test upgrade (happy path, single upgrade)
-        shell: bash
-        run: ./test-upgrade_ok --force
+      - uses: actions/checkout@v6
+      - run: ./set-docker-buildx-config
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_ok-with-restart --force
+      - name: service logs
+        if: always()
+        continue-on-error: true
+        run: ./logs-and-exit-for service
+      - name: postgres logs
+        if: always()
+        continue-on-error: true
+        run: ./logs-and-exit-for postgres
+      - name: postgres14 logs
+        if: always()
+        continue-on-error: true
+        run: ./logs-and-exit-for postgres14
+  test-happy-single-restricted-volume:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        initialBranch:
+        - "upgrade-pg-9.6"
+    steps:
+      - uses: actions/checkout@v6
+      - run: ./set-docker-buildx-config
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_ok-restricted-size --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -54,10 +85,8 @@ jobs:
   test-happy-double:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: test upgrade (happy path, double upgrade)
-        shell: bash
-        run: ./test-double-upgrade_ok --force
+      - uses: actions/checkout@v6
+      - run: ./test-double-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -72,11 +101,16 @@ jobs:
         run: ./logs-and-exit-for postgres14
   test-no-space-destination:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        initialBranch:
+        - "upgrade-pg-9.6"
     steps:
-      - uses: actions/checkout@v3
-      - name: test upgrade (no space left on target device)
-        shell: bash
-        run: ./test-upgrade_no-space-destination --force
+      - uses: actions/checkout@v6
+      - run: ./set-docker-buildx-config
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_no-space-destination --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -91,11 +125,17 @@ jobs:
         run: ./logs-and-exit-for postgres14
   test-docker-build-failure:
     runs-on: ubuntu-latest
+    timeout-minutes: 6
+    strategy:
+      fail-fast: false
+      matrix:
+        initialBranch:
+        - "upgrade-pg-9.6"
+        - "upgrade-pg-14-official"
     steps:
-      - uses: actions/checkout@v3
-      - name: test upgrade (docker build failure)
-        shell: bash
-        run: ./test-upgrade_docker-build-failure --force
+      - uses: actions/checkout@v6
+      - run: ./set-docker-buildx-config
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_docker-build-failure --force
       - name: service logs
         if: always()
         continue-on-error: true

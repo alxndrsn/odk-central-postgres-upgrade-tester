@@ -7,6 +7,8 @@ const config = require('config').get('default.database');
 
 const { password, ...redactedConfig } = config;
 log('DB config:', redactedConfig);
+log('DB env vars:');
+Object.entries(process.env).filter(([ k ]) => k.startsWith('PG')).sort(([k1], [k2]) => k1<k2?-1:1).forEach(([ k, v ]) => log(`  ${k}=${v}`));
 
 (async () => {
   log('Connecting to DB...');
@@ -15,24 +17,24 @@ log('DB config:', redactedConfig);
   await client.connect();
 
   log('Connected OK; creating blob function...');
-	// random_bytea() from: https://dba.stackexchange.com/a/22571
-	await client.query(`
-		CREATE OR REPLACE FUNCTION random_bytea(bytea_length integer)
-			RETURNS bytea AS $body$
-				SELECT decode(string_agg(lpad(to_hex(width_bucket(random(), 0, 1, 256) -1), 2, '0'), ''), 'hex')
-					FROM generate_series(1, $1);
-			$body$
-			LANGUAGE 'sql'
-			VOLATILE
-			SET search_path = 'pg_catalog';
-	`);
+  // random_bytea() from: https://dba.stackexchange.com/a/22571
+  await client.query(`
+    CREATE OR REPLACE FUNCTION random_bytea(bytea_length integer)
+      RETURNS bytea AS $body$
+        SELECT decode(string_agg(lpad(to_hex(width_bucket(random(), 0, 1, 256) -1), 2, '0'), ''), 'hex')
+          FROM generate_series(1, $1);
+      $body$
+      LANGUAGE 'sql'
+      VOLATILE
+      SET search_path = 'pg_catalog';
+  `);
 
-	const blobSizeMb = 250;
+  const blobSizeMb = 250;
   log(`Function created OK; creating blob of ${blobSizeMb} MB...`);
-	await client.query(`
-		INSERT INTO blobs (sha, "contentType", md5, content)
-							 VALUES ( '',            '',  '', random_bytea(${blobSizeMb * 1_000_000}));
-	`);
+  await client.query(`
+    INSERT INTO blobs (sha, "contentType", md5, content)
+               VALUES ( '',            '',  '', random_bytea(${blobSizeMb * 1_000_000}));
+  `);
 
   log('Complete.');
   process.exit();

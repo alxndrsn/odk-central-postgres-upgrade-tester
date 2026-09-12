@@ -1,0 +1,34 @@
+#!/bin/bash -eu
+
+# Test that a successful upgrade will cause a specific file to be
+# created in the shared migation-logs directory.
+
+# Extra blob: 250 MB; allow for double that.
+volumeOpts="size=500m"
+
+. ./lib.bash
+setup_standard
+
+log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
+git_checkout "$targetBranch"
+
+log "Creating a massive blob..."
+exec_in_service_container create-blob.js
+
+log "Rebuilding and restarting containers..."
+rebuild_and_restart_containers
+
+confirm_postgres_version 18
+confirm_seed_data
+confirm_postgres_version 18
+confirm_backend_running_ok
+log "Containers rebuilt and restarted OK."
+
+if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
+  log "!!!"
+  log "!!! ERROR: Upgrade success flag file not found!"
+  log "!!!"
+  exit 1
+fi
+
+log "Upgrade completed OK!"
