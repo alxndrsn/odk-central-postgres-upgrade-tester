@@ -1,0 +1,56 @@
+#!/bin/bash -eu
+
+# Test that a successful upgrade from 9.6 to 14 and then from 14 to 18 will
+# cause a specific file to be created in the shared migation-logs directory.
+
+
+INITIAL_BRANCH=upgrade-pg-9.6
+
+. ./lib.bash
+setup_standard
+
+log "Upgrading central to pg v14..." # see: https://docs.getodk.org/central-upgrade/
+git_checkout "upgrade-pg-14-official"
+
+# massive blob not required
+#
+
+log "Rebuilding and restarting containers..."
+rebuild_and_restart_containers
+
+confirm_postgres_version 14
+confirm_seed_data
+confirm_postgres_version 14
+confirm_backend_running_ok
+log "Containers rebuilt and restarted OK."
+
+if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
+  log "!!!"
+  log "!!! ERROR: Upgrade success flag file not found!"
+  log "!!!"
+  exit 1
+fi
+
+log "Upgrade to v14 completed OK!"
+
+
+log "Upgrading central to pg v18..." # see: https://docs.getodk.org/central-upgrade/
+git_checkout "upgrade-pg-18"
+
+
+
+
+log "Rebuilding and restarting containers..."
+rebuild_and_restart_containers
+
+confirm_postgres_version 18
+confirm_seed_data
+confirm_postgres_version 18
+confirm_backend_running_ok
+log "Containers rebuilt and restarted OK."
+
+log "Rebuilding and restarting containers..."
+test_restart
+log "Containers restarted OK."
+
+log "Upgrade to v18 completed OK!"
