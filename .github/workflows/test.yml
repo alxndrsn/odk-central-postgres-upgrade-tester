@@ -42,6 +42,7 @@ jobs:
         initialBranch:
         - "upgrade-pg-9.6"
         - "upgrade-pg-14-official"
+        - "upgrade-pg-17"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
@@ -115,6 +116,7 @@ jobs:
         initialBranch:
         - "upgrade-pg-9.6"
         - "upgrade-pg-14-official"
+        - "upgrade-pg-17"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
