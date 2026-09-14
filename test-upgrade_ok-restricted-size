@@ -9,11 +9,11 @@ volumeOpts="size=500m"
 . ./lib.bash
 setup_standard
 
-log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
-git_checkout "$targetBranch"
-
 log "Creating a massive blob..."
 exec_in_service_container create-blob.js
+
+log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
+git_checkout "$targetBranch"
 
 log "Rebuilding and restarting containers..."
 rebuild_and_restart_containers
