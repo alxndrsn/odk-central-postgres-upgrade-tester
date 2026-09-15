@@ -1,0 +1,4 @@
+#!/bin/bash -eu
+docker volume ls --format '{{.Name}}' | grep -E '^[a-f0-9]{64}$'
+log "TODO: actually check if (unexpected) anonymous volumes have been created, and try to give more contect if they have."
+exit 1
