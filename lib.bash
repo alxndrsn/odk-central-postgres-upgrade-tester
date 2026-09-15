@@ -131,6 +131,10 @@ rebuild_and_restart_containers() {
 }
 
 rebuild_containers() {
+  log "[rebuild_containers] === postgres14 logs BEGIN ==="
+  (cd ../../../.. && ./logs-and-exit-for postgres14)
+  log "[rebuild_containers] === postgres14 logs END ==="
+
   log "[rebuild_containers] Rebuilding containers..."
   docker compose build
   log "[rebuild_containers] Containers rebuilt OK."
