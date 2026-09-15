@@ -193,7 +193,8 @@ confirm_postgres_version() {
       return
     elif [[ "$actualVersion" = "" ]] || \
          [[ "$actualVersion" = "ENOTFOUND" ]] || \
-         [[ "$actualVersion" = "ECONNREFUSED" ]]; then
+         [[ "$actualVersion" = "ECONNREFUSED" ]] || \
+         [[ "$actualVersion" = "57P03" ]]; then
       if [[ "$retries" -lt 15 ]]; then
         log "[confirm_postgres_version] Retrying..."
         (( ++retries ))
