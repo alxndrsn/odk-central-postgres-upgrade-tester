@@ -24,7 +24,7 @@ process.stdout.write('[wait-for-postgres] Waiting for postgres...');
 
         process.stdout.write('OK.');
         console.log();
-        process.exit();
+        setTimeout(() => process.exit(), 100); // allow stdout to flush(?)
       }
     } catch(err) {
       if(Date.now() < timeout && !isFatal(err)) {
