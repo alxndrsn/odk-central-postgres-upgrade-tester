@@ -11,7 +11,6 @@ for vol in $(docker volume ls -q); do
   containers="$(docker ps -a --filter "volume=$vol" --format "{{.Names}}")"
   if [[ -n "$containers" ]]; then
     echo "$containers" | while IFS= read -r ctr; do
-      [[ -z "$ctr" ]] && continue
       log "       - $ctr"
       echo >>"$scriptDir/.volume-owners" "vol:$vol container:$ctr"
     done
