@@ -33,7 +33,7 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
-      - run: catch-stray-anonymous-volumes
+      - run: ./catch-stray-anonymous-volumes
   test-happy-single-with-restart:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -59,7 +59,7 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
-      - run: catch-stray-anonymous-volumes
+      - run: ./catch-stray-anonymous-volumes
   test-happy-single-restricted-volume:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -84,7 +84,7 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
-      - run: catch-stray-anonymous-volumes
+      - run: ./catch-stray-anonymous-volumes
   test-happy-double:
     runs-on: ubuntu-latest
     steps:
@@ -102,7 +102,7 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
-      - run: catch-stray-anonymous-volumes
+      - run: ./catch-stray-anonymous-volumes
   test-no-space-destination:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -127,7 +127,7 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
-      - run: catch-stray-anonymous-volumes
+      - run: ./catch-stray-anonymous-volumes
   test-docker-build-failure:
     runs-on: ubuntu-latest
     timeout-minutes: 6
@@ -153,4 +153,4 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
-      - run: catch-stray-anonymous-volumes
+      - run: ./catch-stray-anonymous-volumes
