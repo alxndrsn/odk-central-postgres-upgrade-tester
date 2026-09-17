@@ -2,7 +2,7 @@
 set -o pipefail
 
 logPrefix="[$(basename "$0")]"
-log() { echo >&2 "$logPrefix $*"; }
+log() { echo "$logPrefix $*"; }
 
 if [[ $# -ne 1 ]]; then
   log "!!! Missing required arg: <expected-volume-count>"
