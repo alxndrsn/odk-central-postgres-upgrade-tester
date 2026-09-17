@@ -25,7 +25,6 @@ if [[ "$actualVolumeCount" = "$expectedVolumeCount" ]]; then
 fi
 
 log "Checking volume ownership..."
-filter_args=()
 idx=0
 while IFS= read -r vol; do
   containers="$(docker ps -a --filter "volume=$vol" --format "$logPrefix    - {{.Names}}")"
