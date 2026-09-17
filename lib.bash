@@ -1,6 +1,9 @@
 set -eu
 set -o pipefail
 
+libDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+echo "$libDir"
+
 seedFlag=.db-seed-created
 
 #> PROCESS CLI ARGS >#
@@ -140,7 +143,7 @@ restart_containers() {
   log "[restart_containers] Restarting containers..."
   docker compose stop
   docker compose up --remove-orphans --detach
-  "$(dirname "$0")/docker-volumes/print-owners"
+  "$libDir/docker-volumes/print-owners"
   log "[restart_containers] Containers restarted OK."
 }
 
@@ -302,7 +305,7 @@ setup_standard() {
   log "[setup_standard] Building and starting containers..."
   docker compose build
   docker compose up --remove-orphans --detach
-  "$(dirname "$0")/docker-volumes/print-owners"
+  "$libDir/docker-volumes/print-owners"
 
   wait_for_service_container
 
