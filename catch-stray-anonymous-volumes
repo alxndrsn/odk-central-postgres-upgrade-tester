@@ -34,7 +34,7 @@ while IFS= read -r vol; do
         -e 's/- (central-(enketo|nginx|postgres)-1)$/- \1 expected ✅/' \
         -e 's/- (\S+)$/- \1 unexpected ⚠️/'
   else
-    log "  💀 Orphaned.  This volume may indicate data-loss."
+    log "    💀 Orphaned.  This volume may indicate data-loss."
   fi
 done <"$tmpfile"
 
