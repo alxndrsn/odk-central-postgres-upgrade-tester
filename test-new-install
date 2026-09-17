@@ -15,7 +15,7 @@ check_for_dirty_docker
 log "Building and restarting containers..."
 docker compose build
 docker compose up --remove-orphans --detach
-./docker-volumes/print-owners
+"$(dirname "$0")/docker-volumes/print-owners"
 log "Containers built and restarted OK."
 
 wait_for_service_container
