@@ -1,7 +1,8 @@
 #!/bin/bash -eu
 set -o pipefail
 
-log() { echo >&2 "[$(basename "$0")] $*"; }
+logPrefix="[$(basename "$0")]"
+log() { echo >&2 "$logPrefix $*"; }
 
 if [[ $# -ne 1 ]]; then
   log "!!! Missing required arg: <expected-volume-count>"
@@ -12,15 +13,37 @@ expectedVolumeCount="$1"
 tmpfile="$(mktemp)"
 
 log "Listing anonymous volumes..."
-docker volume ls --format '{{.Name}}' | grep -E '^[a-f0-9]{64}$' | tee "$tmpfile"
-volumeCount="$(wc -l <"$tmpfile")"
+docker volume ls --format '{{.Name}}' | grep -E '^[a-f0-9]{64}$' >"$tmpfile"
+actualVolumeCount="$(wc -l <"$tmpfile")"
 
-log "$volumeCount anonymous volume(s) found."
+log "  expected: $expectedVolumeCount"
+log "     found: $actualVolumeCount"
 
-if [[ "$volumeCount" = "$expectedVolumeCount" ]]; then
+if [[ "$actualVolumeCount" = "$expectedVolumeCount" ]]; then
   log "Completed OK."
   exit
 fi
 
-log "!!! FAILED: expected $expectedVolumeCount volume(s) !!!"
+log "Checking volume ownership..."
+filter_args=()
+idx=0
+while IFS= read -r vol; do
+  containers="$(docker ps -a --filter "volume=$vol" --format "$logPrefix    - {{.Names}}")"
+  printf "$logPrefix %3d. %s\n" "$((++idx))" "${vol:0:7}"
+  if [[ -n "$containers" ]]; then
+    echo "$containers"
+  else
+    log "Orphaned."
+  fi
+done <"$tmpfile"
+
+log "!!!"
+log "!!! Actual volume count did not match expected volume count."
+log "!!!"
+log "!!! Review volumes above and either:"
+log "!!!"
+log "!!! 1. resolve extra/missing volume creation, or"
+log "!!! 2. adjust expectations to match reality"
+log "!!!"
+
 exit 1
