@@ -5,7 +5,7 @@ log() { echo >&2 "[$(basename "$0")] $*"; }
 
 if [[ $# -ne 1 ]]; then
   log "!!! Missing required arg: <expected-volume-count>"
-	exit 1
+  exit 1
 fi
 expectedVolumeCount="$1"
 
@@ -18,8 +18,8 @@ volumeCount="$(wc -l <"$tmpfile")"
 log "$volumeCount anonymous volume(s) found."
 
 if [[ "$volumeCount" = "$expectedVolumeCount" ]]; then
-	log "Completed OK."
-	exit
+  log "Completed OK."
+  exit
 fi
 
 log "!!! FAILED: expected $expectedVolumeCount volume(s) !!!"
