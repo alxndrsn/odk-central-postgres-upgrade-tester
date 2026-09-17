@@ -1,4 +1,26 @@
 #!/bin/bash -eu
-docker volume ls --format '{{.Name}}' | grep -E '^[a-f0-9]{64}$'
-log "TODO: actually check if (unexpected) anonymous volumes have been created, and try to give more contect if they have."
+set -o pipefail
+
+log() { echo >&2 "[$(basename "$0")] $*"; }
+
+if [[ $# -ne 1 ]]; then
+  log "!!! Missing required arg: <expected-volume-count>"
+	exit 1
+fi
+expectedVolumeCount="$1"
+
+tmpfile="$(mktemp)"
+
+log "Listing anonymous volumes..."
+docker volume ls --format '{{.Name}}' | grep -E '^[a-f0-9]{64}$' | tee "$tmpfile"
+volumeCount="$(wc -l <"$tmpfile")"
+
+log "$volumeCount anonymous volume(s) found."
+
+if [[ "$volumeCount" = "$expectedVolumeCount" ]]; then
+	log "Completed OK."
+	exit
+fi
+
+log "!!! FAILED: expected $expectedVolumeCount volume(s) !!!"
 exit 1
