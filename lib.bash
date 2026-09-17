@@ -2,7 +2,6 @@ set -eu
 set -o pipefail
 
 libDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-echo "$libDir"
 
 seedFlag=.db-seed-created
 

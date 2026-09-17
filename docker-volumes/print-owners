@@ -1,14 +1,17 @@
 #!/bin/bash -eu
 set -o pipefail
 
+scriptDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
 logPrefix="[$0]"
 log() { echo "$logPrefix $*"; }
 
 for vol in $(docker volume ls -q); do
   log "  vol: $vol"
-  containers="$(docker ps -a --filter "volume=$vol" --format "$logPrefix        - {{.Names}}")"
+  containers="$(docker ps -a --filter "volume=$vol" --format "{{.Names}}")"
   if [[ -n "$containers" ]]; then
-    printf "%b\n" "$containers"
+    echo "$containers" | sed -E -e "s:^:$logPrefix        - :"
+    echo "$vol $containers" >> "$scriptDir/.volume-owners"
   else
     log "       -- ORPHANED --"
   fi

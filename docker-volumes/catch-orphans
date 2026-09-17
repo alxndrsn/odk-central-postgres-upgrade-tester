@@ -1,6 +1,8 @@
 #!/bin/bash -eu
 set -o pipefail
 
+scriptDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
 logPrefix="[$0]"
 log() { echo "$logPrefix $*"; }
 
@@ -17,6 +19,15 @@ if [[ "$count" = 0 ]]; then
   log "No orphaned volumes found - everything is OK."
   exit
 fi
+
+ownerLog="$scriptDir/.volume-owners"
+log "--- DEBUG: $ownerLog ---"
+if [[ -f "$ownerLog" ]]; then
+  cat "$ownerLog"
+else
+  log "(file not found)"
+fi
+log "--- DEBUG ---"
 
 log "!!!"
 log "!!! Orphaned docker volumes were found!"
