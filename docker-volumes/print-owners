@@ -12,7 +12,7 @@ for vol in $(docker volume ls -q); do
   if [[ -n "$containers" ]]; then
     echo "$containers" | while IFS= read -r ctr; do
       log "       - $ctr"
-      echo >>"$scriptDir/.volume-owners" "vol:$vol container:$ctr"
+      echo >>"$scriptDir/.owners" "vol:$vol container:$ctr"
     done
   else
     log "       -- ORPHANED --"

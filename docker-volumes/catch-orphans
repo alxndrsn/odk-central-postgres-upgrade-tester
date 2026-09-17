@@ -9,25 +9,21 @@ log() { echo "$logPrefix $*"; }
 tmpfile="$(mktemp)"
 
 log "Checking for orphaned volumes..."
+pgOrphan=false
 # shellcheck disable=SC2016
-docker volume ls --filter "dangling=true" -q \
-| xargs -I{} bash -c 'printf "%-48s %s\n" "$1" "$(docker volume inspect --format "{{.CreatedAt}}" "$1")"' _ {} \
-| tee "$tmpfile"
+for vol in $(docker volume ls --filter "dangling=true" -q); do
+  if grep "^vol:$vol " "$scriptDir/.owners" | grep -Ev "container:central-(enketo|nginx)-1" >/dev/null; then
+    pgOrphan=true
+    log "!!!"
+    log "!!! $vol was previously owned by"
+    grep "^vol:$vol " "$scriptDir/.owners" | awk -v prefix="$logPrefix" '{ gsub("container:", "", $2); print prefix " !!! - " $2 }'
+  fi
+done
 
-count="$(wc -l <"$tmpfile")"
-if [[ "$count" = 0 ]]; then
-  log "No orphaned volumes found - everything is OK."
+if [[ "$pgOrphan" = false ]]; then
+  log "No unexpected orphans found - everything looks OK."
   exit
 fi
-
-ownerLog="$scriptDir/.volume-owners"
-log "--- DEBUG: $ownerLog ---"
-if [[ -f "$ownerLog" ]]; then
-  cat "$ownerLog"
-else
-  log "(file not found)"
-fi
-log "--- DEBUG ---"
 
 log "!!!"
 log "!!! Orphaned docker volumes were found!"
