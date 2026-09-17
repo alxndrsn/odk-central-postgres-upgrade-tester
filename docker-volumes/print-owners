@@ -8,7 +8,7 @@ for vol in $(docker volume ls -q); do
   log "  vol: $vol"
   containers="$(docker ps -a --filter "volume=$vol" --format "$logPrefix        - {{.Names}}")"
   if [[ -n "$containers" ]]; then
-    printf "$containers\n"
+    printf "%b\n" "$containers"
   else
     log "       -- ORPHANED --"
   fi
