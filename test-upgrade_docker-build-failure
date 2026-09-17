@@ -16,7 +16,7 @@ log "Rebuilding containers..."
 
 composeBuildLog="docker-compose-build.log"
 (docker compose build || true) | tee "$composeBuildLog"
-./docker-volumes/print-owners
+"$(dirname "$0")/docker-volumes/print-owners"
 
 if ! grep -E 'E: Unable to locate package i-do-not-exist$' "$composeBuildLog"; then
   log "!!!"
