@@ -10,8 +10,11 @@ for vol in $(docker volume ls -q); do
   log "  vol: $vol"
   containers="$(docker ps -a --filter "volume=$vol" --format "{{.Names}}")"
   if [[ -n "$containers" ]]; then
-    echo "$containers" | sed -E -e "s:^:$logPrefix        - :"
-    echo "$vol $containers" >> "$scriptDir/.volume-owners"
+    echo "$containers" | while IFS= read -r ctr; do
+      [[ -z "$ctr" ]] && continue
+      log "       - $ctr"
+      echo >>"$scriptDir/.volume-owners" "vol:$vol container:$ctr"
+    done
   else
     log "       -- ORPHANED --"
   fi
