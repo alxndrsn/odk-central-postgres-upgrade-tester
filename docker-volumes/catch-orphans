@@ -6,8 +6,6 @@ scriptDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 logPrefix="[$0]"
 log() { echo "$logPrefix $*"; }
 
-tmpfile="$(mktemp)"
-
 log "Checking for orphaned volumes..."
 pgOrphan=false
 # shellcheck disable=SC2016
