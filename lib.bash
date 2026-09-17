@@ -142,7 +142,7 @@ restart_containers() {
   log "[restart_containers] Restarting containers..."
   docker compose stop
   docker compose up --remove-orphans --detach
-  "$libDir/docker-volumes/print-owners"
+  "$libDir/docker-volumes/log-owners"
   log "[restart_containers] Containers restarted OK."
 }
 
@@ -304,7 +304,7 @@ setup_standard() {
   log "[setup_standard] Building and starting containers..."
   docker compose build
   docker compose up --remove-orphans --detach
-  "$libDir/docker-volumes/print-owners"
+  "$libDir/docker-volumes/log-owners"
 
   wait_for_service_container
 
