@@ -7,7 +7,10 @@ log() { echo "$logPrefix $*"; }
 tmpfile="$(mktemp)"
 
 log "Checking for orphaned volumes..."
-docker volume ls --filter "dangling=true" -q | xargs -I{} bash -c 'printf "%-48s %s\n" "{}" "$(docker volume inspect --format "{{.CreatedAt}}" "{}")"' | tee "$tmpfile"
+# shellcheck disable=SC2016
+docker volume ls --filter "dangling=true" -q \
+| xargs -I{} bash -c 'printf "%-48s %s\n" "$1" "$(docker volume inspect --format "{{.CreatedAt}}" "$1")"' _ {} \
+| tee "$tmpfile"
 
 count="$(wc -l <"$tmpfile")"
 if [[ "$count" = 0 ]]; then
