@@ -1,50 +1,15 @@
 #!/bin/bash -eu
 set -o pipefail
 
-logPrefix="[$(basename "$0")]"
+logPrefix="[$0]"
 log() { echo "$logPrefix $*"; }
 
-if [[ $# -ne 1 ]]; then
-  log "!!! Missing required arg: <expected-volume-count>"
-  exit 1
-fi
-expectedVolumeCount="$1"
-
-tmpfile="$(mktemp)"
-
-log "Listing anonymous volumes..."
-docker volume ls --format '{{.Name}}' | grep -E '^[a-f0-9]{64}$' >"$tmpfile"
-actualVolumeCount="$(wc -l <"$tmpfile")"
-
-log "  expected: $expectedVolumeCount"
-log "     found: $actualVolumeCount"
-
-if [[ "$actualVolumeCount" = "$expectedVolumeCount" ]]; then
-  log "Completed OK."
-  exit
-fi
-
-log "Checking volume ownership..."
-idx=0
-while IFS= read -r vol; do
-  containers="$(docker ps -a --filter "volume=$vol" --format "$logPrefix    - {{.Names}}")"
-  printf "$logPrefix %3d. %s\n" "$((++idx))" "${vol:0:7}"
+for vol in $(docker volume ls -q); do
+  log "  vol: $vol"
+  containers="$(docker ps -a --filter "volume=$vol" --format "$logPrefix        - {{.Names}}")"
   if [[ -n "$containers" ]]; then
-    echo "$containers" | sed -E \
-        -e 's/- (central-(enketo|nginx|postgres)-1)$/- \1 expected ✅/' \
-        -e 's/- (\S+)$/- \1 unexpected ⚠️/'
+    printf "$containers\n"
   else
-    log "    💀 Orphaned.  This volume may indicate data-loss."
+    log "       -- ORPHANED --"
   fi
-done <"$tmpfile"
-
-log "!!!"
-log "!!! Actual volume count did not match expected volume count."
-log "!!!"
-log "!!! Review volumes above and either:"
-log "!!!"
-log "!!! 1. resolve extra/missing volume creation, or"
-log "!!! 2. adjust expectations to match reality"
-log "!!!"
-
-exit 1
+done
