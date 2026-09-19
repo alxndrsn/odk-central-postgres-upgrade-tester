@@ -13,7 +13,22 @@ setup_standard
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetBranch"
 
-rebuild_and_restart_containers
+if rebuild_and_restart_containers | tee rebuild-restart.log; then
+  log "!!!"
+  log "!!! Expected container restart to fail, but it passed!"
+  log "!!!"
+  log "!!! Check logs to understand what went wrong."
+  log "!!!"
+  exit 1
+fi
+if ! grep "service \"postgres\" didn't complete successfully: exit 1" rebuild-restart.log; then
+  log "!!!"
+  log "!!! Expected container restart to fail due to 'postgres' container startup failure."
+  log "!!!"
+  log "!!! Check logs to understand what went wrong."
+  log "!!!"
+  exit 1
+fi
 
 confirm_postgres_version ECONNREFUSED
 upgradeLogFile="./files/postgres14/upgrade/upgrade-postgres.log"
