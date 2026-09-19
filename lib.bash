@@ -125,9 +125,9 @@ EOF
 }
 
 rebuild_and_restart_containers() {
-  rebuild_containers
-  restart_containers
-  wait_for_service_container
+  rebuild_containers         || return 1
+  restart_containers         || return 1
+  wait_for_service_container || return 1
 }
 
 rebuild_containers() {
@@ -139,7 +139,7 @@ rebuild_containers() {
 restart_containers() {
   log "[restart_containers] Restarting containers..."
   docker compose stop
-  docker compose up --remove-orphans --detach
+  docker compose up --remove-orphans --detach 2>&1 | tee restart_containers.log || return 1
   log "[restart_containers] Containers restarted OK."
 }
 
