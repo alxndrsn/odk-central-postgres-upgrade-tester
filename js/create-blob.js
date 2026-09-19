@@ -1,6 +1,8 @@
-const log = (...args) => console.error('[create-blob]', ...args);
+const log = (...args) => console.error(new Date(), '[create-blob]', ...args);
 
 log('Loading dependencies...');
+
+const { randomBytes } = require('node:crypto');
 
 const { Client } = require('pg');
 const config = require('config').get('default.database');
@@ -16,14 +18,13 @@ Object.entries(process.env).filter(([ k ]) => k.startsWith('PG')).sort(([k1], [k
   const client = new Client(config);
   await client.connect();
 
-  log('Connected OK; creating blob function...');
-
   const blobSizeMb = 250;
-  log(`Function created OK; creating blob of ${blobSizeMb} MB...`);
-  await client.query(`
-    INSERT INTO blobs (sha, "contentType", md5, content)
-               VALUES ( '',            '',  '', pg_read_binary_file('/dev/urandom', 0, ${blobSizeMb * 1_000_000}));
-  `);
+  log(`Creating blob of ${blobSizeMb} MB...`);
+  const randomBuffer = randomBytes(blobSizeMb * 1_000_000);
+  await client.query(
+    'INSERT INTO blobs (sha, "contentType", md5, content) VALUES ($1, $2, $3, $4)',
+    ['', '', '', randomBuffer]
+  );
 
   log('Complete.');
   process.exit();
