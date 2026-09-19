@@ -287,7 +287,7 @@ create_sized_vol() {
 }
 
 setup_standard() {
-  local restrictedVolumeSize="${1-}"
+  local restrictedVolumeSize="$1"
 
   check_for_dependencies
   configure_environment
