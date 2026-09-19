@@ -105,6 +105,17 @@ git_checkout() {
   git submodule update --init --jobs 16
   log "[git_checkout] Checked out '$1':"
   git show --pretty=oneline --summary
+
+  # Add consistent postgres14 volume opts iff it's defined.
+  if ! [[ "${restrictedVolumeSize-}" = "" ]] && ! [[ "$1" = upgrade-pg-9.6 ]]; then
+    cat >>docker-compose.yml <<EOF
+    driver: local
+    driver_opts:
+      device: ./files/postgres14/volume-postgres14
+      type: none
+      o: bind
+EOF
+  fi
 }
 
 rebuild_and_restart_containers() {
@@ -282,24 +293,23 @@ create_sized_vol() {
   mkdir -p ./files/postgres14/volume-postgres14
   log "[create_sized_vol] Mounting loopback image file; this may required sudo..."
   sudo mount -o loop "$diskImg" ./files/postgres14/volume-postgres14
+  sudo rmdir ./files/postgres14/volume-postgres14/lost+found
   log "[create_sized_vol] Revoking sudo permissions..."
   sudo -k
 }
 
 setup_standard() {
-  local restrictedVolumeSize="$1"
-
   check_for_dependencies
   configure_environment
+
+  log "[setup_standard] Setting up branch: $initialBranch"
+  clone_central_repo
+  check_for_dirty_docker
 
   if [[ "$restrictedVolumeSize" != "" ]]; then
     log "Restricting target volume size..."
     create_sized_vol "$restrictedVolumeSize"
   fi
-
-  log "[setup_standard] Setting up branch: $initialBranch"
-  clone_central_repo
-  check_for_dirty_docker
 
   log "[setup_standard] Building and starting containers..."
   docker compose build

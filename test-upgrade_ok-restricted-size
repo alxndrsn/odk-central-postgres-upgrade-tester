@@ -3,9 +3,11 @@
 # Test that a successful upgrade will cause a specific file to be
 # created in the shared migation-logs directory.
 
-. ./lib.bash
 # Extra blob: 250 MB; allow for double that.
-setup_standard 500
+restrictedVolumeSize=500
+
+. ./lib.bash
+setup_standard
 
 log "Creating a massive blob..."
 exec_in_service_container create-blob.js
