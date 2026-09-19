@@ -105,23 +105,6 @@ git_checkout() {
   git submodule update --init --jobs 16
   log "[git_checkout] Checked out '$1':"
   git show --pretty=oneline --summary
-
-  # Add consistent postgres14 volume opts iff it's defined.
-  if ! [[ "${volumeOpts-}" = "" ]] && ! [[ "$1" = upgrade-pg-9.6 ]]; then
-    log "[git_checkout] WARN"
-    log "[git_checkout] WARN Reconfiguring postgres14 volume to use tmpfs."
-    log "[git_checkout] WARN"
-    log "[git_checkout] WARN This option is NOT compatible with container restarts or multi-stage"
-    log "[git_checkout] WARN upgrade testing, as tmpfs volume is recreated on container restart(?)"
-    log "[git_checkout] WARN"
-    cat >>docker-compose.yml <<EOF
-    driver: local
-    driver_opts:
-      device: ./files/postgres14/volume-postgres14
-      type: tmpfs
-      o: "$volumeOpts"
-EOF
-  fi
 }
 
 rebuild_and_restart_containers() {
@@ -290,9 +273,29 @@ seed_db() {
   confirm_seed_data
 }
 
+create_sized_vol() {
+  local sizeMb="$1"
+  local diskImg="./temp-disk.img"
+  log "[create_sized_vol] Creating volume with size: ${sizeMb}MB..."
+  dd if=/dev/zero of="$diskImg" bs=1M count="$sizeMb"
+  mkfs.ext4 -F "$diskImg"
+  mkdir -p ./files/postgres14/volume-postgres14
+  log "[create_sized_vol] Mounting loopback image file; this may required sudo..."
+  sudo mount -o loop "$diskImg" ./files/postgres14/volume-postgres14
+  log "[create_sized_vol] Revoking sudo permissions..."
+  sudo -k
+}
+
 setup_standard() {
+  local restrictedVolumeSize="${1-}"
+
   check_for_dependencies
   configure_environment
+
+  if [[ "$restrictedVolumeSize" != "" ]]; then
+    log "Restricting target volume size..."
+    create_sized_vol 500
+  fi
 
   log "[setup_standard] Setting up branch: $initialBranch"
   clone_central_repo
