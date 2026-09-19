@@ -1,4 +1,4 @@
-const log = (...args) => console.error(new Date(), '[create-blob]', ...args);
+const log = (...args) => console.error('[create-blob]', ...args);
 
 log('Loading dependencies...');
 
