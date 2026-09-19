@@ -306,7 +306,7 @@ setup_standard() {
   clone_central_repo
   check_for_dirty_docker
 
-  if [[ "$restrictedVolumeSize" != "" ]]; then
+  if [[ "${restrictedVolumeSize-}" != "" ]]; then
     log "Restricting target volume size..."
     create_sized_vol "$restrictedVolumeSize"
   fi
