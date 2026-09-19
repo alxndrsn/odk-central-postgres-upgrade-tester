@@ -6,16 +6,41 @@
 . ./lib.bash
 
 log "Restricting target volume size..."
-volumeOpts="size=1m"
+restrictedVolumeSize=1
 
 setup_standard
 
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$targetBranch"
 
-rebuild_and_restart_containers
+if rebuild_and_restart_containers; then
+  log "!!!"
+  log "!!! Expected container restart to fail, but it passed!"
+  log "!!!"
+  log "!!! Check logs to understand what went wrong."
+  log "!!!"
+  exit 1
+fi
+if ! grep "service \"postgres\" didn't complete successfully: exit 1" restart_containers.log; then
+  log "!!!"
+  log "!!! Expected container restart to fail due to 'postgres' container startup failure."
+  log "!!!"
+  log "!!! Check logs to understand what went wrong."
+  log "!!!"
+  exit 1
+fi
 
-confirm_postgres_version ECONNREFUSED
+serviceStatus="$(docker compose ps -a service --format "{{.Status}}")"
+if ! [[ "$serviceStatus" = Created ]]; then
+  log "!!!"
+  log "!!! 'service' container had unexpected status !!!"
+  log "!!!"
+  log "!!! Expected: Created"
+  log "!!!   Actual: $serviceStatus"
+  log "!!!"
+  exit 1
+fi
+
 upgradeLogFile="./files/postgres14/upgrade/upgrade-postgres.log"
 if ! grep -E 'UTC .* FATAL: .*: No space left on device$' "$upgradeLogFile"; then
   log "------------------ $upgradeLogFile ------------------"
