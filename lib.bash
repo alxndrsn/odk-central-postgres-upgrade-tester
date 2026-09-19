@@ -294,7 +294,7 @@ setup_standard() {
 
   if [[ "$restrictedVolumeSize" != "" ]]; then
     log "Restricting target volume size..."
-    create_sized_vol 500
+    create_sized_vol "$restrictedVolumeSize"
   fi
 
   log "[setup_standard] Setting up branch: $initialBranch"
