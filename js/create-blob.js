@@ -17,13 +17,12 @@ Object.entries(process.env).filter(([ k ]) => k.startsWith('PG')).sort(([k1], [k
   await client.connect();
 
   log('Connected OK; creating blob function...');
-  await client.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto;`);
 
   const blobSizeMb = 250;
   log(`Function created OK; creating blob of ${blobSizeMb} MB...`);
   await client.query(`
     INSERT INTO blobs (sha, "contentType", md5, content)
-               VALUES ( '',            '',  '', gen_random_bytes(${blobSizeMb * 1_000_000}));
+               VALUES ( '',            '',  '', pg_read_binary_file('/dev/urandom', 0, ${blobSizeMb * 1_000_000}));
   `);
 
   log('Complete.');
