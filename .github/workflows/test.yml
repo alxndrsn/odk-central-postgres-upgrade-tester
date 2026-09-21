@@ -17,10 +17,16 @@ jobs:
   test-new-install:
     runs-on: ubuntu-latest
     timeout-minutes: 6
+    strategy:
+      fail-fast: false
+      matrix:
+        targetBranch:
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: ./test-new-install --force
+      - run: TARGET_BRANCH=${{ matrix.targetBranch }} ./test-new-install --force
       - name: service logs
         if: always()
         continue-on-error: true
