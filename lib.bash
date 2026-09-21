@@ -62,11 +62,10 @@ configure_environment() {
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
   initialBranch="$INITIAL_BRANCH"
-  targetBranch="$TARGET_BRANCH"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
   # removing the test directory, but better to not require extra permissions.
-  testDir="tmp/$initialBranch-to-$targetBranch/$(date +%s)"
+  testDir="tmp/$(date +%s)-$RANDOM"
 
   # a bunch of env vars for containers
   export SYSADMIN_EMAIL=no-reply@getodk.org
