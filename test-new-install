@@ -27,7 +27,7 @@ log "Containers built and restarted OK."
 
 wait_for_service_container
 
-confirm_postgres_version "$INITIAL_BRANCH"
+confirm_postgres_version "$targetBranch"
 confirm_backend_running_ok
 log "Containers started OK."
 
@@ -35,7 +35,7 @@ log "Seeding database..."
 seed_db
 
 log "Rebuilding and restarting containers..."
-test_restart
+test_restart "$targetBranch"
 log "Containers restarted OK."
 
 log "Test passed OK!"
