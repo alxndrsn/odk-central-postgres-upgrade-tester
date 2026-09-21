@@ -11,7 +11,7 @@ restrictedVolumeSize=1
 setup_standard
 
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
-git_checkout "$targetBranch"
+git_checkout "$TARGET_BRANCH"
 
 if rebuild_and_restart_containers; then
   log "!!!"

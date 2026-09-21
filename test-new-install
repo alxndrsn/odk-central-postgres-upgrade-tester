@@ -3,7 +3,15 @@
 # Test that a fresh install with the latest central version will
 # start normally.
 
-INITIAL_BRANCH="upgrade-pg-18"
+if ! [[ "$INITIAL_BRANCH" = "$TARGET_BRANCH" ]]; then
+  echo "[test-new-install] !!!"
+  echo "[test-new-install] !!! INITIAL_BRANCH and TARGET_BRANCH do not match:"
+  echo "[test-new-install] !!!"
+  echo "[test-new-install] !!!   INITIAL_BRANCH: $INITIAL_BRANCH"
+  echo "[test-new-install] !!!    TARGET_BRANCH: $TARGET_BRANCH"
+  echo "[test-new-install] !!!"
+	exit 1
+fi
 
 . ./lib.bash
 
@@ -19,7 +27,7 @@ log "Containers built and restarted OK."
 
 wait_for_service_container
 
-confirm_postgres_version 18
+confirm_postgres_version "$TARGET_BRANCH"
 confirm_backend_running_ok
 log "Containers started OK."
 
@@ -27,7 +35,7 @@ log "Seeding database..."
 seed_db
 
 log "Rebuilding and restarting containers..."
-test_restart
+test_restart "$TARGET_BRANCH"
 log "Containers restarted OK."
 
 log "Test passed OK!"
