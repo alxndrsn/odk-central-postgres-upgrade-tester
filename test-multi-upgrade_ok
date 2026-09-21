@@ -27,11 +27,15 @@ for targetBranch in "${targetBranches[@]}"; do
   confirm_backend_running_ok
   log "Containers rebuilt and restarted OK."
 
-  if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
-    log "!!!"
-    log "!!! ERROR: Upgrade success flag file not found!"
-    log "!!!"
-    exit 1
+
+  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$expectedBranch")"
+  if [[ "$expectedVersion" -gt 14 ]]; then
+    if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
+      log "!!!"
+      log "!!! ERROR: Upgrade success flag file not found!"
+      log "!!!"
+      exit 1
+    fi
   fi
 
   log "Upgrade to $targetBranch completed OK!"
