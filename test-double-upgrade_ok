@@ -4,13 +4,13 @@
 # cause a specific file to be created in the shared migation-logs directory.
 
 
-INITIAL_BRANCH=upgrade-pg-9.6
+INITIAL_BRANCH=dupgrade-pg-9.6
 
 . ./lib.bash
 setup_standard
 
 log "Upgrading central to pg v14..." # see: https://docs.getodk.org/central-upgrade/
-git_checkout "upgrade-pg-14-official"
+git_checkout "dupgrade-pg-14-official"
 
 # massive blob not required
 #
@@ -35,7 +35,7 @@ log "Upgrade to v14 completed OK!"
 
 
 log "Upgrading central to pg v18..." # see: https://docs.getodk.org/central-upgrade/
-git_checkout "upgrade-pg-18"
+git_checkout "dupgrade-pg-18"
 
 
 

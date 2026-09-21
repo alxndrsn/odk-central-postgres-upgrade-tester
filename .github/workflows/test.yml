@@ -41,9 +41,9 @@ jobs:
       fail-fast: false
       matrix:
         initialBranch:
-        - "upgrade-pg-9.6"
-        - "upgrade-pg-14-official"
-        - "upgrade-pg-17"
+        - "dupgrade-pg-9.6"
+        - "dupgrade-pg-14-official"
+        - "dupgrade-pg-17"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
@@ -68,7 +68,7 @@ jobs:
       fail-fast: false
       matrix:
         initialBranch:
-        - "upgrade-pg-9.6"
+        - "dupgrade-pg-9.6"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
@@ -111,7 +111,7 @@ jobs:
       fail-fast: false
       matrix:
         initialBranch:
-        - "upgrade-pg-9.6"
+        - "dupgrade-pg-9.6"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
@@ -136,9 +136,9 @@ jobs:
       fail-fast: false
       matrix:
         initialBranch:
-        - "upgrade-pg-9.6"
-        - "upgrade-pg-14-official"
-        - "upgrade-pg-17"
+        - "dupgrade-pg-9.6"
+        - "dupgrade-pg-14-official"
+        - "dupgrade-pg-17"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
