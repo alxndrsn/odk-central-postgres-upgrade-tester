@@ -117,7 +117,7 @@ jobs:
         - "upgrade-pg-17,upgrade-pg-18"
     steps:
       - uses: actions/checkout@v6
-      - run: ./test-multi-upgrade_ok --force
+      - run: BRANCHES=${{ matrix.branches }} ./test-multi-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
