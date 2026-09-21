@@ -15,9 +15,6 @@ git_checkout "$targetBranch"
 # massive blob not required
 #
 
-log "Confirming seed data BEFORE rebuild..."
-confirm_seed_data
-
 log "Rebuilding and restarting containers..."
 rebuild_and_restart_containers
 
