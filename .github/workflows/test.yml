@@ -43,10 +43,16 @@ jobs:
         - "upgrade-pg-9.6"
         - "upgrade-pg-14-official"
         - "upgrade-pg-17"
+        targetBranch:
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
+        exclude:
+        - initialBranch: "upgrade-pg-17"
+          targetBranch: "upgrade-pg-17"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_ok-with-restart --force
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_ok-with-restart --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -67,10 +73,13 @@ jobs:
       matrix:
         initialBranch:
         - "upgrade-pg-9.6"
+        targetBranch:
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_ok-restricted-size --force
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_ok-restricted-size --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -108,10 +117,13 @@ jobs:
       matrix:
         initialBranch:
         - "upgrade-pg-9.6"
+        targetBranch:
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_no-space-destination --force
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_no-space-destination --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -134,10 +146,16 @@ jobs:
         - "upgrade-pg-9.6"
         - "upgrade-pg-14-official"
         - "upgrade-pg-17"
+        targetBranch:
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
+        exclude:
+        - initialBranch: "upgrade-pg-17"
+          targetBranch: "upgrade-pg-17"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} ./test-upgrade_docker-build-failure --force
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_docker-build-failure --force
       - name: service logs
         if: always()
         continue-on-error: true
