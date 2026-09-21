@@ -37,6 +37,7 @@ for targetBranch in "${targetBranches[@]}"; do
     fi
   fi
 
+  log "Restart after upgrade? ${RESTART_AFTER_UPGRADE-}"
   if [[ "$RESTART_AFTER_UPGRADE" = true ]]; then
     log "Rebuilding and restarting containers..."
     test_restart "$targetBranch"
