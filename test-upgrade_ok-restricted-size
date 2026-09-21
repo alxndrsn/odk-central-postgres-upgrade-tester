@@ -4,7 +4,7 @@
 # created in the shared migation-logs directory.
 
 # Extra blob: 250 MB; allow for double that.
-volumeOpts="size=500m"
+restrictedVolumeSize=500
 
 . ./lib.bash
 setup_standard
