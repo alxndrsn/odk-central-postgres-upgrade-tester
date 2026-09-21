@@ -107,27 +107,21 @@ git_checkout() {
   git show --pretty=oneline --summary
 
   # Add consistent postgres14 volume opts iff it's defined.
-  if ! [[ "${volumeOpts-}" = "" ]] && ! [[ "$1" = upgrade-pg-9.6 ]]; then
-    log "[git_checkout] WARN"
-    log "[git_checkout] WARN Reconfiguring postgres14 volume to use tmpfs."
-    log "[git_checkout] WARN"
-    log "[git_checkout] WARN This option is NOT compatible with container restarts or multi-stage"
-    log "[git_checkout] WARN upgrade testing, as tmpfs volume is recreated on container restart(?)"
-    log "[git_checkout] WARN"
+  if ! [[ "${restrictedVolumeSize-}" = "" ]] && ! [[ "$1" = upgrade-pg-9.6 ]]; then
     cat >>docker-compose.yml <<EOF
     driver: local
     driver_opts:
       device: ./files/postgres14/volume-postgres14
-      type: tmpfs
-      o: "$volumeOpts"
+      type: none
+      o: bind
 EOF
   fi
 }
 
 rebuild_and_restart_containers() {
-  rebuild_containers
-  restart_containers
-  wait_for_service_container
+  rebuild_containers         || return 1
+  restart_containers         || return 1
+  wait_for_service_container || return 1
 }
 
 rebuild_containers() {
@@ -143,7 +137,7 @@ rebuild_containers() {
 restart_containers() {
   log "[restart_containers] Restarting containers..."
   docker compose stop
-  docker compose up --remove-orphans --detach
+  docker compose up --remove-orphans --detach 2>&1 | tee restart_containers.log || return 1
   log "[restart_containers] Containers restarted OK."
 }
 
@@ -294,6 +288,20 @@ seed_db() {
   confirm_seed_data
 }
 
+create_sized_vol() {
+  local sizeMb="$1"
+  local diskImg="./temp-disk.img"
+  log "[create_sized_vol] Creating volume with size: ${sizeMb}MB..."
+  dd if=/dev/zero of="$diskImg" bs=1M count="$sizeMb"
+  mkfs.ext4 -F "$diskImg"
+  mkdir -p ./files/postgres14/volume-postgres14
+  log "[create_sized_vol] Mounting loopback image file; this may required sudo..."
+  sudo mount -o loop "$diskImg" ./files/postgres14/volume-postgres14
+  sudo rmdir ./files/postgres14/volume-postgres14/lost+found
+  log "[create_sized_vol] Revoking sudo permissions..."
+  sudo -k
+}
+
 setup_standard() {
   check_for_dependencies
   configure_environment
@@ -301,6 +309,11 @@ setup_standard() {
   log "[setup_standard] Setting up branch: $initialBranch"
   clone_central_repo
   check_for_dirty_docker
+
+  if [[ "${restrictedVolumeSize-}" != "" ]]; then
+    log "Restricting target volume size..."
+    create_sized_vol "$restrictedVolumeSize"
+  fi
 
   log "[setup_standard] Building and starting containers..."
   docker compose build
