@@ -64,12 +64,10 @@ configure_environment() {
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
   initialBranch="$INITIAL_BRANCH"
-  initialVersion="$(sed -E 's/dupgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$initialBranch")"
-  targetBranch="dupgrade-pg-18"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
   # removing the test directory, but better to not require extra permissions.
-  testDir="tmp/$initialBranch-to-$targetBranch/$(date +%s)"
+  testDir="tmp/$(date +%s)-$RANDOM"
 
   # a bunch of env vars for containers
   export SYSADMIN_EMAIL=no-reply@getodk.org
@@ -180,8 +178,9 @@ exec_in_service_container() {
 }
 
 confirm_postgres_version() {
-  local expectedVersion="$1"
-  log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion'..."
+  local expectedBranch="$1"
+  expectedVersion="$(sed -E 's/dupgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$expectedBranch")"
+  log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
   exec_in_service_container wait-for-postgres.js
 
   local actualVersion
@@ -325,20 +324,21 @@ setup_standard() {
 
   wait_for_service_container
 
-  confirm_postgres_version "$initialVersion"
+  confirm_postgres_version "$initialBranch"
   confirm_backend_running_ok
   log "[setup_standard] Containers started OK."
 
   seed_db
-  confirm_postgres_version "$initialVersion"
+  confirm_postgres_version "$initialBranch"
 }
 
 test_restart() {
+  currentBranch="$1"
   log "[test_restart] Testing container restart..."
   restart_containers
   wait_for_service_container
   confirm_backend_running_ok
-  confirm_postgres_version 18
+  confirm_postgres_version "$currentBranch"
   confirm_seed_data
   log "[test_restart] Containers restarted ok."
 }
