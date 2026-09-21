@@ -104,16 +104,16 @@ jobs:
       fail-fast: false
       matrix:
         branches:
-        - "upgrade-pg-9.6,upgrade-pg-14"
+        - "upgrade-pg-9.6,upgrade-pg-14-official"
         - "upgrade-pg-9.6,upgrade-pg-17"
         - "upgrade-pg-9.6,upgrade-pg-18"
-        - "upgrade-pg-9.6,upgrade-pg-14,upgrade-pg-17"
-        - "upgrade-pg-9.6,upgrade-pg-14,upgrade-pg-18"
+        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-17"
+        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-18"
         - "upgrade-pg-9.6,upgrade-pg-17,upgrade-pg-18"
-        - "upgrade-pg-9.6,upgrade-pg-14,upgrade-pg-17,upgrade-pg-18"
-        - "upgrade-pg-14,upgrade-pg-17"
-        - "upgrade-pg-14,upgrade-pg-18"
-        - "upgrade-pg-14,upgrade-pg-17,upgrade-pg-18"
+        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-17,upgrade-pg-18"
+        - "upgrade-pg-14-official,upgrade-pg-17"
+        - "upgrade-pg-14-official,upgrade-pg-18"
+        - "upgrade-pg-14-official,upgrade-pg-17,upgrade-pg-18"
         - "upgrade-pg-17,upgrade-pg-18"
     steps:
       - uses: actions/checkout@v6
