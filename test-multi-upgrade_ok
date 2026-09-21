@@ -5,7 +5,7 @@
 
 
 IFS=',' read -r INITIAL_BRANCH _targetBranches <<<"$BRANCHES"
-IFS=',' read -r -a targetBranches <<<"$targetBranches"
+IFS=',' read -r -a targetBranches <<<"$_targetBranches"
 
 . ./lib.bash
 setup_standard
