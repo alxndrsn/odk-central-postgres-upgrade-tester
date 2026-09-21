@@ -115,6 +115,9 @@ jobs:
         - "upgrade-pg-14-official,upgrade-pg-18"
         - "upgrade-pg-14-official,upgrade-pg-17,upgrade-pg-18"
         - "upgrade-pg-17,upgrade-pg-18"
+        restartAfterUpgrade:
+        - true
+        - false
     steps:
       - uses: actions/checkout@v6
       - run: BRANCHES=${{ matrix.branches }} ./test-multi-upgrade_ok --force
@@ -144,7 +147,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_no-space-destination --force
+      - run: RESTART_AFTER_UPGRADE=${{ matrix.restartAfterUpgrade }} INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_no-space-destination --force
       - name: service logs
         if: always()
         continue-on-error: true

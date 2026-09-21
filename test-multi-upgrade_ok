@@ -37,6 +37,12 @@ for targetBranch in "${targetBranches[@]}"; do
     fi
   fi
 
+  if [[ "$RESTART_AFTER_UPGRADE" = true ]]; then
+    log "Rebuilding and restarting containers..."
+    test_restart "$targetBranch"
+    log "Containers restarted OK."
+  fi
+
   log "Upgrade to $targetBranch completed OK!"
 done
 
