@@ -40,8 +40,8 @@ configure_environment() {
     log "!!!"
     log "!!! Recommended values:"
     log "!!!"
-    log "!!!     INITIAL_BRANCH=dupgrade-pg-9.6         $BASH_ARGV0" "$fullArgs"
-    log "!!!     INITIAL_BRANCH=dupgrade-pg-14-official $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-9.6         $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official $BASH_ARGV0" "$fullArgs"
     log "!!!"
     exit 1
   fi
@@ -64,8 +64,8 @@ configure_environment() {
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
   initialBranch="$INITIAL_BRANCH"
-  initialVersion="$(sed -E 's/dupgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$initialBranch")"
-  targetBranch="dupgrade-pg-18"
+  initialVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$initialBranch")"
+  targetBranch="upgrade-pg-18"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
   # removing the test directory, but better to not require extra permissions.
@@ -109,7 +109,7 @@ git_checkout() {
   git show --pretty=oneline --summary
 
   # Add consistent postgres14 volume opts iff it's defined.
-  if ! [[ "${restrictedVolumeSize-}" = "" ]] && ! [[ "$1" = dupgrade-pg-9.6 ]]; then
+  if ! [[ "${restrictedVolumeSize-}" = "" ]] && ! [[ "$1" = upgrade-pg-9.6 ]]; then
     cat >>docker-compose.yml <<EOF
     driver: local
     driver_opts:
