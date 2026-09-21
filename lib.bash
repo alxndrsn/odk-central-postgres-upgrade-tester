@@ -102,6 +102,7 @@ git_checkout() {
   log "[git_checkout] Checking out '$1'..."
   git checkout -- docker-compose.yml
   git checkout "$1"
+  sed -i -E -e '/^\s*subpath:/d' docker-compose.yml
   touch .env
   git submodule init
   git submodule update --init --jobs 16
