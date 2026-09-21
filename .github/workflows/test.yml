@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: TARGET_BRANCH=${{ matrix.targetBranch }} ./test-new-install --force
+      - run: INITIAL_BRANCH=${{ matrix.targetBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-new-install --force
       - name: service logs
         if: always()
         continue-on-error: true
