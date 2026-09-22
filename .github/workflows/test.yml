@@ -9,13 +9,13 @@ on:
 
 jobs:
   shellcheck:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26
     timeout-minutes: 1
     steps:
       - uses: actions/checkout@v6
       - run: ./shellcheck
   test-new-install:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26
     timeout-minutes: 6
     strategy:
       fail-fast: false
@@ -42,7 +42,7 @@ jobs:
       - run: ./docker-volumes/catch-orphans
         if: always()
   test-happy-single-with-restart:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -76,7 +76,7 @@ jobs:
       - run: ./docker-volumes/catch-orphans
         if: always()
   test-happy-single-restricted-volume:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -105,7 +105,7 @@ jobs:
       - run: ./docker-volumes/catch-orphans
         if: always()
   test-happy-multi:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26
     strategy:
       fail-fast: false
       matrix:
@@ -142,7 +142,7 @@ jobs:
       - run: ./docker-volumes/catch-orphans
         if: always()
   test-no-space-destination:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -171,7 +171,7 @@ jobs:
       - run: ./docker-volumes/catch-orphans
         if: always()
   test-docker-build-failure:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26
     timeout-minutes: 6
     strategy:
       fail-fast: false
