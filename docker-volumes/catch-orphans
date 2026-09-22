@@ -1,0 +1,44 @@
+#!/bin/bash -eu
+set -o pipefail
+
+scriptDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
+logPrefix="[$0]"
+log() { echo "$logPrefix $*"; }
+
+log "Checking for orphaned volumes..."
+pgOrphan=false
+# shellcheck disable=SC2016
+for vol in $(docker volume ls --filter "dangling=true" -q); do
+  if grep "^vol:$vol " "$scriptDir/.owners" | grep -Ev "container:central-(enketo|nginx)-1" >/dev/null; then
+    path="$(sudo docker volume inspect --format '{{ .Mountpoint }}' "$vol")"
+
+    log "Checking size of vol: $vol..."
+    volSize="$(sudo du --summarize --bytes "$path" | cut -f1)"
+    if [[ "$volSize" = 0 ]]; then
+      log "  Nothing there; ignoring."
+      continue
+    fi
+    log "  size: $volSize b"
+
+    pgOrphan=true
+    log "!!!"
+    log "!!! Unexpected orphan volume: $vol"
+    log "!!!   Previously owned by:"
+    grep "^vol:$vol " "$scriptDir/.owners" | awk -v prefix="$logPrefix" '{ gsub("container:", "", $2); print prefix " !!! - " $2 }'
+
+    sudo tree "$path"
+  fi
+done
+
+if [[ "$pgOrphan" = false ]]; then
+  log "No unexpected orphans found - everything looks OK."
+  exit
+fi
+
+log "!!!"
+log "!!! Orphaned docker volumes were found!"
+log "!!!"
+log "!!! Cross-reference volume names with previous logs to understand where they originated."
+log "!!!"
+exit 1
