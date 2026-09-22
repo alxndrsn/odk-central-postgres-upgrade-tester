@@ -1,0 +1,50 @@
+#!/bin/bash -eu
+
+# Test that a successful upgrade from 9.6 to 14 and then from 14 to 18 will
+# cause a specific file to be created in the shared migation-logs directory.
+
+
+IFS=',' read -r INITIAL_BRANCH _targetBranches <<<"$BRANCHES"
+IFS=',' read -r -a targetBranches <<<"$_targetBranches"
+
+. ./lib.bash
+setup_standard
+
+
+for targetBranch in "${targetBranches[@]}"; do
+  log "Upgrading central to $targetBranch..." # see: https://docs.getodk.org/central-upgrade/
+  git_checkout "$targetBranch"
+
+  # massive blob not required
+  #
+
+  log "Rebuilding and restarting containers..."
+  rebuild_and_restart_containers
+
+  confirm_postgres_version "$targetBranch"
+  confirm_seed_data
+  confirm_postgres_version "$targetBranch"
+  confirm_backend_running_ok
+  log "Containers rebuilt and restarted OK."
+
+  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$targetBranch")"
+  if [[ "$expectedVersion" = 14 ]]; then
+    if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
+      log "!!!"
+      log "!!! ERROR: Upgrade success flag file not found!"
+      log "!!!"
+      exit 1
+    fi
+  fi
+
+  log "Restart after upgrade? ${RESTART_AFTER_UPGRADE-}"
+  if [[ "$RESTART_AFTER_UPGRADE" = true ]]; then
+    log "Rebuilding and restarting containers..."
+    test_restart "$targetBranch"
+    log "Containers restarted OK."
+  fi
+
+  log "Upgrade to $targetBranch completed OK!"
+done
+
+log "All upgrades complete."
