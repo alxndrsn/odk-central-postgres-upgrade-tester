@@ -35,7 +35,7 @@ log "Upgrade to v14 completed OK!"
 
 
 log "Upgrading central to pg v18..." # see: https://docs.getodk.org/central-upgrade/
-git_checkout "dupgrade-pg-18"
+git_checkout "upgrade-pg-18"
 
 
 

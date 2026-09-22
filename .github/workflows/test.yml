@@ -21,8 +21,8 @@ jobs:
       fail-fast: false
       matrix:
         targetBranch:
-        - "dupgrade-pg-17"
-        - "dupgrade-pg-18"
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
@@ -50,13 +50,13 @@ jobs:
         initialBranch:
         - "upgrade-pg-9.6"
         - "upgrade-pg-14-official"
-        - "dupgrade-pg-17"
+        - "upgrade-pg-17"
         targetBranch:
-        - "dupgrade-pg-17"
-        - "dupgrade-pg-18"
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
         exclude:
-        - initialBranch: "dupgrade-pg-17"
-          targetBranch: "dupgrade-pg-17"
+        - initialBranch: "upgrade-pg-17"
+          targetBranch: "upgrade-pg-17"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
@@ -84,8 +84,8 @@ jobs:
         initialBranch:
         - "upgrade-pg-9.6"
         targetBranch:
-        - "dupgrade-pg-17"
-        - "dupgrade-pg-18"
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
@@ -132,8 +132,8 @@ jobs:
         initialBranch:
         - "upgrade-pg-9.6"
         targetBranch:
-        - "dupgrade-pg-17"
-        - "dupgrade-pg-18"
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
@@ -161,13 +161,13 @@ jobs:
         initialBranch:
         - "upgrade-pg-9.6"
         - "upgrade-pg-14-official"
-        - "dupgrade-pg-17"
+        - "upgrade-pg-17"
         targetBranch:
-        - "dupgrade-pg-17"
-        - "dupgrade-pg-18"
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
         exclude:
-        - initialBranch: "dupgrade-pg-17"
-          targetBranch: "dupgrade-pg-17"
+        - initialBranch: "upgrade-pg-17"
+          targetBranch: "upgrade-pg-17"
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
