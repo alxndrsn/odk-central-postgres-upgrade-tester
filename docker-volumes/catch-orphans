@@ -11,6 +11,14 @@ pgOrphan=false
 # shellcheck disable=SC2016
 for vol in $(docker volume ls --filter "dangling=true" -q); do
   if grep "^vol:$vol " "$scriptDir/.owners" | grep -Ev "container:central-(enketo|nginx)-1" >/dev/null; then
+    log "Checking size of vol: $vol..."
+    volSize="$(sudo du -s "$path")"
+    if [[ "$volSize" = 0 ]]; then
+      log "  Nothing there; ignoring."
+      continue
+    fi
+    log "  size: $volSize b"
+
     pgOrphan=true
     log "!!!"
     log "!!! Unexpected orphan volume: $vol"
@@ -18,7 +26,6 @@ for vol in $(docker volume ls --filter "dangling=true" -q); do
     grep "^vol:$vol " "$scriptDir/.owners" | awk -v prefix="$logPrefix" '{ gsub("container:", "", $2); print prefix " !!! - " $2 }'
 
     path="$(sudo docker volume inspect --format '{{ .Mountpoint }}' "$vol")"
-    sudo du -sh "$path"
     sudo tree "$path"
   fi
 done
