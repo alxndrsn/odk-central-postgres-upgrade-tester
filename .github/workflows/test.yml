@@ -104,11 +104,29 @@ jobs:
         run: ./logs-and-exit-for postgres14
       - run: ./docker-volumes/catch-orphans
         if: always()
-  test-happy-double:
+  test-happy-multi:
     runs-on: ubuntu-26
+    strategy:
+      fail-fast: false
+      matrix:
+        branches:
+        - "upgrade-pg-9.6,upgrade-pg-14-official"
+        - "upgrade-pg-9.6,upgrade-pg-17"
+        - "upgrade-pg-9.6,upgrade-pg-18"
+        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-17"
+        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-18"
+        - "upgrade-pg-9.6,upgrade-pg-17,upgrade-pg-18"
+        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-17,upgrade-pg-18"
+        - "upgrade-pg-14-official,upgrade-pg-17"
+        - "upgrade-pg-14-official,upgrade-pg-18"
+        - "upgrade-pg-14-official,upgrade-pg-17,upgrade-pg-18"
+        - "upgrade-pg-17,upgrade-pg-18"
+        restartAfterUpgrade:
+        - true
+        - false
     steps:
       - uses: actions/checkout@v6
-      - run: ./test-double-upgrade_ok --force
+      - run: RESTART_AFTER_UPGRADE=${{ matrix.restartAfterUpgrade }} BRANCHES=${{ matrix.branches }} ./test-multi-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
