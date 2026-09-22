@@ -14,7 +14,7 @@ for vol in $(docker volume ls --filter "dangling=true" -q); do
     path="$(sudo docker volume inspect --format '{{ .Mountpoint }}' "$vol")"
 
     log "Checking size of vol: $vol..."
-    volSize="$(sudo du -s "$path" | cut -f1)"
+    volSize="$(sudo du --summarize --bytes "$path" | cut -f1)"
     if [[ "$volSize" = 0 ]]; then
       log "  Nothing there; ignoring."
       continue
