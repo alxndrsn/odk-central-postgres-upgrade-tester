@@ -1,0 +1,20 @@
+#!/bin/bash -eu
+set -o pipefail
+
+scriptDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
+logPrefix="[$0]"
+log() { echo "$logPrefix $*"; }
+
+for vol in $(docker volume ls -q); do
+  log "  vol: $vol"
+  containers="$(docker ps -a --filter "volume=$vol" --format "{{.Names}}")"
+  if [[ -n "$containers" ]]; then
+    echo "$containers" | while IFS= read -r ctr; do
+      log "       - $ctr"
+      echo >>"$scriptDir/.owners" "vol:$vol container:$ctr"
+    done
+  else
+    log "       -- ORPHANED --"
+  fi
+done

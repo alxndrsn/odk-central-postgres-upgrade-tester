@@ -39,6 +39,8 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
+      - run: ./docker-volumes/catch-orphans
+        if: always()
   test-happy-single-with-restart:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -71,6 +73,8 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
+      - run: ./docker-volumes/catch-orphans
+        if: always()
   test-happy-single-restricted-volume:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -98,6 +102,8 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
+      - run: ./docker-volumes/catch-orphans
+        if: always()
   test-happy-multi:
     runs-on: ubuntu-latest
     strategy:
@@ -133,6 +139,8 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
+      - run: ./docker-volumes/catch-orphans
+        if: always()
   test-no-space-destination:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -160,6 +168,8 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
+      - run: ./docker-volumes/catch-orphans
+        if: always()
   test-docker-build-failure:
     runs-on: ubuntu-latest
     timeout-minutes: 6
@@ -192,3 +202,5 @@ jobs:
         if: always()
         continue-on-error: true
         run: ./logs-and-exit-for postgres14
+      - run: ./docker-volumes/catch-orphans
+        if: always()
