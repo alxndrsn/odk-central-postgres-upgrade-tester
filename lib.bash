@@ -179,7 +179,7 @@ exec_in_service_container() {
 
 confirm_postgres_version() {
   local expectedBranch="$1"
-  expectedVersion="$(sed -E 's/d?upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$expectedBranch")"
+  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$expectedBranch")"
   log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
   exec_in_service_container wait-for-postgres.js
 
