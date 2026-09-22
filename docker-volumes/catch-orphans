@@ -11,6 +11,8 @@ pgOrphan=false
 # shellcheck disable=SC2016
 for vol in $(docker volume ls --filter "dangling=true" -q); do
   if grep "^vol:$vol " "$scriptDir/.owners" | grep -Ev "container:central-(enketo|nginx)-1" >/dev/null; then
+    path="$(sudo docker volume inspect --format '{{ .Mountpoint }}' "$vol")"
+
     log "Checking size of vol: $vol..."
     volSize="$(sudo du -s "$path")"
     if [[ "$volSize" = 0 ]]; then
@@ -25,7 +27,6 @@ for vol in $(docker volume ls --filter "dangling=true" -q); do
     log "!!!   Previously owned by:"
     grep "^vol:$vol " "$scriptDir/.owners" | awk -v prefix="$logPrefix" '{ gsub("container:", "", $2); print prefix " !!! - " $2 }'
 
-    path="$(sudo docker volume inspect --format '{{ .Mountpoint }}' "$vol")"
     sudo tree "$path"
   fi
 done
