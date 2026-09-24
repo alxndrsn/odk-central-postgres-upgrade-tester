@@ -1,45 +1,49 @@
 #!/bin/bash -eu
 set -o pipefail
 
-# Helper function to test a set of images in an isolated Docker daemon
+
+# Cache volume to prevent re-downloading images from the web
+CACHE_VOL="dind-image-cache"
+docker volume create "$CACHE_VOL" >/dev/null
+
 measure_group() {
   local group_name="$1"
   shift
   local images=("$@")
 
-  # Send logs to stderr (>&2) so stdout stays clean for variable assignment
   echo "=== Measuring $group_name ===" >&2
 
-  # Run a temporary isolated Docker daemon inside a container
+  # Launch DinD using local storage volume for cached layers
   docker run --rm --privileged \
     --name "dind-test" \
+    -v "${CACHE_VOL}:/var/lib/docker" \
     -d docker:dind >/dev/null
 
-  # Wait for the nested daemon to start
   until docker exec dind-test docker info >/dev/null 2>&1; do
-    sleep 0.5
+    sleep 0.2
   done
 
-  # Record baseline storage used inside the isolated daemon
-  BEFORE=$(docker exec dind-test df -k /var/lib/docker | awk 'NR==2 {print $3}')
-
-  # Pull images
+  # Pull/ensure images exist in the cached daemon
   for img in "${images[@]}"; do
-    echo "  Pulling $img..." >&2
+    echo "  Ensuring $img is present..." >&2
     docker exec dind-test docker pull "$img" >/dev/null
   done
 
-  # Record storage after setup
-  AFTER=$(docker exec dind-test df -k /var/lib/docker | awk 'NR==2 {print $3}')
+  # Measure non-shared layer footprint using docker system df
+  # Sums exact Size (not Virtual Size) across unique images in this group
+  TOTAL_BYTES=0
+  for img in "${images[@]}"; do
+    BYTES=$(docker exec dind-test docker inspect "$img" --format='{{.Size}}')
+    TOTAL_BYTES=$(( TOTAL_BYTES + BYTES ))
+  done
 
-  # Stop and remove the isolated daemon container completely
   docker kill dind-test >/dev/null 2>&1 || true
 
-  # Return ONLY the net MB used on stdout
-  echo $(( (AFTER - BEFORE) / 1024 ))
+  # Convert Bytes to MB
+  echo $(( TOTAL_BYTES / 1024 / 1024 ))
 }
 
-# Common base images shared across both groups
+# Image Arrays
 BASE_IMAGES=(
   "node:24.20.0-slim"
   "jonasal/nginx-certbot:6.2.0-nginx1.31.5"
@@ -50,28 +54,16 @@ BASE_IMAGES=(
   "redis:8.10.1"
 )
 
-# Group 1: Base + postgres:14.24
-GROUP1_IMAGES=(
-  "${BASE_IMAGES[@]}"
-  "postgres:14.24"
-)
+GROUP1_IMAGES=("${BASE_IMAGES[@]}" "postgres:14.24")
+GROUP2_IMAGES=("${BASE_IMAGES[@]}" "pgautoupgrade/pgautoupgrade:18.4-trixie")
 
-# Group 2: Base + pgautoupgrade/pgautoupgrade:18.4-trixie
-GROUP2_IMAGES=(
-  "${BASE_IMAGES[@]}"
-  "pgautoupgrade/pgautoupgrade:18.4-trixie"
-)
+# Execution
+USAGE1=$(measure_group "Group 1 (Postgres 14.24)" "${GROUP1_IMAGES[@]}")
+USAGE2=$(measure_group "Group 2 (PGAutoUpgrade 18.4)" "${GROUP2_IMAGES[@]}")
 
-# Run measurements
-USAGE_GROUP1=$(measure_group "Group 1 (X, Y, Z)" "${GROUP1_IMAGES[@]}")
-USAGE_GROUP2=$(measure_group "Group 2 (W, Y, Z)" "${GROUP2_IMAGES[@]}")
-
-# Print Results
 echo ""
 echo "======================================"
-echo "Group 1 Usage: ${USAGE_GROUP1} MB"
-echo "Group 2 Usage: ${USAGE_GROUP2} MB"
+echo "Group 1 Total Footprint: ${USAGE1} MB"
+echo "Group 2 Total Footprint: ${USAGE2} MB"
 echo "======================================"
-
-DIFF=$(( USAGE_GROUP1 - USAGE_GROUP2 ))
-echo "Difference (Group 1 - Group 2): ${DIFF} MB"
+echo "Delta (Group 1 - Group 2): $(( USAGE1 - USAGE2 )) MB"
