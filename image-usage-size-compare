@@ -7,7 +7,8 @@ measure_group() {
   shift
   local images=("$@")
 
-  echo "=== Measuring $group_name ==="
+  # Send logs to stderr (>&2) so stdout stays clean for variable assignment
+  echo "=== Measuring $group_name ===" >&2
 
   # Run a temporary isolated Docker daemon inside a container
   docker run --rm --privileged \
@@ -22,12 +23,10 @@ measure_group() {
   # Record baseline storage used inside the isolated daemon
   BEFORE=$(docker exec dind-test df -k /var/lib/docker | awk 'NR==2 {print $3}')
 
-  # Pull and start containers for the group
+  # Pull images
   for img in "${images[@]}"; do
-    echo "  Pulling $img..."
+    echo "  Pulling $img..." >&2
     docker exec dind-test docker pull "$img" >/dev/null
-    # Optional: Spin container up if you want to capture writable layer growth
-    # docker exec dind-test docker run -d "$img" >/dev/null
   done
 
   # Record storage after setup
@@ -36,7 +35,7 @@ measure_group() {
   # Stop and remove the isolated daemon container completely
   docker kill dind-test >/dev/null 2>&1 || true
 
-  # Return net MB used
+  # Return ONLY the net MB used on stdout
   echo $(( (AFTER - BEFORE) / 1024 ))
 }
 
