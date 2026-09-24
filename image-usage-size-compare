@@ -1,10 +1,15 @@
 #!/bin/bash -eu
 set -o pipefail
 
-
-# Cache volume to prevent re-downloading images from the web
-CACHE_VOL="dind-image-cache"
-docker volume create "$CACHE_VOL" >/dev/null
+# Auto-detect CI environment
+if [ "${GITHUB_ACTIONS:-false}" = "true" ]; then
+  echo "--> CI environment detected: Running clean test without local volume cache." >&2
+  VOLUME_FLAG=""
+else
+  CACHE_VOL="dind-image-cache"
+  docker volume create "$CACHE_VOL" >/dev/null
+  VOLUME_FLAG="-v ${CACHE_VOL}:/var/lib/docker"
+fi
 
 measure_group() {
   local group_name="$1"
@@ -13,24 +18,24 @@ measure_group() {
 
   echo "=== Measuring $group_name ===" >&2
 
-  # Launch DinD using local storage volume for cached layers
+  # Launch isolated DinD daemon
   docker run --rm --privileged \
     --name "dind-test" \
-    -v "${CACHE_VOL}:/var/lib/docker" \
+    ${VOLUME_FLAG} \
     -d docker:dind >/dev/null
 
   until docker exec dind-test docker info >/dev/null 2>&1; do
     sleep 0.2
   done
 
-  # Pull/ensure images exist in the cached daemon
+  # Pull all images required for this group
   for img in "${images[@]}"; do
     echo "  Ensuring $img is present..." >&2
     docker exec dind-test docker pull "$img" >/dev/null
   done
 
-  # Measure non-shared layer footprint using docker system df
-  # Sums exact Size (not Virtual Size) across unique images in this group
+  # Sum the actual uncompressed size on disk for ONLY the images in this group
+  # (handles shared layers properly within the docker daemon)
   TOTAL_BYTES=0
   for img in "${images[@]}"; do
     BYTES=$(docker exec dind-test docker inspect "$img" --format='{{.Size}}')
@@ -66,4 +71,4 @@ echo "======================================"
 echo "Group 1 Total Footprint: ${USAGE1} MB"
 echo "Group 2 Total Footprint: ${USAGE2} MB"
 echo "======================================"
-echo "Delta (Group 1 - Group 2): $(( USAGE1 - USAGE2 )) MB"
+echo "Difference (Group 1 - Group 2): $(( USAGE1 - USAGE2 )) MB"
