@@ -10,19 +10,21 @@ if [[ $# -gt 0 ]]; then
   exit 1
 fi
 
-CACHE_VOL="dind-image-cache"
-docker volume create "$CACHE_VOL" >/dev/null
-VOLUME_FLAG="-v ${CACHE_VOL}:/var/lib/docker"
+cacheVol="dind-image-cache"
+docker volume create "$cacheVol" >/dev/null
 
 log "Checking for docker-in-docker daemon..."
 if docker exec dind-test docker info >/dev/null 2>&1; then
   log "  daemon already running."
 else
   log "  starting daemon..."
-  docker run --rm --privileged \
+  docker run \
+    --rm \
+    --privileged \
     --name "dind-test" \
-    "$VOLUME_FLAG" \
-    -d docker:dind >/dev/null
+    --volume "-v $cacheVol:/var/lib/docker" \
+    --detach docker:dind \
+    >/dev/null
 
   until docker exec dind-test docker info >/dev/null 2>&1; do
     sleep 0.2
@@ -30,11 +32,11 @@ else
 fi
 
 measure_group() {
-  local group_name="$1"
+  local groupName="$1"
   shift
   local images=("$@")
 
-  log "=== Measuring $group_name ==="
+  log "=== Measuring $groupName ==="
 
   log "  Pulling images..."
   for img in "${images[@]}"; do
@@ -48,7 +50,7 @@ measure_group() {
   done
 
   log "  Calculating compressed (download) size..."
-  COMPRESSED_BYTES=$(
+  compressedBytes=$(
     docker exec dind-test docker save "${images[@]}" | tar -tvf - 2>/dev/null | awk '
       $0 ~ /layer\.tar$/ || $0 ~ /blobs\/sha256\// {
         size = $3
@@ -62,7 +64,7 @@ measure_group() {
   )
 
   log "  Calculating expanded (on-disk) size..."
-  EXPANDED_BYTES=$(
+  expandedBytes=$(
     docker exec dind-test sh -c '
       images="'"${images[*]}"'"
       # Dump layer sizes and diff_ids for each image
@@ -95,14 +97,14 @@ measure_group() {
     '
   )
 
-  COMPRESSED_MB=$(( COMPRESSED_BYTES / 1024 / 1024 ))
-  EXPANDED_MB=$((   EXPANDED_BYTES   / 1024 / 1024 ))
+  compressedMb=$(( compressedBytes / 1024 / 1024 ))
+  expandedMb=$((   expandedBytes   / 1024 / 1024 ))
 
-  echo "${COMPRESSED_MB} ${EXPANDED_MB}"
+  echo "${compressedMb} ${expandedMb}"
 }
 
 # Image Arrays
-BASE_IMAGES=(
+baseImages=(
   "node:24.20.0-slim"
   "jonasal/nginx-certbot:6.2.0-nginx1.31.5"
   "ghcr.io/enketo/enketo:7.6.4"
@@ -112,22 +114,22 @@ BASE_IMAGES=(
   "redis:8.10.1"
 )
 
-GROUP1_IMAGES=("${BASE_IMAGES[@]}" "postgres:14.24")
-GROUP2_IMAGES=("${BASE_IMAGES[@]}" "pgautoupgrade/pgautoupgrade:18.4-trixie")
+group1images=("${baseImages[@]}" "postgres:14.24")
+group2images=("${baseImages[@]}" "pgautoupgrade/pgautoupgrade:18.4-trixie")
 
 # Execution
-read -r COMP1 EXP1 <<< "$(measure_group "Group 1 (Postgres 14.24)"     "${GROUP1_IMAGES[@]}")"
-read -r COMP2 EXP2 <<< "$(measure_group "Group 2 (PGAutoUpgrade 18.4)" "${GROUP2_IMAGES[@]}")"
+read -r comp1 exp1 <<< "$(measure_group "Group 1 (Postgres 14.24)"     "${group1images[@]}")"
+read -r comp2 exp2 <<< "$(measure_group "Group 2 (PGAutoUpgrade 18.4)" "${group2images[@]}")"
 
 log "============================================================"
 log "Group 1 Footprint (Postgres 14.24):"
-log "  - Compressed / Transfer: ${COMP1} MB"
-log "  - Expanded / On-Disk:    ${EXP1} MB"
+log "  - Compressed / Transfer: ${comp1} MB"
+log "  - Expanded / On-Disk:    ${exp1} MB"
 log "------------------------------------------------------------"
 log "Group 2 Footprint (PGAutoUpgrade 18.4):"
-log "  - Compressed / Transfer: ${COMP2} MB"
-log "  - Expanded / On-Disk:    ${EXP2} MB"
+log "  - Compressed / Transfer: ${comp2} MB"
+log "  - Expanded / On-Disk:    ${exp2} MB"
 log "============================================================"
 log "Net Impact (Group 2 - Group 1):"
-log "  - Compressed Transfer Impact:   $(( COMP2 - COMP1 )) MB"
-log "  - Expanded Disk Storage Impact: $(( EXP2 - EXP1 )) MB"
+log "  - Compressed Transfer Impact:   $(( comp2 - comp1 )) MB"
+log "  - Expanded Disk Storage Impact: $(( exp2 - exp1 )) MB"
