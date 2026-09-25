@@ -16,17 +16,9 @@ else
   VOLUME_FLAG="-v ${CACHE_VOL}:/var/lib/docker"
 fi
 
-measure_group() {
-  local group_name="$1"
-  shift
-  local images=("$@")
-
-  log "=== Measuring $group_name ===" >&2
-
-  # Ensure clean slate before running each group
+# Ensure DinD daemon is running continuously across both test groups
+if ! docker exec dind-test docker info >/dev/null 2>&1; then
   docker rm -f dind-test >/dev/null 2>&1 || true
-
-  # 1. Launch isolated DinD daemon
   docker run --rm --privileged \
     --name "dind-test" \
     ${VOLUME_FLAG} \
@@ -35,8 +27,16 @@ measure_group() {
   until docker exec dind-test docker info >/dev/null 2>&1; do
     sleep 0.2
   done
+fi
 
-  # 2. Pull target group (skips network handshake if cached locally)
+measure_group() {
+  local group_name="$1"
+  shift
+  local images=("$@")
+
+  log "=== Measuring $group_name ===" >&2
+
+  # Pull target group (skips network handshake if cached locally)
   for img in "${images[@]}"; do
     if docker exec dind-test docker image inspect "$img" >/dev/null 2>&1; then
       log "  $img present locally, skipping pull." >&2
@@ -46,15 +46,9 @@ measure_group() {
     fi
   done
 
-  # 3. Sum exact uncompressed layer sizes across group images
-  TOTAL_BYTES=0
-  for img in "${images[@]}"; do
-    BYTES=$(docker exec dind-test docker inspect "$img" --format='{{.Size}}')
-    TOTAL_BYTES=$(( TOTAL_BYTES + BYTES ))
-  done
-
-  # Stop DinD container
-  docker kill dind-test >/dev/null 2>&1 || true
+  # Deduplicate RootFS layers across all images in group to get exact uncompressed footprint
+  TOTAL_BYTES=$(docker exec dind-test docker inspect "${images[@]}" --format '{{range .RootFS.Layers}}{{.}}
+{{end}}' | sort -u | xargs -I {} docker exec dind-test docker inspect --format '{{.Size}}' {} 2>/dev/null | gawk '{s+=$1} END {print s}')
 
   # Return MB on stdout
   echo $(( TOTAL_BYTES / 1024 / 1024 ))
@@ -77,6 +71,9 @@ GROUP2_IMAGES=("${BASE_IMAGES[@]}" "pgautoupgrade/pgautoupgrade:18.4-trixie")
 # Execution
 USAGE1=$(measure_group "Group 1 (Postgres 14.24)" "${GROUP1_IMAGES[@]}")
 USAGE2=$(measure_group "Group 2 (PGAutoUpgrade 18.4)" "${GROUP2_IMAGES[@]}")
+
+# Cleanup DinD daemon after measurements complete
+docker kill dind-test >/dev/null 2>&1 || true
 
 log ""
 log "======================================"
