@@ -10,8 +10,7 @@ if [[ $# -gt 0 ]]; then
   exit 1
 fi
 
-cacheVol="dind-image-cache"
-docker volume create "$cacheVol" >/dev/null
+docker volume create dind-image-cache >/dev/null
 
 log "Checking for docker-in-docker daemon..."
 if docker exec dind-test docker info >/dev/null 2>&1; then
@@ -21,8 +20,9 @@ else
   docker run \
     --detach \
     --name "dind-test" \
+    --privileged \
     --rm \
-    --volume "$cacheVol:/var/lib/docker" \
+    --volume "dind-image-cache:/var/lib/docker" \
     docker:dind \
     >/dev/null
 
