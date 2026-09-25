@@ -18,7 +18,7 @@ measure_group() {
 
   echo "=== Measuring $group_name ===" >&2
 
-  # Launch isolated DinD daemon
+  # 1. Launch isolated DinD daemon
   docker run --rm --privileged \
     --name "dind-test" \
     ${VOLUME_FLAG} \
@@ -28,24 +28,27 @@ measure_group() {
     sleep 0.2
   done
 
-  # Pull all images required for this group
+  # 2. Prune images from previous runs so only target group exists in engine
+  docker exec dind-test docker image prune -a -f >/dev/null
+
+  # 3. Pull target group
   for img in "${images[@]}"; do
     echo "  Ensuring $img is present..." >&2
     docker exec dind-test docker pull "$img" >/dev/null
   done
 
-  # Sum the actual uncompressed size on disk for ONLY the images in this group
-  # (handles shared layers properly within the docker daemon)
-  TOTAL_BYTES=0
-  for img in "${images[@]}"; do
-    BYTES=$(docker exec dind-test docker inspect "$img" --format='{{.Size}}')
-    TOTAL_BYTES=$(( TOTAL_BYTES + BYTES ))
-  done
+  # 4. Get exact deduplicated disk usage across all loaded images
+  # 'docker system df' outputs total size accounting for shared layers
+  TOTAL_SIZE_KB=$(docker exec dind-test docker system df --format '{{.Size}}' | head -n 1 | awk '{
+    if ($0 ~ /GB/) print $1 * 1024 * 1024;
+    else if ($0 ~ /MB/) print $1 * 1024;
+    else if ($0 ~ /kB/) print $1;
+  }')
 
   docker kill dind-test >/dev/null 2>&1 || true
 
-  # Convert Bytes to MB
-  echo $(( TOTAL_BYTES / 1024 / 1024 ))
+  # Convert to MB
+  echo $(( ${TOTAL_SIZE_KB%.*} / 1024 ))
 }
 
 # Image Arrays
