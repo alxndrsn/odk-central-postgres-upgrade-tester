@@ -20,9 +20,8 @@ else
   log "  starting daemon..."
   docker run \
     --rm \
-    --privileged \
     --name "dind-test" \
-    --volume "-v $cacheVol:/var/lib/docker" \
+    --volume "$cacheVol:/var/lib/docker" \
     --detach docker:dind \
     >/dev/null
 
