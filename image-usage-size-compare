@@ -21,7 +21,7 @@ else
   log "  starting daemon..."
   docker run --rm --privileged \
     --name "dind-test" \
-    ${VOLUME_FLAG} \
+    "$VOLUME_FLAG" \
     -d docker:dind >/dev/null
 
   until docker exec dind-test docker info >/dev/null 2>&1; do
@@ -96,7 +96,7 @@ measure_group() {
   )
 
   COMPRESSED_MB=$(( COMPRESSED_BYTES / 1024 / 1024 ))
-  EXPANDED_MB=$(( EXPANDED_BYTES / 1024 / 1024 ))
+  EXPANDED_MB=$((   EXPANDED_BYTES   / 1024 / 1024 ))
 
   echo "${COMPRESSED_MB} ${EXPANDED_MB}"
 }
