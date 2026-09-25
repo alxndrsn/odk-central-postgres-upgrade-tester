@@ -42,7 +42,7 @@ measure_group() {
       log "  $img present locally, skipping pull." >&2
     else
       log "  Pulling $img..." >&2
-      docker exec dind-test docker pull "$img" >/dev/null
+      docker exec dind-test docker pull "$img"
     fi
   done
 
