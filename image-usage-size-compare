@@ -46,22 +46,21 @@ measure_group() {
     fi
   done
 
-  # Extract unique layers per image and map each layer hash to its size using gawk
-  TOTAL_BYTES=$(docker exec dind-test docker inspect "${images[@]}" --format '{{range .RootFS.Layers}}{{.}} {{end}} {{.Size}}' | gawk '
-    {
-      img_size = $NF
-      num_layers = NF - 1
-      if (num_layers > 0) {
-        layer_size = img_size / num_layers
-        for (i = 1; i <= num_layers; i++) {
-          if (!seen[$i]++) {
-            total += layer_size
-          }
+  # Stream tarball headers to sum exact, deduplicated uncompressed layer sizes
+  TOTAL_BYTES=$(
+    docker exec dind-test docker save "${images[@]}" | tar -tvf - 2>/dev/null | gawk '
+      $0 ~ /layer\.tar$/ || $0 ~ /blobs\/sha256\// {
+        size = $3
+        layer_path = $NF
+
+        # Deduplicate layer path/digest across all images in the group
+        if (!seen[layer_path]++) {
+          total += size
         }
       }
-    }
-    END { print int(total) }
-  ')
+      END { print total }
+    '
+  )
 
   # Return MB on stdout
   echo $(( TOTAL_BYTES / 1024 / 1024 ))
