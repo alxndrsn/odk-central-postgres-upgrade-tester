@@ -19,10 +19,11 @@ if docker exec dind-test docker info >/dev/null 2>&1; then
 else
   log "  starting daemon..."
   docker run \
-    --rm \
+    --detach \
     --name "dind-test" \
+    --rm \
     --volume "$cacheVol:/var/lib/docker" \
-    --detach docker:dind \
+    docker:dind \
     >/dev/null
 
   until docker exec dind-test docker info >/dev/null 2>&1; do
