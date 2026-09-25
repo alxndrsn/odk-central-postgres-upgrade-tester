@@ -3,6 +3,9 @@ set -o pipefail
 
 log() { echo "[$0|$(date +%Y-%m-%dT%H:%M:%S.%3N)] $*"; }
 
+# Explicitly cleanup lingering containers at script startup
+docker rm -f dind-test >/dev/null 2>&1 || true
+
 # Auto-detect CI environment
 if [ "${GITHUB_ACTIONS:-false}" = "true" ]; then
   log "--> CI environment detected: Running clean test without local volume cache." >&2
@@ -20,6 +23,9 @@ measure_group() {
 
   log "=== Measuring $group_name ===" >&2
 
+  # Ensure clean slate before running each group
+  docker rm -f dind-test >/dev/null 2>&1 || true
+
   # 1. Launch isolated DinD daemon
   docker run --rm --privileged \
     --name "dind-test" \
@@ -30,12 +36,8 @@ measure_group() {
     sleep 0.2
   done
 
-  # 2. Prune images from previous runs so only target group exists in engine
-  docker exec dind-test docker image prune -a -f >/dev/null
-
-  # 3. Pull target group
+  # 2. Pull target group (skips network handshake if cached locally)
   for img in "${images[@]}"; do
-    # Check if image exists locally first
     if docker exec dind-test docker image inspect "$img" >/dev/null 2>&1; then
       log "  $img present locally, skipping pull." >&2
     else
@@ -44,18 +46,18 @@ measure_group() {
     fi
   done
 
-  # 4. Get exact deduplicated disk usage across all loaded images
-  # 'docker system df' outputs total size accounting for shared layers
-  TOTAL_SIZE_KB=$(docker exec dind-test docker system df --format '{{.Size}}' | head -n 1 | awk '{
-    if ($0 ~ /GB/) print $1 * 1024 * 1024;
-    else if ($0 ~ /MB/) print $1 * 1024;
-    else if ($0 ~ /kB/) print $1;
-  }')
+  # 3. Sum exact uncompressed layer sizes across group images
+  TOTAL_BYTES=0
+  for img in "${images[@]}"; do
+    BYTES=$(docker exec dind-test docker inspect "$img" --format='{{.Size}}')
+    TOTAL_BYTES=$(( TOTAL_BYTES + BYTES ))
+  done
 
+  # Stop DinD container
   docker kill dind-test >/dev/null 2>&1 || true
 
-  # Convert to MB
-  echo $(( ${TOTAL_SIZE_KB%.*} / 1024 ))
+  # Return MB on stdout
+  echo $(( TOTAL_BYTES / 1024 / 1024 ))
 }
 
 # Image Arrays
