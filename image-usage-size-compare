@@ -46,9 +46,22 @@ measure_group() {
     fi
   done
 
-  # Deduplicate RootFS layers across all images in group to get exact uncompressed footprint
-  TOTAL_BYTES=$(docker exec dind-test docker inspect "${images[@]}" --format '{{range .RootFS.Layers}}{{.}}
-{{end}}' | sort -u | xargs -I {} docker exec dind-test docker inspect --format '{{.Size}}' {} 2>/dev/null | gawk '{s+=$1} END {print s}')
+  # Extract unique layers per image and map each layer hash to its size using gawk
+  TOTAL_BYTES=$(docker exec dind-test docker inspect "${images[@]}" --format '{{range .RootFS.Layers}}{{.}} {{end}} {{.Size}}' | gawk '
+    {
+      img_size = $NF
+      num_layers = NF - 1
+      if (num_layers > 0) {
+        layer_size = img_size / num_layers
+        for (i = 1; i <= num_layers; i++) {
+          if (!seen[$i]++) {
+            total += layer_size
+          }
+        }
+      }
+    }
+    END { print int(total) }
+  ')
 
   # Return MB on stdout
   echo $(( TOTAL_BYTES / 1024 / 1024 ))
