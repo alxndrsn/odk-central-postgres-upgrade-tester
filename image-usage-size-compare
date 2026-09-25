@@ -49,7 +49,7 @@ measure_group() {
 
   log "  Calculating compressed (download) size..."
   COMPRESSED_BYTES=$(
-    docker exec dind-test docker save "${images[@]}" | tar -tvf - 2>/dev/null | gawk '
+    docker exec dind-test docker save "${images[@]}" | tar -tvf - 2>/dev/null | awk '
       $0 ~ /layer\.tar$/ || $0 ~ /blobs\/sha256\// {
         size = $3
         layer_path = $NF
@@ -69,7 +69,7 @@ measure_group() {
       docker inspect $images --format '\''
         {{range .RootFS.Layers}}{{.}} {{end}}
       '\''
-    ' | gawk -v img_args="${images[*]}" '
+    ' | awk -v img_args="${images[*]}" '
       BEGIN {
         # Fetch uncompressed sizes from image inspect JSON directly
         cmd = "docker exec dind-test docker inspect " img_args " --format '\''{{.Size}} {{range .RootFS.Layers}}{{.}} {{end}}'\''"
