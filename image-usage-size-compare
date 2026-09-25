@@ -116,10 +116,9 @@ GROUP1_IMAGES=("${BASE_IMAGES[@]}" "postgres:14.24")
 GROUP2_IMAGES=("${BASE_IMAGES[@]}" "pgautoupgrade/pgautoupgrade:18.4-trixie")
 
 # Execution
-read -r COMP1 EXP1 <<< "$(measure_group "Group 1 (Postgres 14.24)" "${GROUP1_IMAGES[@]}")"
+read -r COMP1 EXP1 <<< "$(measure_group "Group 1 (Postgres 14.24)"     "${GROUP1_IMAGES[@]}")"
 read -r COMP2 EXP2 <<< "$(measure_group "Group 2 (PGAutoUpgrade 18.4)" "${GROUP2_IMAGES[@]}")"
 
-log ""
 log "============================================================"
 log "Group 1 Footprint (Postgres 14.24):"
 log "  - Compressed / Transfer: ${COMP1} MB"
