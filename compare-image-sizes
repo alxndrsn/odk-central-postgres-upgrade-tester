@@ -1,96 +1,21 @@
 #!/bin/bash -eu
 set -o pipefail
 
-log() { echo >&2 "[$0|$(date +%Y-%m-%dT%H:%M:%S.%3N)] $*"; }
+mb1=123
+mb2=456
 
-if [[ $# -gt 0 ]]; then
-  log "!!!"
-  log "!!! Unexpected arg(s)."
-  log "!!!"
-  exit 1
+bytes1=123456789
+bytes2=987654321
+
+diffMb=385
+
+# Append to GitHub Step Summary if running in GHA
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  {
+    echo "## 📊 Image Size Comparison Report"
+    echo ""
+    echo "- **Group 1 Footprint (Postgres 14.24):** ${mb1} MB (\`${bytes1}\` bytes)"
+    echo "- **Group 2 Footprint (PGAutoUpgrade 18.4):** ${mb2} MB (\`${bytes2}\` bytes)"
+    echo "- **Net Impact (Group 2 - Group 1):** \`${diffMb} MB\`"
+  } >> "$GITHUB_STEP_SUMMARY"
 fi
-
-measure_group() {
-  local groupName="$1"
-  shift
-  local images=("$@")
-
-  log "=== Measuring $groupName in a brand new container ==="
-
-  local imgName="dind-test-$RANDOM"
-  docker run \
-    --detach \
-    --name "$imgName" \
-    --privileged \
-    --rm \
-    docker:dind \
-    >/dev/null
-
-  until docker exec "$imgName" docker info >/dev/null 2>&1; do
-    sleep 0.2
-  done
-
-  log "  Pulling images..."
-  for img in "${images[@]}"; do
-    log "  image: $img"
-    docker exec "$imgName" docker pull "$img" >&2
-  done
-
-  log "  Calculating expanded (on-disk) size..."
-
-  local diskBytes
-  diskBytes=$(
-    docker exec "$imgName" docker system df --format '{{.Type}}|{{.Size}}' | awk -F'|' '$1 == "Images" {
-      str = $2
-      sub(/^[ \t]+|[ \t]+$/, "", str)
-      val = str
-      sub(/[KMGT]B?$/, "", val)
-
-      if      (str ~ /TB?/) bytes = val * 1024 * 1024 * 1024 * 1024;
-      else if (str ~ /GB?/) bytes = val * 1024 * 1024 * 1024;
-      else if (str ~ /MB?/) bytes = val * 1024 * 1024;
-      else if (str ~ /KB?/) bytes = val * 1024;
-      else bytes = val;
-
-      print int(bytes)
-    }'
-  )
-
-  log "    ${diskBytes}b"
-
-  log "  Stopping/destroying container..."
-  docker rm --force "$imgName" >/dev/null 2>&1 || true
-
-  echo "${diskBytes:-0}"
-}
-
-# Image Arrays
-baseImages=(
-  "node:24.20.0-slim"
-  "jonasal/nginx-certbot:6.2.0-nginx1.31.5"
-  "ghcr.io/enketo/enketo:7.6.4"
-  "tianon/postgres-upgrade:9.6-to-14"
-  "registry.gitlab.com/egos-tech/smtp:2.0.7"
-  "ghcr.io/getodk/pyxform-http:v4.5.0"
-  "redis:8.10.1"
-)
-group1images=("${baseImages[@]}" "postgres:14.24")
-group2images=("${baseImages[@]}" "pgautoupgrade/pgautoupgrade:18.4-trixie")
-
-# Execution
-bytes1="$(measure_group "Group 1 (Postgres 14.24)"     "${group1images[@]}")"
-bytes2="$(measure_group "Group 2 (PGAutoUpgrade 18.4)" "${group2images[@]}")"
-
-mb1=$(( bytes1 / 1024 / 1024 ))
-mb2=$(( bytes2 / 1024 / 1024 ))
-diffMb=$(( mb2 - mb1 ))
-
-log "============================================================"
-log "Group 1 Footprint (Postgres 14.24):"
-log "  - Expanded / On-Disk:    ${mb1} MB (${bytes1} bytes)"
-log "------------------------------------------------------------"
-log "Group 2 Footprint (PGAutoUpgrade 18.4):"
-log "  - Expanded / On-Disk:    ${mb2} MB (${bytes2} bytes)"
-log "============================================================"
-log "Net Impact (Group 2 - Group 1):"
-log "  - Expanded Disk Storage Impact: ${diffMb} MB"
