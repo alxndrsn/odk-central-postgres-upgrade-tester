@@ -55,7 +55,7 @@ measure_group() {
       log "    present locally, skipping pull."
     else
       log "    pulling..."
-      docker exec dind-test docker pull "$img"
+      docker exec dind-test docker pull "$img" >&2
     fi
   done
 
