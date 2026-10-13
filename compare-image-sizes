@@ -72,6 +72,7 @@ measure_group() {
       END { print total }
     '
   )
+  log "    ${compressedBytes}b"
 
   log "  Calculating expanded (on-disk) size..."
   expandedBytes=$(
@@ -106,6 +107,7 @@ measure_group() {
       }
     '
   )
+  log "    ${expandedBytes}b"
 
   compressedMb=$(( compressedBytes / 1024 / 1024 ))
   expandedMb=$((   expandedBytes   / 1024 / 1024 ))
