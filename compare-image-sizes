@@ -4,12 +4,12 @@ set -o pipefail
 log() { echo >&2 "[$0|$(date +%Y-%m-%dT%H:%M:%S.%3N)] $*"; }
 
 if [[ "${1-}" = "--clean" ]]; then
-  log "Stopping container..."
-  docker stop dind-test || log "(failed)"
-  log "Removing container..."
-  docker rm dind-test || log "(failed)"
-  log "Removing volume..."
-  docker volume rm dind-image-cache || log "(failed)"
+  log "Cleaning..."
+  log "  Stopping/removing container..."
+  docker rm --force --volumes dind-test || log "    (failed)"
+  log "  Removing volume..."
+  docker volume rm dind-image-cache || log "    (failed)"
+  log "Clean completed."
   exit
 fi
 
