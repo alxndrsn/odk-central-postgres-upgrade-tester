@@ -85,6 +85,17 @@ mb1=$(( bytes1 / 1024 / 1024 ))
 mb2=$(( bytes2 / 1024 / 1024 ))
 diffMb=$(( mb2 - mb1 ))
 
+# Append to GitHub Step Summary if running in GHA
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  {
+    echo "## 📊 Image Size Comparison Report"
+    echo ""
+    echo "- **Group 1 Footprint (Postgres 14.24):** ${mb1} MB (\`${bytes1}\` bytes)"
+    echo "- **Group 2 Footprint (PGAutoUpgrade 18.4):** ${mb2} MB (\`${bytes2}\` bytes)"
+    echo "- **Net Impact (Group 2 - Group 1):** \`${diffMb} MB\`"
+  } >> "$GITHUB_STEP_SUMMARY"
+fi
+
 log "============================================================"
 log "Group 1 Footprint (Postgres 14.24):"
 log "  - Expanded / On-Disk:    ${mb1} MB (${bytes1} bytes)"
