@@ -3,16 +3,6 @@ set -o pipefail
 
 log() { echo >&2 "[$0|$(date +%Y-%m-%dT%H:%M:%S.%3N)] $*"; }
 
-if [[ "${1-}" = "--clean" ]]; then
-  log "Cleaning..."
-  log "  Stopping/removing container..."
-  docker rm --force --volumes dind-test || log "    (failed)"
-  log "  Removing volume..."
-  docker volume rm dind-image-cache || log "    (failed)"
-  log "Clean completed."
-  exit
-fi
-
 if [[ $# -gt 0 ]]; then
   log "!!!"
   log "!!! Unexpected arg(s)."
@@ -20,99 +10,58 @@ if [[ $# -gt 0 ]]; then
   exit 1
 fi
 
-docker volume create dind-image-cache >/dev/null
-
-log "Checking for docker-in-docker daemon..."
-if docker exec dind-test docker info >/dev/null 2>&1; then
-  log "  daemon already running."
-else
-  log "  starting daemon..."
-  docker run \
-    --detach \
-    --name "dind-test" \
-    --privileged \
-    --rm \
-    --volume "dind-image-cache:/var/lib/docker" \
-    docker:dind \
-    >/dev/null
-
-  until docker exec dind-test docker info >/dev/null 2>&1; do
-    sleep 0.2
-  done
-fi
-
 measure_group() {
   local groupName="$1"
   shift
   local images=("$@")
 
-  log "=== Measuring $groupName ==="
+  log "=== Measuring $groupName in a brand new container ==="
+
+  local imgName="dind-test-$RANDOM"
+  docker run \
+    --detach \
+    --name "$imgName" \
+    --privileged \
+    --rm \
+    docker:dind \
+    >/dev/null
+
+  until docker exec "$imgName" docker info >/dev/null 2>&1; do
+    sleep 0.2
+  done
 
   log "  Pulling images..."
   for img in "${images[@]}"; do
     log "  image: $img"
-    if docker exec dind-test docker image inspect "$img" >/dev/null 2>&1; then
-      log "    present locally, skipping pull."
-    else
-      log "    pulling..."
-      docker exec dind-test docker pull "$img" >&2
-    fi
+    docker exec "$imgName" docker pull "$img" >&2
   done
 
-  log "  Calculating compressed (download) size..."
-  compressedBytes=$(
-    docker exec dind-test docker save "${images[@]}" | tar -tvf - 2>/dev/null | awk '
-      $0 ~ /layer\.tar$/ || $0 ~ /blobs\/sha256\// {
-        size = $3
-        layer_path = $NF
-        if (!seen[layer_path]++) {
-          total += size
-        }
-      }
-      END { print total }
-    '
-  )
-  log "    ${compressedBytes}b"
-
   log "  Calculating expanded (on-disk) size..."
-  expandedBytes=$(
-    docker exec dind-test sh -c '
-      images="'"${images[*]}"'"
-      # Dump layer sizes and diff_ids for each image
-      docker inspect $images --format '\''
-        {{range .RootFS.Layers}}{{.}} {{end}}
-      '\''
-    ' | awk -v img_args="${images[*]}" '
-      BEGIN {
-        # Fetch uncompressed sizes from image inspect JSON directly
-        cmd = "docker exec dind-test docker inspect " img_args " --format '\''{{.Size}} {{range .RootFS.Layers}}{{.}} {{end}}'\''"
-        while ((cmd | getline line) > 0) {
-          split(line, parts, " ")
-          img_size = parts[1]
-          num_layers = length(parts) - 1
-          
-          # Compute approximate uncompressed per-layer contribution
-          if (num_layers > 0) {
-            per_layer = img_size / num_layers
-            for (i = 2; i <= length(parts); i++) {
-              layer_id = parts[i]
-              if (!seen_layer[layer_id]++) {
-                total_expanded += per_layer
-              }
-            }
-          }
-        }
-        close(cmd)
-        print int(total_expanded)
-      }
-    '
+
+  local diskBytes
+  diskBytes=$(
+    docker exec "$imgName" docker system df --format '{{.Type}}|{{.Size}}' | awk -F'|' '$1 == "Images" {
+      str = $2
+      sub(/^[ \t]+|[ \t]+$/, "", str)
+      val = str
+      sub(/[KMGT]B?$/, "", val)
+
+      if      (str ~ /TB?/) bytes = val * 1024 * 1024 * 1024 * 1024;
+      else if (str ~ /GB?/) bytes = val * 1024 * 1024 * 1024;
+      else if (str ~ /MB?/) bytes = val * 1024 * 1024;
+      else if (str ~ /KB?/) bytes = val * 1024;
+      else bytes = val;
+
+      print int(bytes)
+    }'
   )
-  log "    ${expandedBytes}b"
 
-  compressedMb=$(( compressedBytes / 1024 / 1024 ))
-  expandedMb=$((   expandedBytes   / 1024 / 1024 ))
+  log "    ${diskBytes}b"
 
-  echo "${compressedMb} ${expandedMb}"
+  log "  Stopping/destroying container..."
+  docker rm --force "$imgName" >/dev/null 2>&1 || true
+
+  echo "${diskBytes:-0}"
 }
 
 # Image Arrays
@@ -125,23 +74,23 @@ baseImages=(
   "ghcr.io/getodk/pyxform-http:v4.5.0"
   "redis:8.10.1"
 )
-
 group1images=("${baseImages[@]}" "postgres:14.24")
 group2images=("${baseImages[@]}" "pgautoupgrade/pgautoupgrade:18.4-trixie")
 
 # Execution
-read -r comp1 exp1 <<< "$(measure_group "Group 1 (Postgres 14.24)"     "${group1images[@]}")"
-read -r comp2 exp2 <<< "$(measure_group "Group 2 (PGAutoUpgrade 18.4)" "${group2images[@]}")"
+bytes1="$(measure_group "Group 1 (Postgres 14.24)"     "${group1images[@]}")"
+bytes2="$(measure_group "Group 2 (PGAutoUpgrade 18.4)" "${group2images[@]}")"
+
+mb1=$(( bytes1 / 1024 / 1024 ))
+mb2=$(( bytes2 / 1024 / 1024 ))
+diffMb=$(( mb2 - mb1 ))
 
 log "============================================================"
 log "Group 1 Footprint (Postgres 14.24):"
-log "  - Compressed / Transfer: ${comp1} MB"
-log "  - Expanded / On-Disk:    ${exp1} MB"
+log "  - Expanded / On-Disk:    ${mb1} MB (${bytes1} bytes)"
 log "------------------------------------------------------------"
 log "Group 2 Footprint (PGAutoUpgrade 18.4):"
-log "  - Compressed / Transfer: ${comp2} MB"
-log "  - Expanded / On-Disk:    ${exp2} MB"
+log "  - Expanded / On-Disk:    ${mb2} MB (${bytes2} bytes)"
 log "============================================================"
 log "Net Impact (Group 2 - Group 1):"
-log "  - Compressed Transfer Impact:   $(( comp2 - comp1 )) MB"
-log "  - Expanded Disk Storage Impact: $(( exp2 - exp1 )) MB"
+log "  - Expanded Disk Storage Impact: ${diffMb} MB"
