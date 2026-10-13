@@ -1,0 +1,13 @@
+---
+name: Compare Image Sizes
+
+on:
+  workflow_dispatch:
+
+jobs:
+  compare-image-sizes:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v6
+      - run: ./compare-image-sizes
