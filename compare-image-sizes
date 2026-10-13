@@ -46,7 +46,7 @@ measure_group() {
       val = str
       sub(/[KMGT]B?$/, "", val)
 
-      if (str ~ /TB?/) bytes = val * 1024 * 1024 * 1024 * 1024;
+      if      (str ~ /TB?/) bytes = val * 1024 * 1024 * 1024 * 1024;
       else if (str ~ /GB?/) bytes = val * 1024 * 1024 * 1024;
       else if (str ~ /MB?/) bytes = val * 1024 * 1024;
       else if (str ~ /KB?/) bytes = val * 1024;
