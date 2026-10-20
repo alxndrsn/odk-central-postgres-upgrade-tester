@@ -9,12 +9,46 @@ on:
   workflow_dispatch:
 
 jobs:
+  test-happy-single-with-restart:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        initialBranch:
+        - "upgrade-pg-14-official"
+        targetBranch:
+        - "upgrade-pg-18"
+        exclude:
+        - initialBranch: "upgrade-pg-17"
+          targetBranch: "upgrade-pg-17"
+        x: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+        y: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+    steps:
+      - uses: actions/checkout@v6
+      - run: ./set-docker-buildx-config
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_ok-with-restart --force
+      - name: service logs
+        if: always()
+        continue-on-error: true
+        run: ./get-service-logs service
+      - name: postgres logs
+        if: always()
+        continue-on-error: true
+        run: ./get-service-logs postgres
+      - name: postgres14 logs
+        if: always()
+        continue-on-error: true
+        run: ./get-service-logs postgres14
+      - run: ./docker-volumes/catch-orphans
+        if: always()
   test-happy-multi:
     runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
         branches:
+        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-18"
         - "upgrade-pg-17,upgrade-pg-18"
         restartAfterUpgrade:
         - true
