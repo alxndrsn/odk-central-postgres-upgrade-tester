@@ -126,7 +126,7 @@ rebuild_and_restart_containers() {
 
 rebuild_containers() {
   log "[rebuild_containers] === postgres14 logs BEGIN ==="
-  (cd ../../../.. && ./logs-and-exit-for postgres14)
+  (cd ../../../.. && ./get-service-logs postgres14)
   log "[rebuild_containers] === postgres14 logs END ==="
 
   log "[rebuild_containers] Rebuilding containers..."
