@@ -31,15 +31,15 @@ jobs:
       - name: service logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for service
+        run: ./get-service-logs service
       - name: postgres logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres
+        run: ./get-service-logs postgres
       - name: postgres14 logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres14
+        run: ./get-service-logs postgres14
       - run: ./docker-volumes/catch-orphans
         if: always()
   test-happy-single-with-restart:
@@ -65,15 +65,15 @@ jobs:
       - name: service logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for service
+        run: ./get-service-logs service
       - name: postgres logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres
+        run: ./get-service-logs postgres
       - name: postgres14 logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres14
+        run: ./get-service-logs postgres14
       - run: ./docker-volumes/catch-orphans
         if: always()
   test-happy-single-restricted-volume:
@@ -94,15 +94,15 @@ jobs:
       - name: service logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for service
+        run: ./get-service-logs service
       - name: postgres logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres
+        run: ./get-service-logs postgres
       - name: postgres14 logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres14
+        run: ./get-service-logs postgres14
       - run: ./docker-volumes/catch-orphans
         if: always()
   test-happy-multi:
@@ -131,15 +131,15 @@ jobs:
       - name: service logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for service
+        run: ./get-service-logs service
       - name: postgres logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres
+        run: ./get-service-logs postgres
       - name: postgres14 logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres14
+        run: ./get-service-logs postgres14
       - run: ./docker-volumes/catch-orphans
         if: always()
   test-no-space-destination:
@@ -160,15 +160,15 @@ jobs:
       - name: service logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for service
+        run: ./get-service-logs service
       - name: postgres logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres
+        run: ./get-service-logs postgres
       - name: postgres14 logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres14
+        run: ./get-service-logs postgres14
       - run: ./docker-volumes/catch-orphans
         if: always()
   test-docker-build-failure:
@@ -194,14 +194,14 @@ jobs:
       - name: service logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for service
+        run: ./get-service-logs service
       - name: postgres logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres
+        run: ./get-service-logs postgres
       - name: postgres14 logs
         if: always()
         continue-on-error: true
-        run: ./logs-and-exit-for postgres14
+        run: ./get-service-logs postgres14
       - run: ./docker-volumes/catch-orphans
         if: always()
