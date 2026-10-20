@@ -4,4 +4,4 @@ name="$1"
 log() { echo >&2 "[get-service-logs|$name] $*"; }
 
 log "Fetching logs..."
-docker logs --timestamps "central-${name}-1"
+docker logs --timestamps "central-${name}-1" || true
