@@ -13,39 +13,18 @@ setup_standard
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$TARGET_BRANCH"
 
-if rebuild_and_restart_containers; then
-  log "Waiting to ensure postgres14 startup is stalled..."
-  sleep 10
-  export stillWaiting="starat-postgres\.sh\] Waiting for upgrade to v14 to complete\.\.\.$"
-  postgres14status="$(docker compose logs postgres14 2>/dev/null | tail -n1)"
-  if ! [[ "$postgres14status" =~ $stillWaiting ]]; then
-    log "!!!"
-    log "!!! 'postgres14' service startup should have stalled, but appears to have started OK:"
-    log "!!!"
-    docker compose logs postgres14
-    log "!!!"
-    log "!!! Expected: Created"
-    log "!!!   Actual: $serviceStatus"
-    log "!!!"
-    exit 1
-  fi
-fi
-if ! grep "service \"postgres\" didn't complete successfully: exit 1" restart_containers.log; then
+rebuild_and_restart_containers || true
+
+if docker compose up --detach --wait postgres; then
   log "!!!"
-  log "!!! Expected container restart to fail due to 'postgres' container startup failure."
-  log "!!!"
-  log "!!! Check logs to understand what went wrong."
+  log "!!! 'postgres' container should not have started OK!"
   log "!!!"
   exit 1
 fi
 
-serviceStatus="$(docker compose ps -a service --format "{{.Status}}")"
-if ! [[ "$serviceStatus" = Created ]]; then
+if confirm_backend_running_ok; then
   log "!!!"
-  log "!!! 'service' container had unexpected status !!!"
-  log "!!!"
-  log "!!! Expected: Created"
-  log "!!!   Actual: $serviceStatus"
+  log "!!! 'service' started OK, but should be stuck in a startup loop !!!"
   log "!!!"
   exit 1
 fi
