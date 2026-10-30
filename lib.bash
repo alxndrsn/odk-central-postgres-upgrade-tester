@@ -122,6 +122,7 @@ rebuild_and_restart_containers() {
   rebuild_containers         || return 1
   restart_containers         || return 1
   wait_for_service_container || return 1
+  confirm_backend_running_ok || return 1
 }
 
 rebuild_containers() {
