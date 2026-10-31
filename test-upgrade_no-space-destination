@@ -5,10 +5,8 @@
 
 . ./lib.bash
 
-# FIXME testing that this test will FAIL without volume restriction
-# FIXME remove this commenting to revert to the correct behaviour.
-#log "Restricting target volume size..."
-#restrictedVolumeSize=1
+log "Restricting target volume size..."
+restrictedVolumeSize=1
 
 setup_standard
 
