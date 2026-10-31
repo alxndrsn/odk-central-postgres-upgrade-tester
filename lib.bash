@@ -245,7 +245,7 @@ confirm_backend_running_ok() {
   log "[confirm_backend_running_ok] !!!"
   log "[confirm_backend_running_ok] !!! Backend did not start."
   log "[confirm_backend_running_ok] !!!"
-  exit 1
+  return 1
 }
 
 wait_for_service_container() {
