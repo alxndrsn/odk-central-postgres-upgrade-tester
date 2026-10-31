@@ -23,7 +23,7 @@ if docker compose up --detach --wait postgres; then
 fi
 
 log "Checking backend has started, but we don't realllllly want it to."
-if confirm_backend_running_ok; then
+if confirm_backend_running_ok 15; then
   log "!!!"
   log "!!! 'service' started OK, but should be stuck in a startup loop !!!"
   log "!!!"

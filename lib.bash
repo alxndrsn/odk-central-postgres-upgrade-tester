@@ -232,8 +232,12 @@ confirm_seed_data() {
 }
 
 confirm_backend_running_ok() {
+  _confirm_backend_running_ok 180
+}
+_confirm_backend_running_ok() {
+  local max_retries="$1"
   local response_code
-  for _ in {0..180}; do
+  for _ in $(seq 0 "$max_retries"); do
     response_code="$(curl -k -s -o /dev/null -w "%{http_code}" "https://localhost:$HTTPS_PORT/v1/sessions" -H 'Host: local' --data '{"email":"doesntexist@example.com","password":"doesntmatter"}' --header 'Content-Type: application/json' || true)"
     if [[ "$response_code" = 401 ]]; then
       log "[confirm_backend_running_ok] Looks OK!"
