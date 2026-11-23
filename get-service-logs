@@ -9,7 +9,7 @@ docker logs --timestamps "central-${name}-1" || true
 
 if [[ "$name" = postgres14 ]]; then
   log "---"
-  log "Fetching upgrade logs..."
+  log "Fetching upgrade crash logs..."
   docker run \
       --rm \
       --volume central_postrgres14:/vol:ro \
