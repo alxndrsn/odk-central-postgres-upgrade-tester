@@ -3,5 +3,18 @@ name="$1"
 
 log() { echo >&2 "[get-service-logs|$name] $*"; }
 
+log "---"
 log "Fetching logs..."
 docker logs --timestamps "central-${name}-1" || true
+
+log "---"
+log "Fetching upgrade logs..."
+docker run \
+    --rm \
+    --volume central_postrgres14:/vol:ro \
+    alpine \
+        find /vol \
+            -path '*/pg_upgrade_output.d/*' \
+            -name '*.log' \
+            -exec tail --verbose -n 40 {} +
+log "---"
