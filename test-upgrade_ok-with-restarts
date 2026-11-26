@@ -1,8 +1,8 @@
 #!/bin/bash -eu
 
 # Test that a successful upgrade will cause a specific file to be
-# created in the shared migation-logs directory.
-
+# created in the shared migration-logs directory, and that data
+# is not lost if the host-side flag files are lost.
 
 
 
@@ -32,6 +32,12 @@ if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
 fi
 
 log "Rebuilding and restarting containers..."
+test_restart "$TARGET_BRANCH"
+log "Containers restarted OK."
+
+log "Cleaning local git changes..."
+git clean -dfx -- files
+log "Restarting containers after git-clean..."
 test_restart "$TARGET_BRANCH"
 log "Containers restarted OK."
 
