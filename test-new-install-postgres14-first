@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
-# Test that a fresh install with the latest central version will
-# start normally.
+# Test that a fresh postgres14 service will work without the legacy
+# postgres service previously starting.
 
 if ! [[ "$INITIAL_BRANCH" = "$TARGET_BRANCH" ]]; then
   echo "[$(basename "$0")] !!!"
