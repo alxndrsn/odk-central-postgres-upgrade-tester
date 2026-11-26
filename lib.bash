@@ -181,6 +181,48 @@ exec_in_service_container() {
   docker exec -i central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
 }
 
+confirm_postgres_version_direct() {
+  local expectedBranch="$1"
+  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$expectedBranch")"
+  log "[confirm_postgres_version_direct] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
+
+  local actualVersion
+  local retries=0
+  while true; do
+    actualVersion="$(
+      docker exec central-postgres14-1 \
+          psql -U odk odk \
+              --tuples-only \
+              --csv \
+              -c "SELECT current_setting('server_version_num')::INT / 10000 AS majorVersion" \
+              2>&1 || true
+    )"
+    log "[confirm_postgres_version_direct] Got postgres version: '$actualVersion'..."
+    if [[ "$actualVersion" = "$expectedVersion" ]]; then
+      log "[confirm_postgres_version_direct] Postgres version confirmed: $expectedVersion"
+      return
+    elif [[ "$actualVersion" =~ "failed" ]]; then
+      if [[ "$retries" -lt 15 ]]; then
+        log "[confirm_postgres_version_direct] Retrying..."
+        (( ++retries ))
+        sleep 2
+      else
+        log "[confirm_postgres_version_direct] !!!"
+        log "[confirm_postgres_version_direct] !!! Retry count exceeded !!!"
+        log "[confirm_postgres_version_direct] !!!"
+        exit 1
+      fi
+    else
+      log "[confirm_postgres_version_direct] !!!"
+      log "[confirm_postgres_version_direct] !!! Incorrect postgres version !!!"
+      log "[confirm_postgres_version_direct] !!!   Expected: $expectedVersion"
+      log "[confirm_postgres_version_direct] !!!    but got: $actualVersion"
+      log "[confirm_postgres_version_direct] !!!"
+      exit 1
+    fi
+  done
+}
+
 confirm_postgres_version() {
   local expectedBranch="$1"
   expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$expectedBranch")"
@@ -345,4 +387,27 @@ test_restart() {
   confirm_postgres_version "$currentBranch"
   confirm_seed_data
   log "[test_restart] Containers restarted ok."
+}
+
+seed_db_direct() {
+  docker exec central-postgres14-1 \
+      psql -U odk odk \
+          -c "CREATE TABLE direct_seed ()"
+}
+
+confirm_direct_seed() {
+  local exists
+  exists="$(
+    docker exec central-postgres14-1 \
+        psql -U odk odk \
+            --tuples-only --csv \
+            -c "SELECT to_regclass('public.direct_seed') IS NOT NULL"
+  )"
+
+  if [[ "$exists" = t ]]; then
+    log "[confirm_direct_seed] direct seed table found OK."
+  else
+    log "[confirm_direct_seed] !!! direct seed table not found !!!"
+    exit 1
+  fi
 }
