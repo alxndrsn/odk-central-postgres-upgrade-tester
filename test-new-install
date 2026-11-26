@@ -4,12 +4,12 @@
 # start normally.
 
 if ! [[ "$INITIAL_BRANCH" = "$TARGET_BRANCH" ]]; then
-  echo "[test-new-install] !!!"
-  echo "[test-new-install] !!! INITIAL_BRANCH and TARGET_BRANCH do not match:"
-  echo "[test-new-install] !!!"
-  echo "[test-new-install] !!!   INITIAL_BRANCH: $INITIAL_BRANCH"
-  echo "[test-new-install] !!!    TARGET_BRANCH: $TARGET_BRANCH"
-  echo "[test-new-install] !!!"
+  echo "[$(basename "$0")] !!!"
+  echo "[$(basename "$0")] !!! INITIAL_BRANCH and TARGET_BRANCH do not match:"
+  echo "[$(basename "$0")] !!!"
+  echo "[$(basename "$0")] !!!   INITIAL_BRANCH: $INITIAL_BRANCH"
+  echo "[$(basename "$0")] !!!    TARGET_BRANCH: $TARGET_BRANCH"
+  echo "[$(basename "$0")] !!!"
 	exit 1
 fi
 
