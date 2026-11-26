@@ -24,10 +24,13 @@ jobs:
         targetBranch:
         - "upgrade-pg-17"
         - "upgrade-pg-18"
+        testScript:
+        - test-new-install
+        - test-new-install-postgres14-first
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: INITIAL_BRANCH=${{ matrix.targetBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-new-install --force
+      - run: INITIAL_BRANCH=${{ matrix.targetBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./${{ matrix.testScript }} --force
       - name: service logs
         if: always()
         continue-on-error: true
