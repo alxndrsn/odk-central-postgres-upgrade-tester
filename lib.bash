@@ -148,7 +148,7 @@ restart_containers() {
 
 check_for_dirty_docker() {
   log "[check_for_dirty_docker] Checking for existing containers..."
-  if [[ "$(docker compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
+  if [[ "$(docker compose ps --all | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
     warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
     docker compose ps
     warn "THESE CONTAINERS AND THEIR VOLUMES WILL BE DESTROYED!"
