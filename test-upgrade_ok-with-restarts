@@ -35,8 +35,8 @@ log "Rebuilding and restarting containers..."
 test_restart "$TARGET_BRANCH"
 log "Containers restarted OK."
 
-log "Cleaning local git changes..."
-git clean -dfx -- files
+log "Cleaning local upgrade flags..."
+git clean -dfx -- files/postgres14/upgrade
 log "Restarting containers after git-clean..."
 test_restart "$TARGET_BRANCH"
 log "Containers restarted OK."
