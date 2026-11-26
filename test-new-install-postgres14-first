@@ -52,7 +52,7 @@ confirm_direct_seed
 log "Containers started OK."
 
 log "Seeding database..."
-seed_db_direct
+seed_db
 
 log "Rebuilding and restarting containers..."
 test_restart "$TARGET_BRANCH"
