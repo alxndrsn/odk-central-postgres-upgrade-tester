@@ -1,0 +1,61 @@
+#!/bin/bash -eu
+
+# Test that a fresh install with the latest central version will
+# start normally.
+
+if ! [[ "$INITIAL_BRANCH" = "$TARGET_BRANCH" ]]; then
+  echo "[test-new-install] !!!"
+  echo "[test-new-install] !!! INITIAL_BRANCH and TARGET_BRANCH do not match:"
+  echo "[test-new-install] !!!"
+  echo "[test-new-install] !!!   INITIAL_BRANCH: $INITIAL_BRANCH"
+  echo "[test-new-install] !!!    TARGET_BRANCH: $TARGET_BRANCH"
+  echo "[test-new-install] !!!"
+	exit 1
+fi
+
+. ./lib.bash
+
+check_for_dependencies
+configure_environment
+clone_central_repo
+check_for_dirty_docker
+
+log "Building containers..."
+docker compose build
+
+log "Starting postgres14 container alone..."
+docker compose up --remove-orphans --detach --no-deps postgres14
+
+log "Touching upgrade flag..."
+touch files/postgres14/upgrade/upgrade-successful
+
+confirm_postgres_version_direct "$TARGET_BRANCH"
+
+log "Seeding database..."
+seed_db_direct
+
+log "Stopping and removing container..."
+docker compose rm --stop --force --volumes postgres14
+
+log "Rebuilding and restarting container..."
+docker compose up --remove-orphans --detach --no-deps postgres14
+confirm_postgres_version_direct "$TARGET_BRANCH"
+confirm_direct_seed
+
+docker compose up --remove-orphans --detach
+"$libDir/docker-volumes/log-owners"
+log "Containers built and restarted OK."
+
+confirm_postgres_version "$TARGET_BRANCH"
+confirm_backend_running_ok
+confirm_direct_seed
+log "Containers started OK."
+
+log "Seeding database..."
+seed_db_direct
+
+log "Rebuilding and restarting containers..."
+test_restart "$TARGET_BRANCH"
+log "Containers restarted OK."
+
+log "Test passed OK!"
