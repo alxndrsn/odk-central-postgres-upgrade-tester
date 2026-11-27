@@ -116,7 +116,8 @@ jobs:
       fail-fast: false
       matrix:
         initialBranch:
-        - "upgrade-pg-14-official"
+        - "upgrade-pg-14-official-initial"
+        - "upgrade-pg-14-official-last"
         targetBranch:
         - "upgrade-pg-17"
         - "upgrade-pg-18"
