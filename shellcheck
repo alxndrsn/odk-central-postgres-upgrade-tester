@@ -6,6 +6,6 @@ log() {
 }
 
 log "Running shellcheck on all scripts..."
-cat <(git grep -l '^#!.*sh\b') <(git ls-files '*.bash') | xargs shellcheck -a
+cat <(git grep -l '^#!.*sh\b') <(git ls-files '*.bash') | xargs shellcheck --check-sourced
 
 log "All OK!"
