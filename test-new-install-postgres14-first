@@ -44,7 +44,7 @@ confirm_direct_seed
 
 docker compose up --remove-orphans --detach
 "$libDir/docker-volumes/log-owners"
-log "Containers built and restarted OK."
+log "Containers (re-)started OK."
 
 confirm_postgres_version "$TARGET_BRANCH"
 confirm_backend_running_ok
@@ -54,7 +54,7 @@ log "Containers started OK."
 log "Seeding database..."
 seed_db
 
-log "Rebuilding and restarting containers..."
+log "Restarting containers..."
 test_restart "$TARGET_BRANCH"
 log "Containers restarted OK."
 

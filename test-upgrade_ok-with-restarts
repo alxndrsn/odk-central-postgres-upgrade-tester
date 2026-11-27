@@ -31,7 +31,7 @@ if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
   exit 1
 fi
 
-log "Rebuilding and restarting containers..."
+log "Restarting containers..."
 test_restart "$TARGET_BRANCH"
 log "Containers restarted OK."
 

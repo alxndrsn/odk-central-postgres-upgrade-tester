@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 # Test that a successful upgrade from 9.6 to 14 and then from 14 to 18 will
-# cause a specific file to be created in the shared migation-logs directory.
+# cause a specific file to be created in the shared migration-logs directory.
 
 
 IFS=',' read -r INITIAL_BRANCH _targetBranches <<<"$BRANCHES"
@@ -39,7 +39,7 @@ for targetBranch in "${targetBranches[@]}"; do
 
   log "Restart after upgrade? ${RESTART_AFTER_UPGRADE-}"
   if [[ "$RESTART_AFTER_UPGRADE" = true ]]; then
-    log "Rebuilding and restarting containers..."
+    log "Restarting containers..."
     test_restart "$targetBranch"
     log "Containers restarted OK."
   fi
