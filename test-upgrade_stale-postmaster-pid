@@ -43,7 +43,7 @@ docker run \
     --volume central_postgres14:/vol \
     --entrypoint sed \
     "$img" \
-    -E "s/.*/$stalePid" /vol/data/postmaster.pid
+    -E "s/.*/$stalePid/" /vol/data/postmaster.pid
 
 log "Upgrading central..."
 git_checkout "$TARGET_BRANCH"
