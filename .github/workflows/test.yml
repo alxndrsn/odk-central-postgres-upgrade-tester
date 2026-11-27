@@ -130,6 +130,7 @@ jobs:
         - false
     steps:
       - uses: actions/checkout@v6
+      - run: ./set-docker-buildx-config
       - run: RESTART_AFTER_UPGRADE=${{ matrix.restartAfterUpgrade }} BRANCHES=${{ matrix.branches }} ./test-multi-upgrade_ok --force
       - name: service logs
         if: always()
