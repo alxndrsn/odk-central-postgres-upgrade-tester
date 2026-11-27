@@ -9,7 +9,7 @@ if ! [[ "$INITIAL_BRANCH" =~ upgrade-pg-14- ]]; then
   log "!!!"
   log "!!! Try e.g."
   log "!!!"
-  log "!!!     INITIAL_BRANCH=upgrade-pg-14-official-next ..."
+  log "!!!     INITIAL_BRANCH=upgrade-pg-14-official-last ..."
   log "!!!"
   exit 1
 fi
