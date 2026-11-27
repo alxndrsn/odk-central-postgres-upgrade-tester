@@ -35,7 +35,7 @@ log "Containers started OK."
 log "Seeding database..."
 seed_db
 
-log "Rebuilding and restarting containers..."
+log "Restarting containers..."
 test_restart "$TARGET_BRANCH"
 log "Containers restarted OK."
 
