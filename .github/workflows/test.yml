@@ -29,7 +29,6 @@ jobs:
         - test-new-install-postgres14-first
     steps:
       - uses: actions/checkout@v6
-      - run: ./set-docker-buildx-config
       - run: INITIAL_BRANCH=${{ matrix.targetBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./${{ matrix.testScript }} --force
       - name: service logs
         if: always()
@@ -64,7 +63,6 @@ jobs:
           targetBranch: "upgrade-pg-17"
     steps:
       - uses: actions/checkout@v6
-      - run: ./set-docker-buildx-config
       - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_ok-with-restarts --force
       - name: service logs
         if: always()
@@ -93,7 +91,6 @@ jobs:
         - "upgrade-pg-18"
     steps:
       - uses: actions/checkout@v6
-      - run: ./set-docker-buildx-config
       - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_ok-restricted-size --force
       - name: service logs
         if: always()
@@ -164,7 +161,6 @@ jobs:
         - false
     steps:
       - uses: actions/checkout@v6
-      - run: ./set-docker-buildx-config
       - run: RESTART_AFTER_UPGRADE=${{ matrix.restartAfterUpgrade }} BRANCHES="$(sed -E -e 's/(^|,)/\1upgrade-pg-/g' <<<'${{ matrix.branches }}')" ./test-multi-upgrade_ok --force
       - name: service logs
         if: always()
@@ -193,7 +189,6 @@ jobs:
         - "upgrade-pg-18"
     steps:
       - uses: actions/checkout@v6
-      - run: ./set-docker-buildx-config
       - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_no-space-destination --force
       - name: service logs
         if: always()
@@ -228,7 +223,6 @@ jobs:
           targetBranch: "upgrade-pg-17"
     steps:
       - uses: actions/checkout@v6
-      - run: ./set-docker-buildx-config
       - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_docker-build-failure --force
       - name: service logs
         if: always()
