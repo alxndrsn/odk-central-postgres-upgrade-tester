@@ -5,7 +5,6 @@
 
 . ./lib.bash
 
-log "Restricting target volume size..."
 restrictedVolumeSize=1
 
 setup_standard
