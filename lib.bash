@@ -3,8 +3,6 @@ set -o pipefail
 
 libDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-seedFlag=.db-seed-created
-
 #> PROCESS CLI ARGS >#
 force_destruction=""
 if [[ ${1-} = --force ]]; then
@@ -46,20 +44,6 @@ configure_environment() {
     log "!!!     INITIAL_BRANCH=upgrade-pg-17                   $BASH_ARGV0" "$fullArgs"
     log "!!!"
     exit 1
-  fi
-
-  if [[ -f "$seedFlag" ]]; then
-    if ! [[ "${CI-}" = '' ]]; then
-      log "!!!"
-      log "!!! Seed flag already found at $seedFlag !"
-      log "!!! Check why - the environment may be dirty."
-      log "!!!"
-      log "!!! ABORTING TEST"
-      log "!!!"
-      exit 1
-    fi
-    log "[configure_environment] Clearing old seed flag..."
-    rm "$seedFlag"
   fi
 
   baseDir="$(pwd)"
@@ -329,11 +313,6 @@ confirm_if_required() {
 
 seed_db() {
   log "[seed_db] Seeding database..."
-  if [[ -f "$seedFlag" ]]; then
-    log "[seed_db] Seed flag already exists at $seedFlag !  Has the database already been seeded this test run?"
-  fi
-  touch "$seedFlag"
-
   exec_in_service_container seed-db.js
   confirm_seed_data
 }
