@@ -37,13 +37,21 @@ docker kill --signal KILL "$container"
 docker wait "$container"
 
 img="$(docker inspect --format '{{.Image}}' "$container")"
-docker run \
-    --rm \
-    --user postgres \
-    --volume central_postgres14:/vol \
-    --entrypoint sed \
-    "$img" \
-    --in-place -E -e "1s/.*/$stalePid/" /vol/data/postmaster.pid
+writtenPid="$(
+  docker run \
+      --rm \
+      --user postgres \
+      --volume central_postgres14:/vol \
+      "$img" \
+      bash -c "
+        sed --in-place -E -e '1s/.*/$stalePid/' /vol/data/postmaster.pid
+        head -n1                                /vol/data/postmaster.pid
+      "
+)"
+if ! [[ "$writtenPid" = "$stalePid" ]]; then
+  log "!!! Failed to overwrite postmaster PID correctly!"
+  exit 1
+fi
 
 log "Upgrading central..."
 git_checkout "$TARGET_BRANCH"
