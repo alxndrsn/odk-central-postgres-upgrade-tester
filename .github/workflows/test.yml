@@ -53,7 +53,8 @@ jobs:
       matrix:
         initialBranch:
         - "upgrade-pg-9.6"
-        - "upgrade-pg-14-official"
+        - "upgrade-pg-14-official-initial"
+        - "upgrade-pg-14-official-last"
         - "upgrade-pg-17"
         targetBranch:
         - "upgrade-pg-17"
@@ -114,17 +115,46 @@ jobs:
       fail-fast: false
       matrix:
         branches:
-        - "upgrade-pg-9.6,upgrade-pg-14-official"
+        # single upgrade
+        - "upgrade-pg-9.6,upgrade-pg-14-official-initial"
+        - "upgrade-pg-9.6,upgrade-pg-14-official-last"
         - "upgrade-pg-9.6,upgrade-pg-17"
         - "upgrade-pg-9.6,upgrade-pg-18"
-        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-17"
-        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-18"
-        - "upgrade-pg-9.6,upgrade-pg-17,upgrade-pg-18"
-        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-17,upgrade-pg-18"
-        - "upgrade-pg-14-official,upgrade-pg-17"
-        - "upgrade-pg-14-official,upgrade-pg-18"
-        - "upgrade-pg-14-official,upgrade-pg-17,upgrade-pg-18"
+
+        - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last"
+        - "upgrade-pg-14-official-initial,upgrade-pg-17"
+        - "upgrade-pg-14-official-initial,upgrade-pg-18"
+
+        - "upgrade-pg-14-official-last,upgrade-pg-17"
+        - "upgrade-pg-14-official-last,upgrade-pg-18"
+
         - "upgrade-pg-17,upgrade-pg-18"
+
+        # two upgrades
+        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last"
+        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-17"
+        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-18"
+
+        - "upgrade-pg-9.6,upgrade-pg-14-official-last,upgrade-pg-17"
+        - "upgrade-pg-9.6,upgrade-pg-14-official-last,upgrade-pg-18"
+
+        - "upgrade-pg-9.6,upgrade-pg-17,upgrade-pg-18"
+
+        - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17"
+        - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-18"
+        - "upgrade-pg-14-official-initial,upgrade-pg-17,upgrade-pg-18"
+
+        - "upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
+
+        # three upgrades
+        - "postgres-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17"
+        - "postgres-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-18"
+        - "postgres-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-17,upgrade-pg-18"
+        - "postgres-pg-9.6,upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
+
+        # four upgrades
+        - "postgres-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
+
         restartAfterUpgrade:
         - true
         - false
@@ -182,7 +212,8 @@ jobs:
       matrix:
         initialBranch:
         - "upgrade-pg-9.6"
-        - "upgrade-pg-14-official"
+        - "upgrade-pg-14-official-initial"
+        - "upgrade-pg-14-official-last"
         - "upgrade-pg-17"
         targetBranch:
         - "upgrade-pg-17"
