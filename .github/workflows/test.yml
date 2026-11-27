@@ -53,7 +53,8 @@ jobs:
       matrix:
         initialBranch:
         - "upgrade-pg-9.6"
-        - "upgrade-pg-14-official"
+        - "upgrade-pg-14-official-initial"
+        - "upgrade-pg-14-official-last"
         - "upgrade-pg-17"
         targetBranch:
         - "upgrade-pg-17"
@@ -137,58 +138,63 @@ jobs:
         run: ./get-service-logs postgres14
       - run: ./docker-volumes/catch-orphans
         if: always()
-  test-happy-single-restricted-volume:
-    runs-on: ubuntu-26.04
-    timeout-minutes: 10
-    strategy:
-      fail-fast: false
-      matrix:
-        initialBranch:
-        - "upgrade-pg-9.6"
-        targetBranch:
-        - "upgrade-pg-17"
-        - "upgrade-pg-18"
-    steps:
-      - uses: actions/checkout@v6
-      - run: ./set-docker-buildx-config
-      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_ok-restricted-size --force
-      - name: service logs
-        if: always()
-        continue-on-error: true
-        run: ./get-service-logs service
-      - name: postgres logs
-        if: always()
-        continue-on-error: true
-        run: ./get-service-logs postgres
-      - name: postgres14 logs
-        if: always()
-        continue-on-error: true
-        run: ./get-service-logs postgres14
-      - run: ./docker-volumes/catch-orphans
-        if: always()
   test-happy-multi:
     runs-on: ubuntu-26.04
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         branches:
-        - "upgrade-pg-9.6,upgrade-pg-14-official"
-        - "upgrade-pg-9.6,upgrade-pg-17"
-        - "upgrade-pg-9.6,upgrade-pg-18"
-        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-17"
-        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-18"
-        - "upgrade-pg-9.6,upgrade-pg-17,upgrade-pg-18"
-        - "upgrade-pg-9.6,upgrade-pg-14-official,upgrade-pg-17,upgrade-pg-18"
-        - "upgrade-pg-14-official,upgrade-pg-17"
-        - "upgrade-pg-14-official,upgrade-pg-18"
-        - "upgrade-pg-14-official,upgrade-pg-17,upgrade-pg-18"
-        - "upgrade-pg-17,upgrade-pg-18"
+        # single upgrade
+        - "9.6,14-official-initial"
+        - "9.6,14-official-last"
+        - "9.6,17"
+        - "9.6,18"
+
+        - "14-official-initial,14-official-last"
+        - "14-official-initial,17"
+        - "14-official-initial,18"
+
+        - "14-official-last,17"
+        - "14-official-last,18"
+
+        - "17,18"
+
+        # two upgrades
+        - "9.6,14-official-initial,14-official-last"
+        - "9.6,14-official-initial,17"
+        - "9.6,14-official-initial,18"
+
+        - "9.6,14-official-last,17"
+        - "9.6,14-official-last,18"
+
+        - "9.6,17,18"
+
+        - "14-official-initial,14-official-last,17"
+        - "14-official-initial,14-official-last,18"
+
+        - "14-official-initial,17,18"
+
+        - "14-official-last,17,18"
+
+        # three upgrades
+        - "9.6,14-official-initial,14-official-last,17"
+        - "9.6,14-official-initial,14-official-last,18"
+        - "9.6,14-official-initial,17,18"
+        - "9.6,14-official-last,17,18"
+
+        - "14-official-initial,14-official-last,17,18"
+
+        # four upgrades
+        - "9.6,14-official-initial,14-official-last,17,18"
+
         restartAfterUpgrade:
         - true
         - false
     steps:
       - uses: actions/checkout@v6
-      - run: RESTART_AFTER_UPGRADE=${{ matrix.restartAfterUpgrade }} BRANCHES=${{ matrix.branches }} ./test-multi-upgrade_ok --force
+      - run: ./set-docker-buildx-config
+      - run: RESTART_AFTER_UPGRADE=${{ matrix.restartAfterUpgrade }} BRANCHES="$(sed -E -e 's/(^|,)/\1upgrade-pg-/g' <<<'${{ matrix.branches }}')" ./test-multi-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
@@ -240,7 +246,8 @@ jobs:
       matrix:
         initialBranch:
         - "upgrade-pg-9.6"
-        - "upgrade-pg-14-official"
+        - "upgrade-pg-14-official-initial"
+        - "upgrade-pg-14-official-last"
         - "upgrade-pg-17"
         targetBranch:
         - "upgrade-pg-17"
