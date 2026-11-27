@@ -40,8 +40,10 @@ configure_environment() {
     log "!!!"
     log "!!! Recommended values:"
     log "!!!"
-    log "!!!     INITIAL_BRANCH=upgrade-pg-9.6         $BASH_ARGV0" "$fullArgs"
-    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-9.6                  $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official-initial  $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official-last     $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-17                   $BASH_ARGV0" "$fullArgs"
     log "!!!"
     exit 1
   fi
@@ -183,7 +185,7 @@ exec_in_service_container() {
 
 confirm_postgres_version_direct() {
   local expectedBranch="$1"
-  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$expectedBranch")"
+  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$expectedBranch")"
   log "[confirm_postgres_version_direct] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
 
   local actualVersion
@@ -225,7 +227,7 @@ confirm_postgres_version_direct() {
 
 confirm_postgres_version() {
   local expectedBranch="$1"
-  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$expectedBranch")"
+  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$expectedBranch")"
   log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
   exec_in_service_container wait-for-postgres.js
 
