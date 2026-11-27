@@ -84,8 +84,6 @@ configure_environment() {
 
   log "[configure_environment] Creating test directory..."
   cd "$testDir"
-  # disable annoying git messages
-  git config --local advice.detachedHead false
 }
 
 clone_central_repo() {
