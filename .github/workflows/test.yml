@@ -116,54 +116,54 @@ jobs:
       matrix:
         branches:
         # single upgrade
-        - "upgrade-pg-9.6,upgrade-pg-14-official-initial"
-        - "upgrade-pg-9.6,upgrade-pg-14-official-last"
-        - "upgrade-pg-9.6,upgrade-pg-17"
-        - "upgrade-pg-9.6,upgrade-pg-18"
+        - "9.6,14-official-initial"
+        - "9.6,14-official-last"
+        - "9.6,17"
+        - "9.6,18"
 
-        - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last"
-        - "upgrade-pg-14-official-initial,upgrade-pg-17"
-        - "upgrade-pg-14-official-initial,upgrade-pg-18"
+        - "14-official-initial,14-official-last"
+        - "14-official-initial,17"
+        - "14-official-initial,18"
 
-        - "upgrade-pg-14-official-last,upgrade-pg-17"
-        - "upgrade-pg-14-official-last,upgrade-pg-18"
+        - "14-official-last,17"
+        - "14-official-last,18"
 
-        - "upgrade-pg-17,upgrade-pg-18"
+        - "17,18"
 
         # two upgrades
-        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last"
-        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-17"
-        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-18"
+        - "9.6,14-official-initial,14-official-last"
+        - "9.6,14-official-initial,17"
+        - "9.6,14-official-initial,18"
 
-        - "upgrade-pg-9.6,upgrade-pg-14-official-last,upgrade-pg-17"
-        - "upgrade-pg-9.6,upgrade-pg-14-official-last,upgrade-pg-18"
+        - "9.6,14-official-last,17"
+        - "9.6,14-official-last,18"
 
-        - "upgrade-pg-9.6,upgrade-pg-17,upgrade-pg-18"
+        - "9.6,17,18"
 
-        - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17"
-        - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-18"
+        - "14-official-initial,14-official-last,17"
+        - "14-official-initial,14-official-last,18"
 
-        - "upgrade-pg-14-official-initial,upgrade-pg-17,upgrade-pg-18"
+        - "14-official-initial,17,18"
 
-        - "upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
+        - "14-official-last,17,18"
 
         # three upgrades
-        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17"
-        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-18"
-        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-17,upgrade-pg-18"
-        - "upgrade-pg-9.6,upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
+        - "9.6,14-official-initial,14-official-last,17"
+        - "9.6,14-official-initial,14-official-last,18"
+        - "9.6,14-official-initial,17,18"
+        - "9.6,14-official-last,17,18"
 
-        - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
+        - "14-official-initial,14-official-last,17,18"
 
         # four upgrades
-        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
+        - "9.6,14-official-initial,14-official-last,17,18"
 
         restartAfterUpgrade:
         - true
         - false
     steps:
       - uses: actions/checkout@v6
-      - run: RESTART_AFTER_UPGRADE=${{ matrix.restartAfterUpgrade }} BRANCHES=${{ matrix.branches }} ./test-multi-upgrade_ok --force
+      - run: RESTART_AFTER_UPGRADE=${{ matrix.restartAfterUpgrade }} BRANCHES="$(sed -E -e 's/(^|,)/\1upgrade-pg-/g' <<<'${{ matrix.branches }}')" ./test-multi-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
