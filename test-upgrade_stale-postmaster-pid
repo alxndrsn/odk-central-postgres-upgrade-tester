@@ -32,7 +32,7 @@ setup_standard
 
 container="central-postgres14-1"
 
-log "Killing progress to force unclean shutdown..."
+log "Killing container '$container' to force unclean shutdown..."
 docker kill --signal KILL "$container"
 docker wait "$container"
 
