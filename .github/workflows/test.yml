@@ -142,6 +142,7 @@ jobs:
 
         - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17"
         - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-18"
+
         - "upgrade-pg-14-official-initial,upgrade-pg-17,upgrade-pg-18"
 
         - "upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
@@ -152,8 +153,22 @@ jobs:
         - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-17,upgrade-pg-18"
         - "upgrade-pg-9.6,upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
 
+        - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17"
+        - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-18"
+        - "upgrade-pg-14-official-initial,upgrade-pg-17,upgrade-pg-18"
+
+        - "upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
+
         # four upgrades
+        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17"
+        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-18"
+        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-17,upgrade-pg-18"
+        - "upgrade-pg-9.6,upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
+
         - "upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
+
+        # five upgrades
+        - "upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upgrade-pg-17,upgrade-pg-18"
 
         restartAfterUpgrade:
         - true
