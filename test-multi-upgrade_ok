@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 # Test that a successful upgrade from 9.6 to 14 and then from 14 to 18 will
-# cause a specific file to be created in the shared migation-logs directory.
+# cause a specific file to be created in the shared migration-logs directory.
 
 
 IFS=',' read -r INITIAL_BRANCH _targetBranches <<<"$BRANCHES"
