@@ -51,7 +51,7 @@ git_checkout "$TARGET_BRANCH"
 log "Rebuilding and restarting containers..."
 rebuild_and_restart_containers
 
-confirm_postgres_target_version "$TARGET_BRANCH"
+confirm_postgres_version "$TARGET_BRANCH"
 confirm_seed_data
 
 finalPid="$(docker exec "$container" bash -c 'cat "$PGDATA"/postmaster.pid')"
