@@ -124,6 +124,11 @@ rebuild_containers() {
 
 restart_containers() {
   log "[restart_containers] Restarting containers..."
+
+  # Stop dependent services first, because their default timeouts are 10s, and
+  # they ignore SIGTERM in some older central versions.
+  docker compose stop --timeout 1 enketo nginx service || return 1
+
   docker compose stop
   docker compose up --remove-orphans --detach 2>&1 | tee restart_containers.log || return 1
   "$libDir/docker-volumes/log-owners"
