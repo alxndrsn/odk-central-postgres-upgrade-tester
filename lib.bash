@@ -48,8 +48,6 @@ configure_environment() {
     exit 1
   fi
 
-  baseDir="$(pwd)"
-
   baseRepo=https://github.com/alxndrsn/odk-central.git
   upstream=https://github.com/getodk/central.git
   initialBranch="$INITIAL_BRANCH"
@@ -65,11 +63,8 @@ configure_environment() {
   export HTTPS_PORT=18443
   export SSL_TYPE=selfsign
 
-  log "[configure_environment] Cleaning up test directory..."
-  rm -rf "$testDir" || true
-  mkdir -p "$testDir"
-
   log "[configure_environment] Creating test directory..."
+  mkdir -p "$testDir"
   cd "$testDir"
 }
 
@@ -92,7 +87,6 @@ git_checkout() {
   git checkout -- docker-compose.yml
   git checkout "$1"
   touch .env
-  git submodule init
   git submodule update --init --jobs 16
   log "[git_checkout] Checked out '$1':"
   git show --pretty=oneline --summary
@@ -175,7 +169,7 @@ check_for_dirty_docker() {
 exec_in_service_container() {
   local scriptName="$1"
   # failure should not kill the script - leave error handling up to the caller
-  docker exec central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
+  docker exec central-service-1 node -e "$(cat "$libDir/js/$scriptName")" || true
 }
 
 branch_to_version() {
