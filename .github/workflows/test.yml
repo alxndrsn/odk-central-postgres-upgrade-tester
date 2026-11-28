@@ -157,7 +157,6 @@ jobs:
         - "14-official-last,17,18"
 
         # three upgrades
-        - "9.6,14-official-initial,14-official-last,17"
         - "9.6,14-official-initial,14-official-last,18"
         - "9.6,14-official-initial,17,18"
         - "9.6,14-official-last,17,18"
