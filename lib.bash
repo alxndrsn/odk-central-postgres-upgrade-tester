@@ -147,7 +147,7 @@ check_for_dirty_docker() {
   containerCount="$(docker compose ps --all --quiet | wc -l | xargs)" # xargs for BSD-compatability
   if [[ "$containerCount" != "0" ]]; then
     warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
-    docker compose ps
+    docker compose ps --all
     warn "THESE CONTAINERS AND THEIR VOLUMES WILL BE DESTROYED!"
 
     confirm_if_required "OK, containers and volumes will be destroyed..."
