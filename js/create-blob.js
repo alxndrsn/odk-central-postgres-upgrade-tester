@@ -26,6 +26,8 @@ Object.entries(process.env).filter(([ k ]) => k.startsWith('PG')).sort(([k1], [k
     ['', '', '', randomBuffer]
   );
 
+  console.log('ok');
+
   log('Complete.');
   process.exit();
 })();
