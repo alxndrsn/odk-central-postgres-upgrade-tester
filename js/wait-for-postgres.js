@@ -19,7 +19,7 @@ process.stdout.write('[wait-for-postgres] Waiting for postgres...');
       await client.connect(); // N.B. for backwards compatibility, this cannot be chained
       const { rows:[ { ready } ] } = await client.query(`SELECT NOT pg_is_in_recovery() AS ready`);
 
-      if(ready !== true) throw new Error('Postgres is in recovery; work out what to do in this sitation if it ever occurs.');
+      if(ready !== true) throw new Error('Postgres is in recovery; work out what to do in this situation if it ever occurs.');
 
       // Extra sleep for luck ¯\_(ツ)_/¯
       await sleep1();
