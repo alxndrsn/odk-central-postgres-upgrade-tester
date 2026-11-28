@@ -12,7 +12,7 @@ if [[ "$name" = postgres14 ]]; then
   log "Fetching upgrade crash logs..."
   docker run \
       --rm \
-      --volume central_postrgres14:/vol:ro \
+      --volume central_postgres14:/vol:ro \
       alpine \
           find /vol \
               -path '*/pg_upgrade_output.d/*' \
