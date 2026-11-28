@@ -146,11 +146,8 @@ jobs:
       fail-fast: false
       matrix:
         branches:
-        # single upgrade
-        - "9.6,18"
-        - "14-official-initial,18"
-        - "14-official-last,18"
-        - "17,18"
+        # single upgrade: these are covered by test-happy-single-with-restarts,
+        # which also has additional assertions.
 
         # two upgrades
         - "9.6,14-official-initial,18"
