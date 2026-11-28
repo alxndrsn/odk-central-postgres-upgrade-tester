@@ -20,7 +20,7 @@ Object.entries(process.env).filter(([ k ]) => k.startsWith('PG')).sort(([k1], [k
 
   const { rows } = await client.query(`SELECT value->'ok' AS is_ok FROM config WHERE key='db-seed'`);
   if(!rows.length) throw new Error('db-seed not found in DB - upgrade probably failed!');
-  if(rows.length > 1) throw new Error('Wrong result count:', rows);
+  if(rows.length > 1) throw new Error(`Wrong result count: ${rows.length}`);
 
   console.log(rows[0].is_ok);
 
