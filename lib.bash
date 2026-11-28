@@ -49,6 +49,7 @@ configure_environment() {
   baseDir="$(pwd)"
 
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
+  upstream=https://github.com/getodk/central.git # TODO this will need to be updated to getodk/central
   initialBranch="$INITIAL_BRANCH"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
@@ -75,7 +76,11 @@ clone_central_repo() {
   # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
   git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
   cd central
-  ls
+
+  log "[clone_central_repo] Adding getodk upstream..."
+  git remote add upstream "$upstream"
+  git fetch upstream
+
   git_checkout "$initialBranch"
   touch ./files/allow-postgres14-upgrade
 }
