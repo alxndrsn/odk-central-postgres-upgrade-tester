@@ -2,7 +2,7 @@
 
 log() { echo "[$(basename "$0")] $*"; }
 
-maxAttempts=5
+maxAttempts=10
 
 for attempt in $(seq $maxAttempts); do
   log "Starting attempt: $attempt"
