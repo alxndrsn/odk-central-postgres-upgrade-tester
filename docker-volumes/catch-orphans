@@ -7,6 +7,15 @@ logPrefix="[$0]"
 log() { echo "$logPrefix $*"; }
 
 log "Checking for orphaned volumes..."
+if ! [[ -f "$scriptDir/.owners" ]]; then
+  log "!!!"
+  log "!!! Missing file: $scriptDir/.owners"
+  log "!!!"
+  log "!!! Has ./docker-volumes/log-owners been run?"
+  log "!!!"
+  exit 1
+fi
+
 pgOrphan=false
 # shellcheck disable=SC2016
 for vol in $(docker volume ls --filter "dangling=true" -q); do
