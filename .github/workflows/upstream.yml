@@ -28,7 +28,7 @@ jobs:
           - script: test-upgrade_ok-with-restarts
             initial: upgrade-pg-14-official-last
             target: upstream/next
-          - script: test-upgrade-ok-with-restarts
+          - script: test-upgrade_ok-with-restarts
             initial: upstream/master
             target: upstream/next
           - script: test-multi-upgrade_ok
