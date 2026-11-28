@@ -1,0 +1,56 @@
+---
+name: Test vs Upstream ODK Central
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  upstream:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - script: test-new-install
+            initial: upstream/next
+            target: upstream/next
+          - script: test-upgrade_ok-with-restarts
+            initial: upgrade-pg-9.6
+            target: upstream/next
+          - script: test-upgrade_ok-with-restarts
+            initial: upgrade-pg-14-official-initial
+            target: upstream/next
+          - script: test-upgrade_ok-with-restarts
+            initial: upgrade-pg-14-official-last
+            target: upstream/next
+          - script: test-upgrade_ok-with-restarts
+            initial: upstream/master
+            target: upstream/next
+          - script: test-multi-upgrade_ok
+            branches: upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upstream/master,upstream/next
+    steps:
+      - uses: actions/checkout@v6
+      - run: ./${{ matrix.script }} --force
+        env:
+          INITIAL_BRANCH: ${{ matrix.initial }}
+          TARGET_BRANCH: ${{ matrix.target }}
+          BRANCHES: ${{ matrix.branches }}
+      - name: service logs
+        if: always()
+        continue-on-error: true
+        run: ./get-service-logs service
+      - name: postgres logs
+        if: always()
+        continue-on-error: true
+        run: ./get-service-logs postgres
+      - name: postgres14 logs
+        if: always()
+        continue-on-error: true
+        run: ./get-service-logs postgres14
+      - run: ./docker-volumes/catch-orphans
+        if: always()

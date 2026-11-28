@@ -9,13 +9,12 @@ IFS=',' read -r -a targetBranches <<<"$_targetBranches"
 setup_standard
 
 if ! [[ "${CI-}" = "" ]]; then
-  latest=18
-  if ! [[ ${targetBranches[-1]} =~ -$latest(-*)?$ ]]; then
+  if ! [[ ${targetBranches[-1]} =~ -$vPostgresLatest(-*)?$ ]]; then
     log "!!!"
     log "!!! There's no point testing a multi-upgrade in CI which doesn't end with"
-    log "!!! the latest postgres version: if the final version is pre-v$latest,"
+    log "!!! the latest postgres version: if the final version is pre-v$vPostgresLatest,"
     log "!!! there will always be a longer chain which is a superset of this chain,"
-    log "!!! and _does_ end with v$latest."
+    log "!!! and _does_ end with v$vPostgresLatest."
     log "!!!"
     exit 1
   fi
@@ -38,7 +37,7 @@ for targetBranch in "${targetBranches[@]}"; do
   confirm_backend_running_ok
   log "Containers rebuilt and restarted OK."
 
-  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$targetBranch")"
+  expectedVersion="$(branch_to_version "$expectedBranch")"
   if [[ "$expectedVersion" = 14 ]]; then
     if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
       log "!!!"

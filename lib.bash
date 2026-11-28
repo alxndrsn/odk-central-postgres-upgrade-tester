@@ -1,6 +1,8 @@
 set -eu
 set -o pipefail
 
+vPostgresLatest=18
+
 libDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
 #> PROCESS CLI ARGS >#
@@ -46,7 +48,8 @@ configure_environment() {
     exit 1
   fi
 
-  baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
+  baseRepo=https://github.com/alxndrsn/odk-central.git
+  upstream=https://github.com/getodk/central.git
   initialBranch="$INITIAL_BRANCH"
   # include a nonce in the test directory, as we will not own the postgres data
   # directory by the end of the test.  An alternative would be to `sudo` when
@@ -70,7 +73,11 @@ clone_central_repo() {
   # I suspect we -have- to maintain the `central` name as per https://github.com/getodk/central/issues/300
   git clone "$baseRepo" central # fetch the whole repo so that git describe --tags works predictably
   cd central
-  ls
+
+  log "[clone_central_repo] Adding getodk upstream..."
+  git remote add upstream "$upstream"
+  git fetch upstream
+
   git_checkout "$initialBranch"
   touch ./files/allow-postgres14-upgrade
 }
@@ -165,9 +172,16 @@ exec_in_service_container() {
   docker exec central-service-1 node -e "$(cat "$libDir/js/$scriptName")" || true
 }
 
+branch_to_version() {
+  sed -E \
+      -e 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' \
+      -e "s/^upstream\/(master|next)$/$vPostgresLatest/" \
+  <<<"$1"
+}
+
 confirm_postgres_version_direct() {
   local expectedBranch="$1"
-  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$expectedBranch")"
+  expectedVersion="$(branch_to_version "$expectedBranch")"
   log "[confirm_postgres_version_direct] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
 
   local actualVersion
@@ -209,7 +223,7 @@ confirm_postgres_version_direct() {
 
 confirm_postgres_version() {
   local expectedBranch="$1"
-  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$expectedBranch")"
+  expectedVersion="$(branch_to_version "$expectedBranch")"
   log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
   exec_in_service_container wait-for-postgres.js
 
