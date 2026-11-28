@@ -1,6 +1,8 @@
 set -eu
 set -o pipefail
 
+vPostgresLatest=18
+
 libDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
 #> PROCESS CLI ARGS >#
@@ -172,7 +174,7 @@ exec_in_service_container() {
 
 confirm_postgres_version_direct() {
   local expectedBranch="$1"
-  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$expectedBranch")"
+  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' -E "s/^upstream/(master|next)$/$vPostgresLatest" <<<"$expectedBranch")"
   log "[confirm_postgres_version_direct] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
 
   local actualVersion
