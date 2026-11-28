@@ -9,12 +9,13 @@ IFS=',' read -r -a targetBranches <<<"$_targetBranches"
 setup_standard
 
 if ! [[ "${CI-}" = "" ]]; then
-  if ! [[ ${targetBranches[-1]} =~ -18(-*)?$ ]]; then
+  latest=18
+  if ! [[ ${targetBranches[-1]} =~ -$latest(-*)?$ ]]; then
     log "!!!"
     log "!!! There's no point testing a multi-upgrade in CI which doesn't end with"
-    log "!!! the latest postgres version: if the final version is pre-vLatest,"
+    log "!!! the latest postgres version: if the final version is pre-v$latest,"
     log "!!! there will always be a longer chain which is a superset of this chain,"
-    log "!!! and _does_ end with vLatest."
+    log "!!! and _does_ end with v$latest."
     log "!!!"
     exit 1
   fi
