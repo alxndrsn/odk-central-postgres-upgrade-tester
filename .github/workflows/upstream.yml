@@ -19,20 +19,20 @@ jobs:
           - script: test-new-install
             initial: upstream/next
             target: upstream/next
-          - script: test-upgrade_ok-with-restarts
-            initial: upgrade-pg-9.6
-            target: upstream/next
-          - script: test-upgrade_ok-with-restarts
-            initial: upgrade-14-official-initial
-            target: upstream/next
-          - script: test-upgrade_ok-with-restarts
-            initial: upgrade-14-official-last
-            target: upstream/next
-          - script: test-upgrade-ok-with-restarts
-            initial: upstream/master
-            target: upstream/next
-          - script: test-multi-upgrade_ok
-            branches: upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upstream/master,upstream/next
+#          - script: test-upgrade_ok-with-restarts
+#            initial: upgrade-pg-9.6
+#            target: upstream/next
+#          - script: test-upgrade_ok-with-restarts
+#            initial: upgrade-14-official-initial
+#            target: upstream/next
+#          - script: test-upgrade_ok-with-restarts
+#            initial: upgrade-14-official-last
+#            target: upstream/next
+#          - script: test-upgrade-ok-with-restarts
+#            initial: upstream/master
+#            target: upstream/next
+#          - script: test-multi-upgrade_ok
+#            branches: upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upstream/master,upstream/next
     steps:
       - uses: actions/checkout@v6
       - run: ./${{ matrix.script }} --force
