@@ -82,7 +82,6 @@ git_checkout() {
   git checkout -- docker-compose.yml
   git checkout "$1"
   touch .env
-  git submodule init
   git submodule update --init --jobs 16
   log "[git_checkout] Checked out '$1':"
   git show --pretty=oneline --summary
