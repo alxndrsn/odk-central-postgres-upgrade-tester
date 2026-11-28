@@ -25,8 +25,12 @@ if ! [[ "$TARGET_BRANCH" =~ upgrade-pg-((1[7-9])|(2[0-9])) ]]; then
   exit 1
 fi
 
-# The PID of the postgres process is _usually_ 12, although it's sometimes 11 or 13.
-stalePid=12
+# The PID of the postgres process is _usually_ 13, although it's
+# sometimes 12 or 14.  Changes in central's start-postgres.sh affect
+# the likely numbers this PID can land on.  The value here should be
+# the *most likely* value for that PID.  In future, this might vary
+# between different central branches.
+stalePid=13
 
 setup_standard
 
