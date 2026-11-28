@@ -131,7 +131,7 @@ restart_containers() {
 
   docker compose stop || return 1
   docker compose up --remove-orphans --detach 2>&1 | tee restart_containers.log || return 1
-  "$libDir/docker-volumes/log-owners"
+  "$libDir/docker-volumes/log-owners" || return 1
   log "[restart_containers] Containers restarted OK."
 }
 
