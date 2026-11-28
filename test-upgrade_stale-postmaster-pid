@@ -57,6 +57,16 @@ log "Upgrading central..."
 git_checkout "$TARGET_BRANCH"
 
 log "Rebuilding and restarting containers..."
+check_failure_reason() {
+  if docker logs "$container" 2>&1 | grep -q '"postmaster.pid" already exists'; then
+    log "!!!"
+    log "!!! pgautoupgrade found stale PID & abandoned the upgrade."
+    log "!!!"
+    log "!!! Check postgres14 container logs for more info."
+    log "!!!"
+  fi
+}
+trap check_failure_reason EXIT
 rebuild_and_restart_containers
 
 confirm_postgres_version "$TARGET_BRANCH"
