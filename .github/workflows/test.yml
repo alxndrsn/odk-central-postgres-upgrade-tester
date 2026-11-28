@@ -188,13 +188,9 @@ jobs:
 
         # four upgrades
         - "9.6,14-official-initial,14-official-last,17,18"
-
-        restartAfterUpgrade:
-        - true
-        - false
     steps:
       - uses: actions/checkout@v6
-      - run: RESTART_AFTER_UPGRADE=${{ matrix.restartAfterUpgrade }} BRANCHES="$(sed -E -e 's/(^|,)/\1upgrade-pg-/g' <<<'${{ matrix.branches }}')" ./test-multi-upgrade_ok --force
+      - run: BRANCHES="$(sed -E -e 's/(^|,)/\1upgrade-pg-/g' <<<'${{ matrix.branches }}')" ./test-multi-upgrade_ok --force
       - name: service logs
         if: always()
         continue-on-error: true
