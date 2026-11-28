@@ -124,6 +124,11 @@ rebuild_containers() {
 
 restart_containers() {
   log "[restart_containers] Restarting containers..."
+
+  # Stop dependent services first, because their default timeouts are 10s, and
+  # they ignore SIGTERM in some older central versions.
+  docker compose stop --timeout 1 enketo nginx service || return 1
+
   docker compose stop || return 1
   docker compose up --remove-orphans --detach 2>&1 | tee restart_containers.log || return 1
   "$libDir/docker-volumes/log-owners"
@@ -162,7 +167,7 @@ check_for_dirty_docker() {
 exec_in_service_container() {
   local scriptName="$1"
   # failure should not kill the script - leave error handling up to the caller
-  docker exec -i central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
+  docker exec central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
 }
 
 confirm_postgres_version_direct() {
