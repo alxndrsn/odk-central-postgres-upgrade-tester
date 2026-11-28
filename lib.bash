@@ -46,8 +46,6 @@ configure_environment() {
     exit 1
   fi
 
-  baseDir="$(pwd)"
-
   baseRepo=https://github.com/alxndrsn/odk-central.git # TODO this will need to be updated to getodk/central
   initialBranch="$INITIAL_BRANCH"
   # include a nonce in the test directory, as we will not own the postgres data
@@ -164,7 +162,7 @@ check_for_dirty_docker() {
 exec_in_service_container() {
   local scriptName="$1"
   # failure should not kill the script - leave error handling up to the caller
-  docker exec central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
+  docker exec central-service-1 node -e "$(cat "$libDir/js/$scriptName")" || true
 }
 
 confirm_postgres_version_direct() {
