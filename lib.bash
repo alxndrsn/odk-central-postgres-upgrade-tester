@@ -165,9 +165,15 @@ exec_in_service_container() {
   docker exec central-service-1 node -e "$(cat "$libDir/js/$scriptName")" || true
 }
 
+branch_to_version() {
+  sed -E \
+      -e 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' \
+  <<<"$1"
+}
+
 confirm_postgres_version_direct() {
   local expectedBranch="$1"
-  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$expectedBranch")"
+  expectedVersion="$(branch_to_version "$expectedBranch")"
   log "[confirm_postgres_version_direct] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
 
   local actualVersion
@@ -209,7 +215,7 @@ confirm_postgres_version_direct() {
 
 confirm_postgres_version() {
   local expectedBranch="$1"
-  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$expectedBranch")"
+  expectedVersion="$(branch_to_version "$expectedBranch")"
   log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
   exec_in_service_container wait-for-postgres.js
 
