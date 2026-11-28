@@ -110,21 +110,21 @@ rebuild_and_restart_containers() {
 
 rebuild_containers() {
   log "[rebuild_containers] === postgres logs BEGIN ==="
-  "$libDir/get-service-logs" postgres
+  "$libDir/get-service-logs" postgres || return 1
   log "[rebuild_containers] === postgres logs END ==="
 
   log "[rebuild_containers] === postgres14 logs BEGIN ==="
-  "$libDir/get-service-logs" postgres14
+  "$libDir/get-service-logs" postgres14 || return 1
   log "[rebuild_containers] === postgres14 logs END ==="
 
   log "[rebuild_containers] Rebuilding containers..."
-  docker compose build
+  docker compose build || return 1
   log "[rebuild_containers] Containers rebuilt OK."
 }
 
 restart_containers() {
   log "[restart_containers] Restarting containers..."
-  docker compose stop
+  docker compose stop || return 1
   docker compose up --remove-orphans --detach 2>&1 | tee restart_containers.log || return 1
   "$libDir/docker-volumes/log-owners"
   log "[restart_containers] Containers restarted OK."
