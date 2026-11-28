@@ -11,7 +11,11 @@ restrictedVolumeSize=500
 setup_standard
 
 log "Creating a massive blob..."
-exec_in_service_container create-blob.js
+blobRes="$(exec_in_service_container create-blob.js)"
+if ! [[ "$blobRes" = ok ]]; then
+  log "!!! Failed to create massive blob!"""
+  exit 1
+fi
 
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$TARGET_BRANCH"
