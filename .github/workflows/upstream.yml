@@ -40,7 +40,6 @@ jobs:
           INITIAL_BRANCH: ${{ matrix.initial }}
           TARGET_BRANCH: ${{ matrix.target }}
           BRANCHES: ${{ matrix.branches }}
-          RESTART_AFTER_UPGRADE: true
       - name: service logs
         if: always()
         continue-on-error: true
