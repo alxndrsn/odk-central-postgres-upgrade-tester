@@ -62,7 +62,7 @@ git_checkout "$TARGET_BRANCH"
 
 log "Rebuilding and restarting containers..."
 check_failure_reason() {
-  if docker logs "$container" 2>&1 | grep -q '"postmaster.pid" already exists'; then
+  if docker logs "$container" 2>&1 | grep '"postmaster.pid" already exists' >/dev/null; then
     log "!!!"
     log "!!! pgautoupgrade found stale PID & abandoned the upgrade."
     log "!!!"
