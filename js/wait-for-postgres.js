@@ -21,9 +21,6 @@ process.stdout.write('[wait-for-postgres] Waiting for postgres...');
 
       if(ready !== true) throw new Error('Postgres is in recovery; work out what to do in this situation if it ever occurs.');
 
-      // Extra sleep for luck ¯\_(ツ)_/¯
-      await sleep1();
-
       process.stdout.write('OK.');
       console.log();
       setTimeout(() => process.exit(), 100); // allow stdout to flush(?)

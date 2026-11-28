@@ -124,6 +124,11 @@ rebuild_containers() {
 
 restart_containers() {
   log "[restart_containers] Restarting containers..."
+
+  # Stop dependent services first, because their default timeouts are 10s, and
+  # they ignore SIGTERM in some older central versions.
+  docker compose stop --timeout 1 enketo nginx service || return 1
+
   docker compose stop
   docker compose up --remove-orphans --detach 2>&1 | tee restart_containers.log || return 1
   "$libDir/docker-volumes/log-owners"
@@ -132,7 +137,8 @@ restart_containers() {
 
 check_for_dirty_docker() {
   log "[check_for_dirty_docker] Checking for existing containers..."
-  if [[ "$(docker compose ps --all | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
+  containerCount="$(docker compose ps --all --quiet | wc -l | xargs)" # xargs for BSD-compatability
+  if [[ "$containerCount" != "0" ]]; then
     warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
     docker compose ps
     warn "THESE CONTAINERS AND THEIR VOLUMES WILL BE DESTROYED!"
