@@ -62,11 +62,8 @@ configure_environment() {
   export HTTPS_PORT=18443
   export SSL_TYPE=selfsign
 
-  log "[configure_environment] Cleaning up test directory..."
-  rm -rf "$testDir" || true
-  mkdir -p "$testDir"
-
   log "[configure_environment] Creating test directory..."
+  mkdir -p "$testDir"
   cd "$testDir"
 }
 
