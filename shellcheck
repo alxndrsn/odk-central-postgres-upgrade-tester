@@ -5,7 +5,21 @@ log() {
   echo "[shellcheck] $*"
 }
 
+log "Checking for for-in masked returns..."
+if git grep -Pn 'for .* in \$\((?!seq )'; then
+  log "!!!"
+  log "!!! calling 'for x in \$(...)' masks the command's exit code."
+  log "!!!"
+  log "!!! If there are no spaces expected in the output, try rewriting as:"
+  log "!!!"
+  log "!!!     list=\"\$(...)\""
+  log "!!!     for x in \$list"
+  log "!!!"
+  exit 1
+fi
+
+
 log "Running shellcheck on all scripts..."
-cat <(git grep -l '^#!.*sh\b') <(git ls-files '*.bash') | xargs shellcheck -a -x lib.bash
+cat <(git grep -l '^#!.*sh\b') <(git ls-files '*.bash') | xargs shellcheck --check-sourced
 
 log "All OK!"

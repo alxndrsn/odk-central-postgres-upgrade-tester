@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
-# Test that a successful upgrade will cause a specific file to be
-# created in the shared migation-logs directory.
+# Test that the upgraded db survives after a container restart.
+
 
 
 
@@ -31,8 +31,21 @@ if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
   exit 1
 fi
 
-log "Rebuilding and restarting containers..."
+log "Restarting containers..."
 test_restart "$TARGET_BRANCH"
+log "Containers restarted OK."
+
+log "Cleaning local upgrade flags..."
+git clean -dfx -- files/postgres14/upgrade
+log "Restarting containers after git-clean..."
+log_cleaned_restart_fail() {
+  log "!!!"
+  log "!!! Restart failed after local upgrade flags were cleaned."
+  log "!!!"
+}
+trap log_cleaned_restart_fail EXIT
+test_restart "$TARGET_BRANCH"
+trap - EXIT
 log "Containers restarted OK."
 
 log "Upgrade completed OK!"

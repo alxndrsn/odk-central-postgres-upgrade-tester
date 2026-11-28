@@ -3,8 +3,6 @@ set -o pipefail
 
 libDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-seedFlag=.db-seed-created
-
 #> PROCESS CLI ARGS >#
 force_destruction=""
 if [[ ${1-} = --force ]]; then
@@ -40,24 +38,12 @@ configure_environment() {
     log "!!!"
     log "!!! Recommended values:"
     log "!!!"
-    log "!!!     INITIAL_BRANCH=upgrade-pg-9.6         $BASH_ARGV0" "$fullArgs"
-    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-9.6                  $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official-initial  $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-14-official-last     $BASH_ARGV0" "$fullArgs"
+    log "!!!     INITIAL_BRANCH=upgrade-pg-17                   $BASH_ARGV0" "$fullArgs"
     log "!!!"
     exit 1
-  fi
-
-  if [[ -f "$seedFlag" ]]; then
-    if ! [[ "${CI-}" = '' ]]; then
-      log "!!!"
-      log "!!! Seed flag already found at $seedFlag !"
-      log "!!! Check why - the environment may be dirty."
-      log "!!!"
-      log "!!! ABORTING TEST"
-      log "!!!"
-      exit 1
-    fi
-    log "[configure_environment] Clearing old seed flag..."
-    rm "$seedFlag"
   fi
 
   baseDir="$(pwd)"
@@ -82,8 +68,6 @@ configure_environment() {
 
   log "[configure_environment] Creating test directory..."
   cd "$testDir"
-  # disable annoying git messages
-  git config --local advice.detachedHead false
 }
 
 clone_central_repo() {
@@ -126,29 +110,35 @@ rebuild_and_restart_containers() {
 
 rebuild_containers() {
   log "[rebuild_containers] === postgres logs BEGIN ==="
-  "$libDir/get-service-logs" postgres
+  "$libDir/get-service-logs" postgres || return 1
   log "[rebuild_containers] === postgres logs END ==="
 
   log "[rebuild_containers] === postgres14 logs BEGIN ==="
-  "$libDir/get-service-logs" postgres14
+  "$libDir/get-service-logs" postgres14 || return 1
   log "[rebuild_containers] === postgres14 logs END ==="
 
   log "[rebuild_containers] Rebuilding containers..."
-  docker compose build
+  docker compose build || return 1
   log "[rebuild_containers] Containers rebuilt OK."
 }
 
 restart_containers() {
   log "[restart_containers] Restarting containers..."
-  docker compose stop
+
+  # Stop dependent services first, because their default timeouts are 10s, and
+  # they ignore SIGTERM in some older central versions.
+  docker compose stop --timeout 1 enketo nginx service || return 1
+
+  docker compose stop || return 1
   docker compose up --remove-orphans --detach 2>&1 | tee restart_containers.log || return 1
-  "$libDir/docker-volumes/log-owners"
+  "$libDir/docker-volumes/log-owners" || return 1
   log "[restart_containers] Containers restarted OK."
 }
 
 check_for_dirty_docker() {
   log "[check_for_dirty_docker] Checking for existing containers..."
-  if [[ "$(docker compose ps | tail -n+3 | wc -l | xargs)" != "0" ]]; then # xargs for BSD-compatability
+  containerCount="$(docker compose ps --all --quiet | wc -l | xargs)" # xargs for BSD-compatability
+  if [[ "$containerCount" != "0" ]]; then
     warn "docker-compose HAS ALREADY CREATED CONTAINERS ON THIS SYSTEM:"
     docker compose ps
     warn "THESE CONTAINERS AND THEIR VOLUMES WILL BE DESTROYED!"
@@ -178,12 +168,54 @@ check_for_dirty_docker() {
 exec_in_service_container() {
   local scriptName="$1"
   # failure should not kill the script - leave error handling up to the caller
-  docker exec -i central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
+  docker exec central-service-1 node -e "$(cat "$baseDir/js/$scriptName")" || true
+}
+
+confirm_postgres_version_direct() {
+  local expectedBranch="$1"
+  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$expectedBranch")"
+  log "[confirm_postgres_version_direct] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
+
+  local actualVersion
+  local retries=0
+  while true; do
+    actualVersion="$(
+      docker exec central-postgres14-1 \
+          psql -U odk odk \
+              --tuples-only \
+              --csv \
+              -c "SELECT current_setting('server_version_num')::INT / 10000 AS majorVersion" \
+              2>&1 || true
+    )"
+    log "[confirm_postgres_version_direct] Got postgres version: '$actualVersion'..."
+    if [[ "$actualVersion" = "$expectedVersion" ]]; then
+      log "[confirm_postgres_version_direct] Postgres version confirmed: $expectedVersion"
+      return
+    elif [[ "$actualVersion" =~ "failed" ]]; then
+      if [[ "$retries" -lt 15 ]]; then
+        log "[confirm_postgres_version_direct] Retrying..."
+        (( ++retries ))
+        sleep 2
+      else
+        log "[confirm_postgres_version_direct] !!!"
+        log "[confirm_postgres_version_direct] !!! Retry count exceeded !!!"
+        log "[confirm_postgres_version_direct] !!!"
+        exit 1
+      fi
+    else
+      log "[confirm_postgres_version_direct] !!!"
+      log "[confirm_postgres_version_direct] !!! Incorrect postgres version !!!"
+      log "[confirm_postgres_version_direct] !!!   Expected: $expectedVersion"
+      log "[confirm_postgres_version_direct] !!!    but got: $actualVersion"
+      log "[confirm_postgres_version_direct] !!!"
+      exit 1
+    fi
+  done
 }
 
 confirm_postgres_version() {
   local expectedBranch="$1"
-  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$expectedBranch")"
+  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$expectedBranch")"
   log "[confirm_postgres_version] Checking for postgres version: '$expectedVersion' ($expectedBranch)..."
   exec_in_service_container wait-for-postgres.js
 
@@ -285,11 +317,6 @@ confirm_if_required() {
 
 seed_db() {
   log "[seed_db] Seeding database..."
-  if [[ -f "$seedFlag" ]]; then
-    log "[seed_db] Seed flag already exists at $seedFlag !  Has the database already been seeded this test run?"
-  fi
-  touch "$seedFlag"
-
   exec_in_service_container seed-db.js
   confirm_seed_data
 }
@@ -345,4 +372,27 @@ test_restart() {
   confirm_postgres_version "$currentBranch"
   confirm_seed_data
   log "[test_restart] Containers restarted ok."
+}
+
+seed_db_direct() {
+  docker exec central-postgres14-1 \
+      psql -U odk odk \
+          -c "CREATE TABLE direct_seed ()"
+}
+
+confirm_direct_seed() {
+  local exists
+  exists="$(
+    docker exec central-postgres14-1 \
+        psql -U odk odk \
+            --tuples-only --csv \
+            -c "SELECT to_regclass('public.direct_seed') IS NOT NULL"
+  )"
+
+  if [[ "$exists" = t ]]; then
+    log "[confirm_direct_seed] direct seed table found OK."
+  else
+    log "[confirm_direct_seed] !!! direct seed table not found !!!"
+    exit 1
+  fi
 }

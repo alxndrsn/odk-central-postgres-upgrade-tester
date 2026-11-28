@@ -1,7 +1,8 @@
 #!/bin/bash -eu
 
-# Test that a successful upgrade will cause a specific file to be
-# created in the shared migation-logs directory.
+# Test that an upgrade succeeds when the postgres14 volume is
+# restricted to less than double the expected total space of the data
+# for that volume.
 
 # Extra blob: 250 MB; allow for double that.
 restrictedVolumeSize=500
@@ -10,7 +11,11 @@ restrictedVolumeSize=500
 setup_standard
 
 log "Creating a massive blob..."
-exec_in_service_container create-blob.js
+blobRes="$(exec_in_service_container create-blob.js)"
+if ! [[ "$blobRes" = ok ]]; then
+  log "!!! Failed to create massive blob!"
+  exit 1
+fi
 
 log "Upgrading central..." # see: https://docs.getodk.org/central-upgrade/
 git_checkout "$TARGET_BRANCH"

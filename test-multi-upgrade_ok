@@ -1,14 +1,25 @@
 #!/bin/bash -eu
 
-# Test that a successful upgrade from 9.6 to 14 and then from 14 to 18 will
-# cause a specific file to be created in the shared migation-logs directory.
-
+# Test upgrading through each of the branches provided in the comma-separated list on the CLI.
 
 IFS=',' read -r INITIAL_BRANCH _targetBranches <<<"$BRANCHES"
 IFS=',' read -r -a targetBranches <<<"$_targetBranches"
 
 . ./lib.bash
 setup_standard
+
+if ! [[ "${CI-}" = "" ]]; then
+  latest=18
+  if ! [[ ${targetBranches[-1]} =~ -$latest(-*)?$ ]]; then
+    log "!!!"
+    log "!!! There's no point testing a multi-upgrade in CI which doesn't end with"
+    log "!!! the latest postgres version: if the final version is pre-v$latest,"
+    log "!!! there will always be a longer chain which is a superset of this chain,"
+    log "!!! and _does_ end with v$latest."
+    log "!!!"
+    exit 1
+  fi
+fi
 
 
 for targetBranch in "${targetBranches[@]}"; do
@@ -27,7 +38,7 @@ for targetBranch in "${targetBranches[@]}"; do
   confirm_backend_running_ok
   log "Containers rebuilt and restarted OK."
 
-  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official)?/\1/' <<<"$targetBranch")"
+  expectedVersion="$(sed -E 's/upgrade-pg-([0-9.]+)(-official-.*)?/\1/' <<<"$targetBranch")"
   if [[ "$expectedVersion" = 14 ]]; then
     if ! [[ -f ./files/postgres14/upgrade/upgrade-successful ]]; then
       log "!!!"
@@ -37,12 +48,9 @@ for targetBranch in "${targetBranches[@]}"; do
     fi
   fi
 
-  log "Restart after upgrade? ${RESTART_AFTER_UPGRADE-}"
-  if [[ "$RESTART_AFTER_UPGRADE" = true ]]; then
-    log "Rebuilding and restarting containers..."
-    test_restart "$targetBranch"
-    log "Containers restarted OK."
-  fi
+  log "Restarting containers..."
+  test_restart "$targetBranch"
+  log "Containers restarted OK."
 
   log "Upgrade to $targetBranch completed OK!"
 done
