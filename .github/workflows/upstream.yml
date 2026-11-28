@@ -35,7 +35,6 @@ jobs:
             branches: upgrade-pg-9.6,upgrade-pg-14-official-initial,upgrade-pg-14-official-last,upstream/master,upstream/next
     steps:
       - uses: actions/checkout@v6
-      - run: ./set-docker-buildx-config
       - run: ./${{ matrix.script }} --force
         env:
           INITIAL_BRANCH: ${{ matrix.initial }}
