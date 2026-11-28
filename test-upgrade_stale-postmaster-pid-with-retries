@@ -7,8 +7,10 @@ maxAttempts=5
 for attempt in $(seq $maxAttempts); do
   log "Starting attempt: $attempt"
 
+  set +e
   ./test-upgrade_stale-postmaster-pid "$@"
   exitCode=$?
+  set -e
 
   if [[ $exitCode -eq 0 ]]; then
     log "Attempt $attempt completed successfully."
