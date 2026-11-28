@@ -1,7 +1,8 @@
 #!/bin/bash -eu
 
-# Test that a successful upgrade will cause a specific file to be
-# created in the shared migration-logs directory.
+# Test that an upgrade succeeds when the postgres14 volume is
+# restricted to less than double the expected total space of the data
+# for that volume.
 
 # Extra blob: 250 MB; allow for double that.
 restrictedVolumeSize=500

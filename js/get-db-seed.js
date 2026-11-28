@@ -16,7 +16,7 @@ Object.entries(process.env).filter(([ k ]) => k.startsWith('PG')).sort(([k1], [k
   const client = new Client(config);
   await client.connect();
 
-  log('Connected OK; fetching version...');
+  log('Connected OK; fetching seed...');
 
   const { rows } = await client.query(`SELECT value->'ok' AS is_ok FROM config WHERE key='db-seed'`);
   if(!rows.length) throw new Error('db-seed not found in DB - upgrade probably failed!');
