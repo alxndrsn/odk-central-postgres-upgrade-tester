@@ -34,7 +34,7 @@ container="central-postgres14-1"
 
 log "Killing container '$container' to force unclean shutdown..."
 docker kill --signal KILL "$container"
-docker wait "$container"
+docker wait "$container" >/dev/null
 
 img="$(docker inspect --format '{{.Image}}' "$container")"
 writtenPid="$(
