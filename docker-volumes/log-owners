@@ -6,7 +6,8 @@ scriptDir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 logPrefix="[$0]"
 log() { echo "$logPrefix $*"; }
 
-for vol in $(docker volume ls -q); do
+volumes="$(docker volume ls -q)"
+for vol in $volumes; do
   log "  vol: $vol"
   containers="$(docker ps -a --filter "volume=$vol" --format "{{.Names}}")"
   if [[ -n "$containers" ]]; then

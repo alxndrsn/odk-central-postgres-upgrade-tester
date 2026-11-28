@@ -17,8 +17,8 @@ if ! [[ -f "$scriptDir/.owners" ]]; then
 fi
 
 pgOrphan=false
-# shellcheck disable=SC2016
-for vol in $(docker volume ls --filter "dangling=true" -q); do
+danglingVolumes="$(docker volume ls --filter "dangling=true" -q)"
+for vol in $danglingVolumes; do
   if grep "^vol:$vol " "$scriptDir/.owners" | grep -Ev "container:central-(enketo|nginx)-1" >/dev/null; then
     path="$(sudo docker volume inspect --format '{{ .Mountpoint }}' "$vol")"
 
