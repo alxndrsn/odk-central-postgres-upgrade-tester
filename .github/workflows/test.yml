@@ -147,43 +147,23 @@ jobs:
       matrix:
         branches:
         # single upgrade
-        - "9.6,14-official-initial"
-        - "9.6,14-official-last"
-        - "9.6,17"
         - "9.6,18"
-
-        - "14-official-initial,14-official-last"
-        - "14-official-initial,17"
         - "14-official-initial,18"
-
-        - "14-official-last,17"
         - "14-official-last,18"
-
         - "17,18"
 
         # two upgrades
-        - "9.6,14-official-initial,14-official-last"
-        - "9.6,14-official-initial,17"
         - "9.6,14-official-initial,18"
-
-        - "9.6,14-official-last,17"
         - "9.6,14-official-last,18"
-
         - "9.6,17,18"
-
-        - "14-official-initial,14-official-last,17"
         - "14-official-initial,14-official-last,18"
-
         - "14-official-initial,17,18"
-
         - "14-official-last,17,18"
 
         # three upgrades
-        - "9.6,14-official-initial,14-official-last,17"
         - "9.6,14-official-initial,14-official-last,18"
         - "9.6,14-official-initial,17,18"
         - "9.6,14-official-last,17,18"
-
         - "14-official-initial,14-official-last,17,18"
 
         # four upgrades
