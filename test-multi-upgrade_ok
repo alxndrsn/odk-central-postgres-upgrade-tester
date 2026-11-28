@@ -8,6 +8,18 @@ IFS=',' read -r -a targetBranches <<<"$_targetBranches"
 . ./lib.bash
 setup_standard
 
+if [[ -z "$CI" ]]; then
+  if ! [[ ${targetBranches[-1]} =~ -18(-*)?$ ]]; then
+    log "!!!"
+    log "!!! There's no point testing a multi-upgrade in CI which doesn't end with"
+    log "!!! the latest postgres version: if the final version is pre-vLatest,"
+    log "!!! there will always be a longer chain which is a superset of this chain,"
+    log "!!! and _does_ end with vLatest."
+    log "!!!"
+    exit 1
+  fi
+fi
+
 
 for targetBranch in "${targetBranches[@]}"; do
   log "Upgrading central to $targetBranch..." # see: https://docs.getodk.org/central-upgrade/
