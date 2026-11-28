@@ -23,10 +23,10 @@ jobs:
             initial: upgrade-pg-9.6
             target: upstream/next
           - script: test-upgrade_ok-with-restarts
-            initial: upgrade-14-official-initial
+            initial: upgrade-pg-14-official-initial
             target: upstream/next
           - script: test-upgrade_ok-with-restarts
-            initial: upgrade-14-official-last
+            initial: upgrade-pg-14-official-last
             target: upstream/next
           - script: test-upgrade-ok-with-restarts
             initial: upstream/master
