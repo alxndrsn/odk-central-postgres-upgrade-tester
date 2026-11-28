@@ -106,6 +106,35 @@ jobs:
         run: ./get-service-logs postgres14
       - run: ./docker-volumes/catch-orphans
         if: always()
+  test-happy-single-stale-postmaster-pid:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        initialBranch:
+        - "upgrade-pg-14-official-initial"
+        - "upgrade-pg-14-official-last"
+        targetBranch:
+        - "upgrade-pg-17"
+        - "upgrade-pg-18"
+    steps:
+      - uses: actions/checkout@v6
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_stale-postmaster-pid-with-retries --force
+      - name: service logs
+        if: always()
+        continue-on-error: true
+        run: ./get-service-logs service
+      - name: postgres logs
+        if: always()
+        continue-on-error: true
+        run: ./get-service-logs postgres
+      - name: postgres14 logs
+        if: always()
+        continue-on-error: true
+        run: ./get-service-logs postgres14
+      - run: ./docker-volumes/catch-orphans
+        if: always()
   test-happy-multi:
     runs-on: ubuntu-26.04
     timeout-minutes: 15

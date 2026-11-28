@@ -1,0 +1,94 @@
+#!/bin/bash -eu
+
+. ./lib.bash
+
+# Handle upgrades after postgres14 container failed to shutdown cleanly.
+if ! [[ "$INITIAL_BRANCH" =~ upgrade-pg-14- ]]; then
+  log "!!!"
+  log "!!! This test is only relevant when starting from a v14 release."
+  log "!!!"
+  log "!!! Try e.g."
+  log "!!!"
+  log "!!!     INITIAL_BRANCH=upgrade-pg-14-official-last ..."
+  log "!!!"
+  exit 1
+fi
+if ! [[ "$TARGET_BRANCH" =~ upgrade-pg-((1[7-9])|(2[0-9])) ]]; then
+  log "!!!"
+  log "!!! This test is only relevant when targeting a pgautoupgrade-backed version."
+  log "!!!"
+  log "!!! Try e.g."
+  log "!!!"
+  log "!!!     TARGET_BRANCH=upgrade-pg-17 ..."
+  log "!!!     TARGET_BRANCH=upgrade-pg-18 ..."
+  log "!!!"
+  exit 1
+fi
+
+# The PID of the postgres process is _usually_ 13, although it's
+# sometimes 12 or 14.  Changes in central's start-postgres.sh affect
+# the likely numbers this PID can land on.  The value here should be
+# the *most likely* value for that PID.  In future, this might vary
+# between different central branches.
+stalePid=13
+
+setup_standard
+
+container="central-postgres14-1"
+
+log "Killing container '$container' to force unclean shutdown..."
+docker kill --signal KILL "$container"
+docker wait "$container" >/dev/null
+
+img="$(docker inspect --format '{{.Image}}' "$container")"
+writtenPid="$(
+  docker run \
+      --rm \
+      --user postgres \
+      --volume central_postgres14:/vol \
+      "$img" \
+      bash -c "
+        sed --in-place -E -e '1s/.*/$stalePid/' /vol/data/postmaster.pid
+        head -n1                                /vol/data/postmaster.pid
+      "
+)"
+if ! [[ "$writtenPid" = "$stalePid" ]]; then
+  log "!!! Failed to overwrite postmaster PID correctly!"
+  exit 1
+fi
+
+log "Upgrading central..."
+git_checkout "$TARGET_BRANCH"
+
+log "Rebuilding and restarting containers..."
+check_failure_reason() {
+  if docker logs "$container" 2>&1 | grep -q '"postmaster.pid" already exists'; then
+    log "!!!"
+    log "!!! pgautoupgrade found stale PID & abandoned the upgrade."
+    log "!!!"
+    log "!!! Check postgres14 container logs for more info."
+    log "!!!"
+  fi
+}
+trap check_failure_reason EXIT
+rebuild_and_restart_containers
+
+confirm_postgres_version "$TARGET_BRANCH"
+confirm_seed_data
+
+finalPid="$(docker exec "$container" bash -c 'head -n1 "$PGDATA"/postmaster.pid')"
+if ! [[ "$finalPid" = "$stalePid" ]]; then
+  log "!!!"
+  log "!!! PID mismatch, so PID collision was never tested."
+  log "!!!"
+  log "!!!   stalePid: $stalePid"
+  log "!!!   finalPid: $finalPid"
+  log "!!!"
+  log "!!! This is expected up to 50% of the time.  Please re-run the job."
+  log "!!!"
+  log "!!! If it's happening more frequently than that, expected PID may need updating."
+  log "!!!"
+  exit 99
+fi
+
+log "Upgrade completed OK!"
