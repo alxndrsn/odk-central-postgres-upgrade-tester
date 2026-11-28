@@ -7,7 +7,7 @@ maxAttempts=5
 for attempt in $(seq $maxAttempts); do
   log "Starting attempt: $attempt"
 
-  ./test-upgrade_stale-postmaster-pid-with-retries "$@"
+  ./test-upgrade_stale-postmaster-pid "$@"
   exitCode=$?
 
   if [[ $exitCode -eq 0 ]]; then
