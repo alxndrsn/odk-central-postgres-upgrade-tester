@@ -124,7 +124,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: ./set-docker-buildx-config
-      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_stale-postmaster-pid --force
+      - run: INITIAL_BRANCH=${{ matrix.initialBranch }} TARGET_BRANCH=${{ matrix.targetBranch }} ./test-upgrade_stale-postmaster-pid-with-retries --force
       - name: service logs
         if: always()
         continue-on-error: true

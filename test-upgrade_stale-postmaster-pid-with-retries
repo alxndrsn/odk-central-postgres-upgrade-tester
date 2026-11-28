@@ -1,0 +1,23 @@
+#!/bin/bash -eu
+
+log() { echo "[$(basename "$0")] $*"; }
+
+maxAttempts=5
+
+for attempt in $(seq $maxAttempts); do
+  log "Starting attempt: $attempt"
+
+  ./test-upgrade_stale-postmaster-pid-with-retries "$@"
+  exitCode=$?
+
+  if [[ $exitCode -eq 0 ]]; then
+    log "Attempt $attempt completed successfully."
+    exit
+  elif ! [[ $exitCode -eq 99 ]]; then
+    log "Attempt $attempt completed with unexpected exit code: $exitCode"
+    exit "$exitCode"
+  fi
+done
+
+log "Failed after $maxAttempts attempts."
+exit 1

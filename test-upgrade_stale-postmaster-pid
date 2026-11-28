@@ -80,8 +80,8 @@ if ! [[ "$finalPid" = "$stalePid" ]]; then
   log "!!!   stalePid: $stalePid"
   log "!!!   finalPid: $finalPid"
   log "!!!"
-  log "!!! This is expected ~10% of the time.  Please re-run the job."
-  exit 1
+  log "!!! This is expected ~25% of the time.  Please re-run the job."
+  exit 99
 fi
 
 log "Upgrade completed OK!"
