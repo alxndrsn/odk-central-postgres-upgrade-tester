@@ -84,7 +84,10 @@ if ! [[ "$finalPid" = "$stalePid" ]]; then
   log "!!!   stalePid: $stalePid"
   log "!!!   finalPid: $finalPid"
   log "!!!"
-  log "!!! This is expected ~25% of the time.  Please re-run the job."
+  log "!!! This is expected up to 50% of the time.  Please re-run the job."
+  log "!!!"
+  log "!!! If it's happening more frequently than that, expected PID may need updating."
+  log "!!!"
   exit 99
 fi
 
